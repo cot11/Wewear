@@ -77,12 +77,11 @@ public class DB_Manager {
                 con.setUseCaches(false);
                 con.setRequestMethod("POST");
                 String params = "$user_name="+user_name + "user_email=" + user_email;
-
                 OutputStream outputStream = con.getOutputStream();
                 outputStream.write(params.getBytes());
                 outputStream.flush();
                 outputStream.close();
-
+                System.out.println("잘드감");
                 BufferedReader rd = null;
                 rd = new BufferedReader(new InputStreamReader(con.getInputStream(), "UTF-8"));
                 String line = null;
