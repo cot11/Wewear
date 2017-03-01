@@ -1,5 +1,6 @@
 package com.example.cot11.wewear;
 
+import android.content.Context;
 import android.content.Intent;
 import android.os.UserManager;
 import android.support.v7.app.AppCompatActivity;
@@ -17,6 +18,8 @@ import com.kakao.usermgmt.response.model.UserProfile;
 import com.kakao.util.exception.KakaoException;
 import com.kakao.util.helper.log.Logger;
 import android.view.WindowManager;
+
+import java.io.File;
 
 public class MainActivity extends AppCompatActivity {
     SessionCallback callback;
@@ -109,5 +112,33 @@ public class MainActivity extends AppCompatActivity {
             // 어쩔때 실패되는지는 테스트를 안해보았음 ㅜㅜ
         }
     }
+
+    public static boolean LoadLibrary(Context context, String libraryname)
+    {
+        StringBuilder strblibpath = new StringBuilder(128);
+        File f;
+        String strlibpath;
+        strblibpath.append("/data/data/");
+        strblibpath.append(context.getPackageName());
+        strblibpath.append("/lib/lib");
+        strblibpath.append(libraryname);
+        strblibpath.append(".so");
+        strlibpath = strblibpath.toString();
+        f = new File(strlibpath);
+        if(f.exists())
+        {
+            try{
+                System.load(strlibpath);
+                return true;
+            }catch(java.lang.UnsatisfiedLinkError ex){
+                ex.printStackTrace();
+                return false;
+            }
+        }else{
+            return false;
+        }
+    }
+
+
 
 }

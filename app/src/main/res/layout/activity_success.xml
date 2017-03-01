@@ -3,12 +3,33 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <TextView
+    <LinearLayout
+        android:weightSum="100"
+        android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center"
-        android:text="Login Success"
-        android:textSize="30dp"/>
+        android:layout_height="match_parent">
+        <TextView
+            android:layout_weight="40"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:text="Login Success"
+            android:textSize="30dp"/>
+
+        <Button
+            android:layout_weight="40"
+            android:id="@+id/gallaryButton"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@drawable/gallery_mode" />
+
+        <com.example.cot11.wewear.MatrixImageView
+            android:layout_weight="20"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:background="@android:color/transparent"
+            android:id="@+id/image_view" />
+    </LinearLayout>
+
 
 </LinearLayout>
 

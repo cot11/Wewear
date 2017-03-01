@@ -1,12 +1,24 @@
 package com.example.cot11.wewear;
 
 import android.app.AlertDialog;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Handler;
+import android.os.Message;
+import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.SurfaceView;
+import android.view.View;
+import android.widget.Button;
+import android.widget.Toast;
 
 import com.kakao.auth.ApiResponseCallback;
 import com.kakao.network.ErrorResult;
@@ -15,6 +27,15 @@ import com.kakao.usermgmt.callback.MeResponseCallback;
 import com.kakao.usermgmt.callback.UnLinkResponseCallback;
 import com.kakao.usermgmt.response.model.UserProfile;
 import com.kakao.util.helper.log.Logger;
+
+import org.opencv.android.Utils;
+import org.opencv.core.Core;
+import org.opencv.core.Mat;
+import org.opencv.core.Point;
+import org.opencv.core.Scalar;
+import org.opencv.highgui.Highgui;
+import org.opencv.imgproc.Imgproc;
+import org.opencv.objdetect.CascadeClassifier;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -25,13 +46,62 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+import com.example.cot11.wewear.ASMFit;
 
 import javax.net.ssl.HttpsURLConnection;
 
 public class SuccessActivity extends AppCompatActivity {
 
+    static {
+        System.loadLibrary("opencv_java");
+    }
+    // final
+    private static final int SELECT_PICTURE = 1;
+    private static final int MSG_SUCCESS = 0;
+    private static final int MSG_FAILURE = 1;
+    private static final int MSG_PROGRESS = 2;
+    private static final int MSG_STATUS = 3;
+    private static final Scalar mRedColor = new Scalar(255, 0, 0);
+    private static final Scalar 	mCyanColor = new Scalar(0, 255, 255);
+
+    // class
     private UserProfile myprofile;
     private DB_Manager db_manager;
+    private MatrixImageView mImageView;
+    private GlobalApplication	mApp;
+
+    // Activity
+    private Button mGallaryButton = null;
+    private ProgressDialog mProgress;
+
+    // etc
+    private String mImageFileName = "";
+    private boolean mFittingDone = false;
+    private Bitmap mBitmap = null;
+    private int mScaleFactor = 1;
+
+    // Thread & Handler
+
+    private Handler mHandler = new Handler() {
+        public void handleMessage (Message msg) {
+            switch(msg.what) {
+                case MSG_SUCCESS:
+                    mFittingDone = true;
+                    //mProgress.dismiss();
+                    mImageView.setImageBitmap((Bitmap) msg.obj);
+                    Toast.makeText(getApplication(), "Fitting Done", Toast.LENGTH_LONG).show();
+                    break;
+                case MSG_FAILURE:
+                    mFittingDone = true;
+                    //mProgress.dismiss();
+                    Toast.makeText(getApplication(), "Canot detect any face", Toast.LENGTH_LONG).show();
+                    break;
+                case MSG_STATUS:
+                    //mProgress.setMessage(msg.arg1 == 0 ? "Detecting" : "Alignment");
+                    break;
+            }
+        }
+    };
 
 
     @Override
@@ -40,6 +110,17 @@ public class SuccessActivity extends AppCompatActivity {
         setContentView(R.layout.activity_success);
         db_manager = new DB_Manager();
         requestMe();
+        mApp = (GlobalApplication)getApplication();
+        CascadeClassifier javaCascade = mApp.mJavaCascade;
+        mGallaryButton = (Button)findViewById(R.id.gallaryButton);
+        mImageView = (MatrixImageView)findViewById(R.id.image_view);
+        mGallaryButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View arg0) {
+                FromAlbum();
+            }
+        });
+
     }
 
 
@@ -138,5 +219,146 @@ public class SuccessActivity extends AppCompatActivity {
                 //showSignup();
             }
         });
+    }
+    private void FromAlbum()
+    {
+        Intent intent = new Intent(Intent.ACTION_PICK);
+        intent.setType("image/*");
+        startActivityForResult(Intent.createChooser(intent, "Select Picture"), SELECT_PICTURE);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(resultCode == RESULT_OK && requestCode == SELECT_PICTURE) {
+            Uri uri = data.getData();
+            if( uri == null ) {
+                return;
+            }
+
+            // try to retrieve the image from the media store first
+            // this will only work for images selected from gallery
+            String[] projection = { MediaStore.Images.Media.DATA };
+            Cursor cursor = getContentResolver().query(uri, projection, null, null, null);
+
+            String path = null;
+            if( cursor != null ){
+                int column_index = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+                if(cursor.moveToFirst())
+                    path = cursor.getString(column_index);
+                cursor.close();
+            }
+            if(path == null)
+                path = uri.getPath();
+
+            fittingOnStaticImageAsyn(path);
+        }
+    }
+
+    private void fittingOnStaticImageAsyn(String imgName){
+        mImageFileName = imgName;
+        System.out.println("mImageFileName : " + mImageFileName);
+        mFittingDone = false;
+        if(mBitmap != null)
+            mBitmap.recycle();
+        System.gc();
+
+        int []factors = {1, 2, 4, 8, 16};
+        BitmapFactory.Options opt = new BitmapFactory.Options();
+        for(int i = 0; i < factors.length; i++)
+        {
+            boolean ok = true;
+            try
+            {
+                if(i == 0)
+                    mBitmap = BitmapFactory.decodeFile(imgName);
+                else
+                {
+                    opt.inSampleSize = factors[i];
+                    mBitmap = BitmapFactory.decodeFile(imgName, opt);
+                }
+            }
+            catch(OutOfMemoryError e)
+            {
+                ok = false;
+            }
+
+            if(ok == true)
+            {
+                mScaleFactor = factors[i];
+                break;
+            }
+        }
+
+        if(mBitmap == null)
+        {
+            //Toast.makeText(mApp.getBaseContext(), "Cannot open image file " + imgName, Toast.LENGTH_LONG).show();
+            System.out.println("이미지를 열 수 없습니다.");
+            return;
+        }
+
+        mImageView.setImageBitmap(mBitmap);
+        //mProgress = ProgressDialog.show(SuccessActivity.this, null, "Loading", true);
+        //mProgress.setCancelable(false);
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                int i = 0;
+                while (!mFittingDone) {
+                    try {
+                        i += 4;
+                        int j = i % 200;
+                        if(j >= 100) j = 200 - j;
+                        mHandler.obtainMessage(MSG_PROGRESS, j, 0).sendToTarget();
+                        Thread.sleep(200);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        }).start();
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                Mat image = Highgui.imread(mImageFileName, Highgui.IMREAD_COLOR);
+                Mat shapes = new Mat();
+                mHandler.obtainMessage(MSG_STATUS, 0, 0).sendToTarget();
+                boolean flag = ASMFit.detectAll(image, shapes);
+
+                if(flag == false){
+                    mHandler.obtainMessage(MSG_FAILURE).sendToTarget();
+                    return;
+                }
+
+                mHandler.obtainMessage(MSG_STATUS, 1, 0).sendToTarget();
+                ASMFit.fitting(image, shapes, 30);
+                for(int i = 0; i < shapes.rows(); i++){
+                    for(int j = 0; j < shapes.row(i).cols()/2; j++){
+                        double x = shapes.get(i, 2*j)[0];
+                        double y = shapes.get(i, 2*j+1)[0];
+                        Point pt = new Point(x, y);
+
+                        Core.circle(image, pt, 3, mCyanColor, 2);
+                    }
+                }
+
+                Imgproc.cvtColor(image, image, Imgproc.COLOR_RGB2BGR);
+                if(mScaleFactor == 1)
+                    Utils.matToBitmap(image, mBitmap);
+                else
+                {
+                    Mat image2 = new Mat(mBitmap.getHeight(), mBitmap.getWidth(), image.type());
+                    Imgproc.resize(image, image2, image2.size());
+                    Utils.matToBitmap(image2, mBitmap);
+                    image2.release();
+                }
+
+                image.release();
+                shapes.release();
+                mHandler.obtainMessage(MSG_SUCCESS, mBitmap).sendToTarget();
+            }
+        }).start();
     }
 }
