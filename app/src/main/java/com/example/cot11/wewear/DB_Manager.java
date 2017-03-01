@@ -81,7 +81,7 @@ public class DB_Manager {
                 outputStream.write(params.getBytes());
                 outputStream.flush();
                 outputStream.close();
-                System.out.println("잘드감");
+                System.out.println("DB에서 저장성공");
                 BufferedReader rd = null;
                 rd = new BufferedReader(new InputStreamReader(con.getInputStream(), "UTF-8"));
                 String line = null;
