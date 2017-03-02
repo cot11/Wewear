@@ -23,13 +23,13 @@ import java.io.File;
 
 public class MainActivity extends AppCompatActivity {
     SessionCallback callback;
+    private boolean Auto_OK = true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
-
 
         //카카오톡 로그아웃 요청
         //한번 로그인이 성공하면 세션 정보가 남아있어서 로그인창이 뜨지 않고 바로 onSuccess()메서드를 호출합니다.
@@ -45,9 +45,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         //간편로그인시 호출 ,없으면 간편로그인시 로그인 성공화면으로 넘어가지 않음
         if (Session.getCurrentSession().handleActivityResult(requestCode, resultCode, data)) {
+            Auto_OK = false;
             return;
         }
-        System.out.println("로그인 설정");
         super.onActivityResult(requestCode, resultCode, data);
     }
 
@@ -90,11 +90,17 @@ public class MainActivity extends AppCompatActivity {
 
                     //로그인에 성공하면 로그인한 사용자의 일련번호, 닉네임, 이미지url등을 리턴합니다.
                     //사용자 ID는 보안상의 문제로 제공하지 않고 일련번호는 제공합니다.
-
-                    System.out.println("기존 사용");
                     Log.e("UserProfile", userProfile.toString());
                     Intent intent = new Intent(MainActivity.this, SuccessActivity.class);
                     intent.putExtra("userprofile",userProfile);
+                    if(!Auto_OK)
+                    {
+                        System.out.println("Logout 되어있음");
+                    }
+                    else
+                    {
+                        System.out.println("기존 사용");
+                    }
                     startActivity(intent);
                     finish();
                 }
