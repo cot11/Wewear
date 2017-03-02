@@ -89,8 +89,8 @@ public class GlobalApplication extends Application {
                 mJavaCascade = null;
         }
 
-        mFastCascadeFile = getSourceFile(R.raw.lbpcascade_frontalface,
-                "lbpcascade_frontalface.xml", "model");
+        mFastCascadeFile = getSourceFile(R.raw.lbpcascade_frontalface, "lbpcascade_frontalface.xml", "model");
+        System.out.println("aaaLLL");
         if(mFastCascadeFile != null)
             ASMFit.nativeInitFastCascadeDetector(mFastCascadeFile.getAbsolutePath());
     }
@@ -118,7 +118,6 @@ public class GlobalApplication extends Application {
         {
             InputStream is = getResources().openRawResource(id);
             FileOutputStream os = new FileOutputStream(file);
-
             byte[] buffer = new byte[4096];
             int bytesRead;
             while ((bytesRead = is.read(buffer)) != -1)

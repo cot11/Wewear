@@ -23,6 +23,7 @@ import android.widget.Toast;
 import com.kakao.auth.ApiResponseCallback;
 import com.kakao.network.ErrorResult;
 import com.kakao.usermgmt.UserManagement;
+import com.kakao.usermgmt.callback.LogoutResponseCallback;
 import com.kakao.usermgmt.callback.MeResponseCallback;
 import com.kakao.usermgmt.callback.UnLinkResponseCallback;
 import com.kakao.usermgmt.response.model.UserProfile;
@@ -72,6 +73,9 @@ public class SuccessActivity extends AppCompatActivity {
 
     // Activity
     private Button mGallaryButton = null;
+    private Button logout = null;
+    private Button add = null;
+    private Button unlick = null;
     private ProgressDialog mProgress;
 
     // etc
@@ -82,6 +86,8 @@ public class SuccessActivity extends AppCompatActivity {
 
     // Thread & Handler
 
+
+    // Action
     private Handler mHandler = new Handler() {
         public void handleMessage (Message msg) {
             switch(msg.what) {
@@ -108,16 +114,48 @@ public class SuccessActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_success);
+
+        //init
+         // class
         db_manager = new DB_Manager();
-        requestMe();
-        mApp = (GlobalApplication)getApplication();
-        CascadeClassifier javaCascade = mApp.mJavaCascade;
+
+        // Activity
+        unlick = (Button)findViewById(R.id.unlink);
+        add = (Button)findViewById(R.id.add);
+        logout = (Button)findViewById(R.id.logout);
         mGallaryButton = (Button)findViewById(R.id.gallaryButton);
+        mApp = (GlobalApplication)getApplication();
         mImageView = (MatrixImageView)findViewById(R.id.image_view);
+
+
+          // Action
         mGallaryButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View arg0) {
                 FromAlbum();
+            }
+        });
+        logout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                UserManagement.requestLogout(new LogoutResponseCallback() {
+                    @Override
+                    public void onCompleteLogout() {
+                        System.out.println("로그아웃되었습니다.");
+                    }
+                });
+            }
+        });
+        add.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                requestMe();
+            }
+        });
+        unlick.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                onClickUnlink();
             }
         });
 
@@ -235,7 +273,6 @@ public class SuccessActivity extends AppCompatActivity {
             if( uri == null ) {
                 return;
             }
-
             // try to retrieve the image from the media store first
             // this will only work for images selected from gallery
             String[] projection = { MediaStore.Images.Media.DATA };
@@ -354,7 +391,6 @@ public class SuccessActivity extends AppCompatActivity {
                     Utils.matToBitmap(image2, mBitmap);
                     image2.release();
                 }
-
                 image.release();
                 shapes.release();
                 mHandler.obtainMessage(MSG_SUCCESS, mBitmap).sendToTarget();

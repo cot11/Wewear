@@ -4,26 +4,52 @@
     android:layout_height="match_parent">
 
     <LinearLayout
-        android:weightSum="100"
+        android:weightSum="110"
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
         <TextView
-            android:layout_weight="40"
+            android:layout_weight="50"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:text="Login Success"
             android:textSize="30dp"/>
 
-        <Button
-            android:layout_weight="40"
-            android:id="@+id/gallaryButton"
+        <LinearLayout
+            android:layout_weight="50"
+            android:weightSum="100"
+            android:orientation="horizontal"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="@drawable/gallery_mode" />
+            android:layout_height="match_parent">
+            <Button
+                android:layout_weight="25"
+                android:id="@+id/gallaryButton"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@drawable/gallery_mode" />
+            <Button
+                android:layout_weight="25"
+                android:id="@+id/logout"
+                android:text="logout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+            <Button
+                android:layout_weight="25"
+                android:id="@+id/add"
+                android:text="add"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+            <Button
+                android:layout_weight="25"
+                android:id="@+id/unlink"
+                android:text="unlink"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
+        </LinearLayout>
+
 
         <com.example.cot11.wewear.MatrixImageView
-            android:layout_weight="20"
+            android:layout_weight="10"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:background="@android:color/transparent"

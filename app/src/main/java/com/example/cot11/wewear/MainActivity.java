@@ -30,19 +30,12 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
-        /*
+
         //카카오톡 로그아웃 요청
         //한번 로그인이 성공하면 세션 정보가 남아있어서 로그인창이 뜨지 않고 바로 onSuccess()메서드를 호출합니다.
         //테스트 하시기 편하라고 매번 로그아웃 요청을 수행하도록 코드를 넣었습니다 ^^
-        UserManagement.requestLogout(new LogoutResponseCallback() {
-            @Override
-            public void onCompleteLogout() {
-               System.out.println("로그아웃되었습니다.");
-            }
-        });
-        */
 
-        callback = new SessionCallback();
+        callback = new SessionCallback(); // 기존 로그인 흔적을 통해 자동로그인
         Session.getCurrentSession().addCallback(callback);
         Session.getCurrentSession().checkAndImplicitOpen();
 
@@ -54,7 +47,7 @@ public class MainActivity extends AppCompatActivity {
         if (Session.getCurrentSession().handleActivityResult(requestCode, resultCode, data)) {
             return;
         }
-
+        System.out.println("로그인 설정");
         super.onActivityResult(requestCode, resultCode, data);
     }
 
@@ -94,8 +87,11 @@ public class MainActivity extends AppCompatActivity {
 
                 @Override
                 public void onSuccess(UserProfile userProfile) {
+
                     //로그인에 성공하면 로그인한 사용자의 일련번호, 닉네임, 이미지url등을 리턴합니다.
                     //사용자 ID는 보안상의 문제로 제공하지 않고 일련번호는 제공합니다.
+
+                    System.out.println("기존 사용");
                     Log.e("UserProfile", userProfile.toString());
                     Intent intent = new Intent(MainActivity.this, SuccessActivity.class);
                     intent.putExtra("userprofile",userProfile);
@@ -112,33 +108,5 @@ public class MainActivity extends AppCompatActivity {
             // 어쩔때 실패되는지는 테스트를 안해보았음 ㅜㅜ
         }
     }
-
-    public static boolean LoadLibrary(Context context, String libraryname)
-    {
-        StringBuilder strblibpath = new StringBuilder(128);
-        File f;
-        String strlibpath;
-        strblibpath.append("/data/data/");
-        strblibpath.append(context.getPackageName());
-        strblibpath.append("/lib/lib");
-        strblibpath.append(libraryname);
-        strblibpath.append(".so");
-        strlibpath = strblibpath.toString();
-        f = new File(strlibpath);
-        if(f.exists())
-        {
-            try{
-                System.load(strlibpath);
-                return true;
-            }catch(java.lang.UnsatisfiedLinkError ex){
-                ex.printStackTrace();
-                return false;
-            }
-        }else{
-            return false;
-        }
-    }
-
-
 
 }
