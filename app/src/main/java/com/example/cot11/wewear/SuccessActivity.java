@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -114,6 +115,16 @@ public class SuccessActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_success);
+
+
+        SharedPreferences preferences = getSharedPreferences("A",MODE_PRIVATE);
+        int firstviewshow = preferences.getInt("First",0);
+
+        if(firstviewshow != 1)
+        {
+            Intent intent = new Intent(SuccessActivity.this, FirstActivity.class);
+            startActivity(intent);
+        }
 
         //init
          // class
