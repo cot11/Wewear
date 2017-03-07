@@ -96,7 +96,7 @@ public class FirstActivity extends Activity{
         @Override
         public void destroyItem(View pager, int position, Object view)
         {
-            ((ViewPager)pager).removeView((View);
+            ((ViewPager)pager).removeView((View)view);
         }
 
         @Override

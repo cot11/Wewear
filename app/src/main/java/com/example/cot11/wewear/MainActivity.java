@@ -31,7 +31,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        //getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         //카카오톡 로그아웃 요청
         //한번 로그인이 성공하면 세션 정보가 남아있어서 로그인창이 뜨지 않고 바로 onSuccess()메서드를 호출합니다.
@@ -40,7 +40,6 @@ public class MainActivity extends AppCompatActivity {
         callback = new SessionCallback(); // 기존 로그인 흔적을 통해 자동로그인
         Session.getCurrentSession().addCallback(callback);
         Session.getCurrentSession().checkAndImplicitOpen();
-
     }
 
     @Override
@@ -67,7 +66,8 @@ public class MainActivity extends AppCompatActivity {
             UserManagement.requestMe(new MeResponseCallback() {
 
                 @Override
-                public void onFailure(ErrorResult errorResult) {
+                public void onFailure(ErrorResult errorResult)
+                {
                     String message = "failed to get user info. msg=" + errorResult;
                     Logger.d(message);
 
@@ -107,14 +107,11 @@ public class MainActivity extends AppCompatActivity {
                     finish();
                 }
             });
-
         }
-
         @Override
         public void onSessionOpenFailed(KakaoException exception) {
             // 세션 연결이 실패했을때
             // 어쩔때 실패되는지는 테스트를 안해보았음 ㅜㅜ
         }
     }
-
 }

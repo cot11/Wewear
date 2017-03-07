@@ -8,17 +8,22 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.Message;
 import android.provider.MediaStore;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.SurfaceView;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.kakao.auth.ApiResponseCallback;
@@ -51,6 +56,13 @@ import java.util.Map;
 import com.example.cot11.wewear.ASMFit;
 
 import javax.net.ssl.HttpsURLConnection;
+
+import com.nightonke.boommenu.BoomButtons.ButtonPlaceEnum;
+import com.nightonke.boommenu.BoomButtons.HamButton;
+import com.nightonke.boommenu.BoomButtons.OnBMClickListener;
+import com.nightonke.boommenu.BoomMenuButton;
+import com.nightonke.boommenu.ButtonEnum;
+import com.nightonke.boommenu.Piece.PiecePlaceEnum;
 
 public class SuccessActivity extends AppCompatActivity {
 
@@ -116,7 +128,6 @@ public class SuccessActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_success);
 
-
         SharedPreferences preferences = getSharedPreferences("A",MODE_PRIVATE);
         int firstviewshow = preferences.getInt("First",0);
 
@@ -169,6 +180,42 @@ public class SuccessActivity extends AppCompatActivity {
                 onClickUnlink();
             }
         });
+
+
+        ActionBar mActionBar = getSupportActionBar();
+        assert mActionBar != null;
+        mActionBar.setDisplayShowHomeEnabled(false);
+        mActionBar.setDisplayShowTitleEnabled(false);
+        LayoutInflater mInflater = LayoutInflater.from(this);
+
+        View actionBar = mInflater.inflate(R.layout.custom_actionbar, null);
+        TextView mTitleTextView = (TextView) actionBar.findViewById(R.id.title_text);
+        mTitleTextView.setText("Wewear");
+        mActionBar.setCustomView(actionBar);
+        mActionBar.setDisplayShowCustomEnabled(true);
+        ((Toolbar) actionBar.getParent()).setContentInsetsAbsolute(0,0);
+
+        BoomMenuButton rightBmb = (BoomMenuButton) actionBar.findViewById(R.id.action_bar_right_bmb);
+        rightBmb.setButtonEnum(ButtonEnum.Ham);
+        rightBmb.setPiecePlaceEnum(PiecePlaceEnum.HAM_4);
+        rightBmb.setButtonPlaceEnum(ButtonPlaceEnum.HAM_4);
+
+        for (int i = 0; i < rightBmb.getPiecePlaceEnum().pieceNumber(); i++)
+        {
+            HamButton.Builder builder = new HamButton.Builder()
+                    .normalImageRes(R.drawable.peacock)
+                    .normalColor(Color.BLACK)
+                    .normalText("Butter Doesn't fly!")
+                    .subNormalText("hh")
+                    .listener(new OnBMClickListener() {
+                        @Override
+                        public void onBoomButtonClick(int index) {
+                            Toast.makeText(SuccessActivity.this, "Clicked " + index, Toast.LENGTH_SHORT).show();
+                        }
+                    });
+            rightBmb.addBuilder(builder);
+            //rightBmb.addBuilder(BuilderManager.getHamButtonBuilderWithDifferentPieceColor());
+        }
 
     }
 
