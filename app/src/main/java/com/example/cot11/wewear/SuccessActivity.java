@@ -26,6 +26,8 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 import com.kakao.auth.ApiResponseCallback;
 import com.kakao.network.ErrorResult;
 import com.kakao.usermgmt.UserManagement;
@@ -96,6 +98,7 @@ public class SuccessActivity extends AppCompatActivity {
     private boolean mFittingDone = false;
     private Bitmap mBitmap = null;
     private int mScaleFactor = 1;
+
 
     // Thread & Handler
 
@@ -171,7 +174,12 @@ public class SuccessActivity extends AppCompatActivity {
         add.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                requestMe();
+                //requestMe();
+                ChatData chatData = new ChatData("eonu","hihi");
+                FirebaseDatabase firebaseDatabase = FirebaseDatabase.getInstance();
+                DatabaseReference databaseReference = firebaseDatabase.getReference();
+                databaseReference.child("Message").push().setValue(chatData);
+
             }
         });
         unlick.setOnClickListener(new View.OnClickListener() {

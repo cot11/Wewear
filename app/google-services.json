@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "69583439382",
+    "firebase_url": "https://wewear-db78b.firebaseio.com",
+    "project_id": "wewear-db78b",
+    "storage_bucket": "wewear-db78b.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:69583439382:android:b33711375547a2f1",
+        "android_client_info": {
+          "package_name": "com.example.cot11.wewear"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "69583439382-0l3d57vhq30sp6t4td4fjj2lplt1r81q.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyA05YY5VYwjZj9uqkz3d2mxA2WDnrX75Hg"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
