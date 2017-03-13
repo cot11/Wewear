@@ -5,18 +5,25 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.os.ParcelableCompat;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.AppCompatActivity;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
+import android.view.WindowManager;
+import android.widget.FrameLayout;
 import android.widget.Toast;
 
 /**
  * Created by cot11 on 2017-03-04.
  */
 
-public class FirstActivity extends Activity{
+public class FirstActivity extends AppCompatActivity {
 
     private ViewPager mPager;
 
@@ -24,12 +31,22 @@ public class FirstActivity extends Activity{
     protected  void onCreate(Bundle saveInstanceState)
     {
         super.onCreate(saveInstanceState);
-
         setContentView(R.layout.fitst_activity);
 
-        mPager = (ViewPager)findViewById(R.id.Pager);
-        mPager.setAdapter(new PagerAdapterClass(getApplicationContext()));
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.hide();
 
+        Fragment demoFragment = Fragment.instantiate(this, GuideFragment.class.getName());
+        FragmentTransaction fragmentTransaction = getSupportFragmentManager().beginTransaction();
+        fragmentTransaction.setCustomAnimations(android.R.anim.fade_in,android.R.anim.fade_out,android.R.anim.fade_in,android.R.anim.fade_out);
+        fragmentTransaction.replace(R.id.fragment_container, demoFragment);
+        fragmentTransaction.addToBackStack(GuideFragment.class.getName());
+        fragmentTransaction.commit();
+
+
+        //mPager = (ViewPager)findViewById(R.id.Pager);
+        //mPager.setAdapter(new PagerAdapterClass(getApplicationContext()));
 
 
     }
@@ -47,69 +64,5 @@ public class FirstActivity extends Activity{
         }
     };
 
-    private class PagerAdapterClass extends PagerAdapter
-    {
-        private LayoutInflater mInflater;
-        public PagerAdapterClass(Context C)
-        {
-            super();
-            mInflater = LayoutInflater.from(C);
-        }
-
-
-        @Override
-        public int getCount()
-        {
-            return 4;
-        }
-
-        @Override
-        public Object instantiateItem(View pager, int position)
-        {
-            View v = null;
-            if(position == 0)
-            {
-                v = mInflater.inflate(R.layout.guide1,null);
-                v.findViewById(R.id.guide1);
-            }
-            else if(position == 1)
-            {
-                v = mInflater.inflate(R.layout.guide2,null);
-                v.findViewById(R.id.guide2);
-
-            }
-            else if(position == 2)
-            {
-                v = mInflater.inflate(R.layout.guide3,null);
-                v.findViewById(R.id.guide3);
-            }
-            else  if(position == 3)
-            {
-                v = mInflater.inflate(R.layout.guide4,null);
-                v.findViewById(R.id.guide4);
-                v.findViewById(R.id.close).setOnClickListener(mCloseButton);
-            }
-            ((ViewPager)pager).addView(v,0);
-            return v;
-        }
-
-        @Override
-        public void destroyItem(View pager, int position, Object view)
-        {
-            ((ViewPager)pager).removeView((View)view);
-        }
-
-        @Override
-        public boolean isViewFromObject(View pager, Object obj)
-        {
-            return pager == obj;
-        }
-
-        @Override public void restoreState(Parcelable arg0, ClassLoader arg1){}
-        @Override public Parcelable saveState(){return null;}
-        @Override public void startUpdate(View arg0){}
-        @Override public void finishUpdate(View arg0){}
-
-    }
 
 }

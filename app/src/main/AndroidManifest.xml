@@ -25,6 +25,7 @@
             android:value="@string/kakao_app_key" />
         <activity android:name=".SuccessActivity"></activity>
         <activity android:name=".FirstActivity"></activity>
+        <activity android:name=".AvartaMain"></activity>
     </application>
 
 </manifest>

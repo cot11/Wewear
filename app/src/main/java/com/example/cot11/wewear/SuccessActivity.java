@@ -22,6 +22,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.SurfaceView;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -82,7 +83,6 @@ public class SuccessActivity extends AppCompatActivity {
 
     // class
     private UserProfile myprofile;
-    private DB_Manager db_manager;
     private MatrixImageView mImageView;
     private GlobalApplication	mApp;
 
@@ -130,19 +130,26 @@ public class SuccessActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_success);
-
         SharedPreferences preferences = getSharedPreferences("A",MODE_PRIVATE);
         int firstviewshow = preferences.getInt("First",0);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
-        if(firstviewshow != 1)
+        if(firstviewshow != 1) // 처음 접속시 -> 모델 없을 경우
         {
-            Intent intent = new Intent(SuccessActivity.this, FirstActivity.class);
-            startActivity(intent);
+            //Intent intent = new Intent(SuccessActivity.this, FirstActivity.class);
+            //startActivity(intent);
         }
+        else // 모델이 있을 경우 -> main page로 이동
+        {
+
+        }
+
+        Intent intent = new Intent(SuccessActivity.this, AvartaMain.class);
+        startActivity(intent);
+
 
         //init
          // class
-        db_manager = new DB_Manager();
 
         // Activity
         unlick = (Button)findViewById(R.id.unlink);
@@ -189,42 +196,6 @@ public class SuccessActivity extends AppCompatActivity {
             }
         });
 
-
-        ActionBar mActionBar = getSupportActionBar();
-        assert mActionBar != null;
-        mActionBar.setDisplayShowHomeEnabled(false);
-        mActionBar.setDisplayShowTitleEnabled(false);
-        LayoutInflater mInflater = LayoutInflater.from(this);
-
-        View actionBar = mInflater.inflate(R.layout.custom_actionbar, null);
-        TextView mTitleTextView = (TextView) actionBar.findViewById(R.id.title_text);
-        mTitleTextView.setText("Wewear");
-        mActionBar.setCustomView(actionBar);
-        mActionBar.setDisplayShowCustomEnabled(true);
-        ((Toolbar) actionBar.getParent()).setContentInsetsAbsolute(0,0);
-
-        BoomMenuButton rightBmb = (BoomMenuButton) actionBar.findViewById(R.id.action_bar_right_bmb);
-        rightBmb.setButtonEnum(ButtonEnum.Ham);
-        rightBmb.setPiecePlaceEnum(PiecePlaceEnum.HAM_4);
-        rightBmb.setButtonPlaceEnum(ButtonPlaceEnum.HAM_4);
-
-        for (int i = 0; i < rightBmb.getPiecePlaceEnum().pieceNumber(); i++)
-        {
-            HamButton.Builder builder = new HamButton.Builder()
-                    .normalImageRes(R.drawable.peacock)
-                    .normalColor(Color.BLACK)
-                    .normalText("Butter Doesn't fly!")
-                    .subNormalText("hh")
-                    .listener(new OnBMClickListener() {
-                        @Override
-                        public void onBoomButtonClick(int index) {
-                            Toast.makeText(SuccessActivity.this, "Clicked " + index, Toast.LENGTH_SHORT).show();
-                        }
-                    });
-            rightBmb.addBuilder(builder);
-            //rightBmb.addBuilder(BuilderManager.getHamButtonBuilderWithDifferentPieceColor());
-        }
-
     }
 
 
@@ -270,7 +241,6 @@ public class SuccessActivity extends AppCompatActivity {
         final Map<String, String> properties = new HashMap<String, String>();
         properties.put("nickname", "이언우");
         properties.put("email", "cot11@naver.com");
-        db_manager.Userinfo("이언우","email");
 
         UserManagement.requestUpdateProfile(new ApiResponseCallback<Long>() {
             @Override
