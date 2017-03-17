@@ -6,7 +6,6 @@
     android:layout_height="match_parent">
 
     <LinearLayout
-        android:paddingTop="30dp"
         android:background="@color/white"
         android:layout_weight="100"
         android:orientation="vertical"
@@ -14,7 +13,7 @@
         android:layout_height="match_parent">
         <LinearLayout
             android:orientation="horizontal"
-            android:layout_weight="90"
+            android:layout_weight="92"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
             <Button
@@ -46,7 +45,7 @@
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="10"
+            android:layout_weight="8"
             android:id="@+id/Fragment_change" />
     </LinearLayout>
 

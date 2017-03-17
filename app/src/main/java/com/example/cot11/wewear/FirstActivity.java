@@ -44,10 +44,8 @@ public class FirstActivity extends AppCompatActivity {
         fragmentTransaction.addToBackStack(GuideFragment.class.getName());
         fragmentTransaction.commit();
 
-
         //mPager = (ViewPager)findViewById(R.id.Pager);
         //mPager.setAdapter(new PagerAdapterClass(getApplicationContext()));
-
 
     }
 

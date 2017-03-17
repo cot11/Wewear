@@ -2,14 +2,21 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:weightSum="100"
     android:background="#FFAAAA">
 
-    <TextView
+    <LinearLayout
+        android:layout_weight="15"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:textSize="30sp"
-        android:id="@+id/Avarta_tv"
-        android:text="Avarta"
-        android:gravity="center" />
+        android:layout_height="match_parent">
+    </LinearLayout>
+    <LinearLayout
+        android:background="@color/blue"
+        android:orientation="vertical"
+        android:weightSum="100"
+        android:layout_weight="85"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+    </LinearLayout>
 
 </LinearLayout>

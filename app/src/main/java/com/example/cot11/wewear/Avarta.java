@@ -20,7 +20,7 @@ public class Avarta extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         View v =  inflater.inflate(R.layout.avarta_fragment, container, false);
-        TextView local = (TextView) v.findViewById(R.id.Avarta_tv);
+        //TextView local = (TextView) v.findViewById(R.id.Avarta_tv);
 
         return v;
     }

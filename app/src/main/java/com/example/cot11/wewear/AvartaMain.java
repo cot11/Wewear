@@ -4,14 +4,17 @@ import android.app.Fragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -79,7 +82,7 @@ public class AvartaMain extends AppCompatActivity {
             rightBmb.addBuilder(builder);
             //rightBmb.addBuilder(BuilderManager.getHamButtonBuilderWithDifferentPieceColor());
         }
-        //Action Bar code End
+
 
     }
 
