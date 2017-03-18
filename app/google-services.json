@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "69583439382-qbdkahu9l8p1oapldc4a6dl8iehkoq6k.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.cot11.wewear",
+            "certificate_hash": "bd37c9786fe5dfe1072217694419cb9a13d5ee69"
+          }
+        },
+        {
           "client_id": "69583439382-0l3d57vhq30sp6t4td4fjj2lplt1r81q.apps.googleusercontent.com",
           "client_type": 3
         }
@@ -29,8 +37,13 @@
           "status": 1
         },
         "appinvite_service": {
-          "status": 1,
-          "other_platform_oauth_client": []
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "69583439382-0l3d57vhq30sp6t4td4fjj2lplt1r81q.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         },
         "ads_service": {
           "status": 2
