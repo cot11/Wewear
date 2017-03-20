@@ -97,7 +97,7 @@ public class AvartaMain extends AppCompatActivity {
                 fragmentTransaction.commit();
                 break;
             case R.id.shopping:
-                fragmentTransaction.replace(R.id.Fragment_change, new Shopping());
+                fragmentTransaction.replace(R.id.Fragment_change, new Brand());
                 fragmentTransaction.commit();
                 break;
             case R.id.ranking:

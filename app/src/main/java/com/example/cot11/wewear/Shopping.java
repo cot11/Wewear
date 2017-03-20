@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,9 +14,15 @@ import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.kakao.usermgmt.response.model.User;
 
 import java.io.File;
 import java.io.IOException;
@@ -29,6 +36,7 @@ public class Shopping extends Fragment {
 
     private RecyclerView mRecyclerView;
     private StorageReference mStorage;
+    private DatabaseReference mDatabase;
 
     public Shopping() {
         // Required empty public constructor
@@ -37,13 +45,33 @@ public class Shopping extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
+
         String folderName = "Logo";
         String imageName = String.format("face.jpg");
+        mDatabase = FirebaseDatabase.getInstance().getReference();
 
         // Storage 이미지 다운로드 경로
         String storagePath = folderName + "/" + imageName;
         mStorage = FirebaseStorage.getInstance().getReference();
         StorageReference imageRef = mStorage.child(storagePath);
+
+        mDatabase.child("Brand").addListenerForSingleValueEvent(
+                new ValueEventListener() {
+                    @Override
+                    public void onDataChange(DataSnapshot dataSnapshot) {
+                        // Get user value
+                        for(DataSnapshot post : dataSnapshot.getChildren() ){
+                            System.out.println("Key : " + post.getKey());
+                        }
+
+                        // ...
+                    }
+
+                    @Override
+                    public void onCancelled(DatabaseError databaseError) {
+                        Log.w("DDD", "getUser:onCancelled", databaseError.toException());
+                    }
+                });
 
         // firebase Storage 읽기
         try

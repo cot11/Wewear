@@ -8,7 +8,9 @@ public class ChatData {
     private String userName;
     private String message;
 
-    public ChatData() { }
+    public ChatData() {
+
+    }
 
     public ChatData(String userName, String message) {
         this.userName = userName;
