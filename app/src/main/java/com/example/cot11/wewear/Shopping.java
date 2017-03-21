@@ -37,6 +37,8 @@ public class Shopping extends Fragment {
     private RecyclerView mRecyclerView;
     private StorageReference mStorage;
     private DatabaseReference mDatabase;
+    private String[] dataSet;
+    private View v;
 
     public Shopping() {
         // Required empty public constructor
@@ -46,75 +48,83 @@ public class Shopping extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
 
-        String folderName = "Logo";
-        String imageName = String.format("face.jpg");
+
         mDatabase = FirebaseDatabase.getInstance().getReference();
-
         // Storage 이미지 다운로드 경로
-        String storagePath = folderName + "/" + imageName;
         mStorage = FirebaseStorage.getInstance().getReference();
-        StorageReference imageRef = mStorage.child(storagePath);
 
-        mDatabase.child("Brand").addListenerForSingleValueEvent(
+
+        mDatabase.child("Clothes").addListenerForSingleValueEvent(
                 new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         // Get user value
+                        dataSet = new String[(int)dataSnapshot.getChildrenCount()];
+                        int i = 0;
                         for(DataSnapshot post : dataSnapshot.getChildren() ){
-                            System.out.println("Key : " + post.getKey());
+                            String[] name = post.getKey().split("!");
+                            dataSet[i] = name[1];
+                            System.out.println(dataSet[i]);
+                            // firebase Storage 읽기
+
+                            /*
+                            try
+                            {
+                                String folderName = "소녀나라";
+                                String imageName = String.format(name[1]+".jpg");
+                                String storagePath = folderName + "/" + imageName;
+                                StorageReference imageRef = mStorage.child(storagePath);
+                                final File imageFile = File.createTempFile("images", "jpeg");
+                                imageRef.getFile(imageFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
+                                    @Override
+                                    public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
+                                        System.out.println("성공");
+                                    }
+                                }).addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Toast.makeText(getActivity(), "Failed !!", Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                            }catch (IOException e)
+                            {
+                                e.printStackTrace();
+                            }
+                            i++;
+                            */
                         }
+
+                        mRecyclerView = (RecyclerView)v.findViewById(R.id.recycler_view);
+                        PhotoAdapter adapter = new PhotoAdapter(dataSet, getActivity());
+                        mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
+                        mRecyclerView.addItemDecoration(new RecyclerView.ItemDecoration() {
+                            @Override
+                            public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
+                                super.getItemOffsets(outRect, view, parent, state);
+                                outRect.bottom = getResources().getDimensionPixelSize(R.dimen.activity_vertical_margin);
+                            }
+                        });
+                        mRecyclerView.setAdapter(adapter);
+
 
                         // ...
                     }
-
                     @Override
                     public void onCancelled(DatabaseError databaseError) {
                         Log.w("DDD", "getUser:onCancelled", databaseError.toException());
                     }
                 });
 
-        // firebase Storage 읽기
-        try
-        {
-            final File imageFile = File.createTempFile("images", "jpeg");
-            imageRef.getFile(imageFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
-                @Override
-                public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
-                    System.out.println("성공");
-                    Toast.makeText(getActivity(), "Success !!", Toast.LENGTH_LONG).show();
-                }
-            }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception e) {
-                    Toast.makeText(getActivity(), "Failed !!", Toast.LENGTH_LONG).show();
-                }
-            });
-        }catch (IOException e)
-        {
-            e.printStackTrace();
-        }
 
-
-        View v =  inflater.inflate(R.layout.shopping_itemlist, container, false);
-        ButterKnife.bind(v);
-        String[] dataSet = null;
+        /*
         try {
             dataSet = getActivity().getAssets().list("demo-pictures");
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-        mRecyclerView = (RecyclerView)v.findViewById(R.id.recycler_view);
-        PhotoAdapter adapter = new PhotoAdapter(dataSet, getActivity());
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        mRecyclerView.addItemDecoration(new RecyclerView.ItemDecoration() {
-            @Override
-            public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
-                super.getItemOffsets(outRect, view, parent, state);
-                outRect.bottom = getResources().getDimensionPixelSize(R.dimen.activity_vertical_margin);
-            }
-        });
-        mRecyclerView.setAdapter(adapter);
+        */
+        v =  inflater.inflate(R.layout.shopping_itemlist, container, false);
+        ButterKnife.bind(v);
 
         //ListView listview = (ListView) v.findViewById(R.id.shopping_list);
         //return super.onCreateView(inflater, container, savedInstanceState);

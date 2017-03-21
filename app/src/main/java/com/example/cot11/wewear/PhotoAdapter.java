@@ -12,6 +12,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.example.mylibrary.FoldableLayout;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 import com.squareup.picasso.Picasso;
 
 import java.util.HashMap;
@@ -30,6 +32,10 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
     private Map<Integer, Boolean> mFoldStates = new HashMap<>();
     private Context mContext;
 
+    private FirebaseStorage mStorage;
+    private StorageReference storageRef;
+    private String url;
+
     public PhotoAdapter(String[] dataSet, Context context) {
         mDataSet = dataSet;
         mContext = context;
@@ -42,11 +48,16 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
 
     @Override
     public void onBindViewHolder(final PhotoViewHolder holder, int position) {
-        final String path = "content://com.example.cot11.wewear/demo-pictures/" + mDataSet[position];
 
         // Bind data
-        Picasso.with(holder.mFoldableLayout.getContext()).load(path).into(holder.mImageViewCover);
-        Picasso.with(holder.mFoldableLayout.getContext()).load(path).into(holder.mImageViewDetail);
+        mStorage= FirebaseStorage.getInstance();
+        storageRef = mStorage.getReferenceFromUrl("gs://wewear-db78b.appspot.com/");
+        StorageReference spaceRef = storageRef.child("소녀나라/" + mDataSet[position]+ ".jpg");
+
+
+        Picasso.with(holder.mFoldableLayout.getContext()).load(spaceRef.getDownloadUrl().toString()).into(holder.mImageViewCover);
+        Picasso.with(holder.mFoldableLayout.getContext()).load(spaceRef.getDownloadUrl().toString()).into(holder.mImageViewDetail);
+        System.out.println("HIHI");
         //holder.mTextViewCover.setText(mDataSet[position].replace(".jpg", ""));
 
         // Bind state
@@ -70,7 +81,7 @@ public class PhotoAdapter extends RecyclerView.Adapter<PhotoAdapter.PhotoViewHol
                 System.out.println("?????");
                 Intent shareIntent = new Intent(Intent.ACTION_SEND);
                 shareIntent.setType("image/jpg");
-                Uri uri = Uri.parse(path);
+                Uri uri = Uri.parse(url);
                 shareIntent.putExtra(Intent.EXTRA_STREAM, uri);
                 mContext.startActivity(Intent.createChooser(shareIntent, "Share image using"));
             }

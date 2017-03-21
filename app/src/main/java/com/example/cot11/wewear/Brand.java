@@ -57,7 +57,6 @@ public class Brand extends Fragment {
                                 String storagePath = "Logo/"  + imageName;
                                 mStorage = FirebaseStorage.getInstance().getReference();
                                 StorageReference imageRef = mStorage.child(storagePath);
-
                                 final File imageFile = File.createTempFile("images", "jpeg");
                                 imageRef.getFile(imageFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
                                     @Override
