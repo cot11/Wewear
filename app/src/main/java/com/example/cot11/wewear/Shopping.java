@@ -42,6 +42,8 @@ public class Shopping extends Fragment {
     private String[] dataSet2;
     private String[] linkSet2;
     private View v;
+    int count1 = 0;
+    int count2 = 0;
 
     public Shopping() {
         // Required empty public constructor
@@ -68,21 +70,20 @@ public class Shopping extends Fragment {
                         for(DataSnapshot post : dataSnapshot.getChildren() ){
                             String[] name = post.getKey().split("!");
 
-
                             for(DataSnapshot post2 : post.getChildren())
                             {
 
                                 if(i % 2 == 0)
                                 {
-                                    dataSet1[i % 2] = name[1];
-                                    linkSet1[i % 2] = post2.getValue().toString();
-                                    System.out.println("dataset1 : " + dataSet1[i%2]);
+                                    dataSet1[count1] = name[1];
+                                    linkSet1[count1] = post2.getValue().toString();
+                                    count1++;
                                 }
                                 else
                                 {
-                                    dataSet2[i % 2] = name[1];
-                                    linkSet2[i % 2] = post2.getValue().toString();
-                                    System.out.println("dataSet2 : " + dataSet2[i%2]);
+                                    dataSet2[count2] = name[1];
+                                    linkSet2[count2] = post2.getValue().toString();
+                                    count2++;
                                 }
                             }
                             i++;

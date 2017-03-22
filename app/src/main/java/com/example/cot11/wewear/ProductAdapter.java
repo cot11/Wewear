@@ -47,6 +47,10 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         mLinkSet2 = linkSet2;
         mDataSet2 = dataSet2;
         mContext = context;
+
+        System.out.println("data : " + mDataSet1[0]);
+        System.out.println("data : " + mDataSet2[0]);
+
     }
     @Override
     public ProductAdapter.ProductViewHolder onCreateViewHolder(ViewGroup viewGroup, int i)
@@ -64,17 +68,21 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
             @Override
             public void onSuccess(Uri uri) {
                 Glide.with(mContext).load(uri).into(myViewHolder.imageView1);
+                System.out.println(myViewHolder.imageView1.getHeight());
+                System.out.println(myViewHolder.imageView1.getWidth());
             }
         });
+
 
         if(position < mDataSet2.length)
-        storageRef.child("소녀나라/" + mDataSet2[position]+ ".jpg").getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-            @Override
-            public void onSuccess(Uri uri) {
-                Glide.with(mContext).load(uri).into(myViewHolder.imageView2);
-            }
-        });
-
+        {
+            storageRef.child("소녀나라/" + mDataSet2[position]+ ".jpg").getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                @Override
+                public void onSuccess(Uri uri) {
+                    Glide.with(mContext).load(uri).into(myViewHolder.imageView2);
+                }
+            });
+        }
     }
 
 
