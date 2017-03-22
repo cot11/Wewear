@@ -37,7 +37,10 @@ public class Shopping extends Fragment {
     private RecyclerView mRecyclerView;
     private StorageReference mStorage;
     private DatabaseReference mDatabase;
-    private String[] dataSet;
+    private String[] dataSet1;
+    private String[] linkSet1;
+    private String[] dataSet2;
+    private String[] linkSet2;
     private View v;
 
     public Shopping() {
@@ -47,55 +50,46 @@ public class Shopping extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-
-
         mDatabase = FirebaseDatabase.getInstance().getReference();
         // Storage 이미지 다운로드 경로
         mStorage = FirebaseStorage.getInstance().getReference();
-
-
         mDatabase.child("Clothes").addListenerForSingleValueEvent(
                 new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         // Get user value
-                        dataSet = new String[(int)dataSnapshot.getChildrenCount()];
+
+                        dataSet1 = new String[(int)dataSnapshot.getChildrenCount()/2 + 1];
+                        linkSet1 = new String[(int)dataSnapshot.getChildrenCount()/2 + 1];
+                        dataSet2 = new String[(int)dataSnapshot.getChildrenCount()/2];
+                        linkSet2 = new String[(int)dataSnapshot.getChildrenCount()/2];
                         int i = 0;
+
                         for(DataSnapshot post : dataSnapshot.getChildren() ){
                             String[] name = post.getKey().split("!");
-                            dataSet[i] = name[1];
-                            System.out.println(dataSet[i]);
-                            // firebase Storage 읽기
 
-                            /*
-                            try
+
+                            for(DataSnapshot post2 : post.getChildren())
                             {
-                                String folderName = "소녀나라";
-                                String imageName = String.format(name[1]+".jpg");
-                                String storagePath = folderName + "/" + imageName;
-                                StorageReference imageRef = mStorage.child(storagePath);
-                                final File imageFile = File.createTempFile("images", "jpeg");
-                                imageRef.getFile(imageFile).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
-                                    @Override
-                                    public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
-                                        System.out.println("성공");
-                                    }
-                                }).addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        Toast.makeText(getActivity(), "Failed !!", Toast.LENGTH_SHORT).show();
-                                    }
-                                });
-                            }catch (IOException e)
-                            {
-                                e.printStackTrace();
+
+                                if(i % 2 == 0)
+                                {
+                                    dataSet1[i % 2] = name[1];
+                                    linkSet1[i % 2] = post2.getValue().toString();
+                                    System.out.println("dataset1 : " + dataSet1[i%2]);
+                                }
+                                else
+                                {
+                                    dataSet2[i % 2] = name[1];
+                                    linkSet2[i % 2] = post2.getValue().toString();
+                                    System.out.println("dataSet2 : " + dataSet2[i%2]);
+                                }
                             }
                             i++;
-                            */
                         }
 
                         mRecyclerView = (RecyclerView)v.findViewById(R.id.recycler_view);
-                        PhotoAdapter adapter = new PhotoAdapter(dataSet, getActivity());
+                        ProductAdapter adapter = new ProductAdapter(linkSet1, dataSet1, linkSet2, dataSet2, getActivity());
                         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
                         mRecyclerView.addItemDecoration(new RecyclerView.ItemDecoration() {
                             @Override
@@ -105,8 +99,6 @@ public class Shopping extends Fragment {
                             }
                         });
                         mRecyclerView.setAdapter(adapter);
-
-
                         // ...
                     }
                     @Override

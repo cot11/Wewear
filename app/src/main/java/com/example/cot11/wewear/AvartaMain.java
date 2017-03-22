@@ -39,7 +39,7 @@ public class AvartaMain extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         button = (Button)findViewById(R.id.avarta);
-        //getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
+        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         FragmentManager fm = getFragmentManager();
         FragmentTransaction fragmentTransaction = fm.beginTransaction();

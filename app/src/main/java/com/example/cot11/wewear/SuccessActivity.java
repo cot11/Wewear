@@ -147,10 +147,8 @@ public class SuccessActivity extends AppCompatActivity {
         Intent intent = new Intent(SuccessActivity.this, AvartaMain.class);
         startActivity(intent);
 
-
         //init
          // class
-
         // Activity
         unlick = (Button)findViewById(R.id.unlink);
         add = (Button)findViewById(R.id.add);
