@@ -3,25 +3,16 @@ package com.example.cot11.wewear;
 import android.content.Context;
 import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
-import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.TextView;
 
 import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-
-import java.util.List;
-
-import butterknife.Bind;
-import butterknife.ButterKnife;
 
 /**
  * Created by cot11 on 2017-03-22.
@@ -48,8 +39,6 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         mDataSet2 = dataSet2;
         mContext = context;
 
-        System.out.println("data : " + mDataSet1[0]);
-        System.out.println("data : " + mDataSet2[0]);
 
     }
     @Override
@@ -83,6 +72,9 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
                 }
             });
         }
+
+
+
     }
 
 

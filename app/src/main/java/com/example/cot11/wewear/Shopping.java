@@ -3,31 +3,19 @@ package com.example.cot11.wewear;
 import android.app.Fragment;
 import android.graphics.Rect;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnFailureListener;
-import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.storage.FileDownloadTask;
-import com.google.firebase.storage.FirebaseStorage;
-import com.google.firebase.storage.StorageReference;
-import com.kakao.usermgmt.response.model.User;
 
-import java.io.File;
-import java.io.IOException;
-
-import butterknife.Bind;
 import butterknife.ButterKnife;
 
 
@@ -35,32 +23,47 @@ import butterknife.ButterKnife;
 public class Shopping extends Fragment {
 
     private RecyclerView mRecyclerView;
-    private StorageReference mStorage;
     private DatabaseReference mDatabase;
     private String[] dataSet1;
     private String[] linkSet1;
     private String[] dataSet2;
     private String[] linkSet2;
     private View v;
+    public String BrandName = "";
     int count1 = 0;
     int count2 = 0;
 
     public Shopping() {
-        // Required empty public constructor
+
+    }
+
+    public static Shopping newInstance(String brandName)
+    {
+        Shopping shopping = new Shopping();
+        Bundle args = new Bundle();
+        args.putString("Brand",brandName);
+        return shopping;
+    }
+    public interface BrandSend{
+        public void send(String brand);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
+
+
+
         mDatabase = FirebaseDatabase.getInstance().getReference();
         // Storage 이미지 다운로드 경로
-        mStorage = FirebaseStorage.getInstance().getReference();
         mDatabase.child("Clothes").addListenerForSingleValueEvent(
                 new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         // Get user value
 
+                        BrandName = getArguments().getString("Brand");
+                        System.out.println("Brand : " + BrandName);
                         dataSet1 = new String[(int)dataSnapshot.getChildrenCount()/2 + 1];
                         linkSet1 = new String[(int)dataSnapshot.getChildrenCount()/2 + 1];
                         dataSet2 = new String[(int)dataSnapshot.getChildrenCount()/2];
@@ -108,19 +111,9 @@ public class Shopping extends Fragment {
                     }
                 });
 
-
-        /*
-        try {
-            dataSet = getActivity().getAssets().list("demo-pictures");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        */
         v =  inflater.inflate(R.layout.shopping_itemlist, container, false);
         ButterKnife.bind(v);
 
-        //ListView listview = (ListView) v.findViewById(R.id.shopping_list);
-        //return super.onCreateView(inflater, container, savedInstanceState);
         return v;
 
     }

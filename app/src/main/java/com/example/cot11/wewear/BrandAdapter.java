@@ -1,7 +1,12 @@
 package com.example.cot11.wewear;
 
+import android.app.Activity;
+import android.app.Fragment;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.Context;
 import android.net.Uri;
+import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.text.format.DateUtils;
 import android.view.LayoutInflater;
@@ -27,7 +32,7 @@ import butterknife.ButterKnife;
  * Created by cot11 on 2017-03-22.
  */
 
-public class BrandAdapter extends RecyclerView.Adapter<BrandAdapter.BrandViewHolder>
+public class BrandAdapter extends RecyclerView.Adapter<BrandAdapter.BrandViewHolder> implements Shopping.BrandSend
 {
     private String[] mDataSet1;
     private String[] mLinkSet1;
@@ -55,16 +60,23 @@ public class BrandAdapter extends RecyclerView.Adapter<BrandAdapter.BrandViewHol
     @Override
     public BrandAdapter.BrandViewHolder onCreateViewHolder(ViewGroup viewGroup, int i)
     {
-        View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.product_list, viewGroup, false);
+        View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.brand_itemlist, viewGroup, false);
         return new BrandViewHolder(v);
     }
 
     @Override
-    public void onBindViewHolder(final BrandAdapter.BrandViewHolder myViewHolder, int position)
+    public void send(String brand)
+    {
+        Shopping shopping = new Shopping();
+        shopping.BrandName = brand;
+    }
+
+    @Override
+    public void onBindViewHolder(final BrandAdapter.BrandViewHolder myViewHolder, final int position)
     {
         mStorage= FirebaseStorage.getInstance();
         storageRef = mStorage.getReferenceFromUrl("gs://wewear-db78b.appspot.com/");
-        storageRef.child("소녀나라/" + mDataSet1[position]+ ".jpg").getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+        storageRef.child("Logo/" + mDataSet1[position]+ ".jpg").getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
             @Override
             public void onSuccess(Uri uri) {
                 Glide.with(mContext).load(uri).into(myViewHolder.imageView1);
@@ -76,13 +88,35 @@ public class BrandAdapter extends RecyclerView.Adapter<BrandAdapter.BrandViewHol
 
         if(position < mDataSet2.length)
         {
-            storageRef.child("소녀나라/" + mDataSet2[position]+ ".jpg").getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+            storageRef.child("Logo/" + mDataSet2[position]+ ".jpg").getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                 @Override
                 public void onSuccess(Uri uri) {
                     Glide.with(mContext).load(uri).into(myViewHolder.imageView2);
                 }
             });
         }
+
+        myViewHolder.imageView1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                System.out.println(mDataSet1[position]);
+
+            }
+        });
+
+        myViewHolder.imageView2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(position < mDataSet2.length)
+                {
+                    send(mDataSet2[position]);
+                    FragmentManager fm = ((Activity) mContext).getFragmentManager();
+                    FragmentTransaction fragmentTransaction = fm.beginTransaction();
+                    fragmentTransaction.replace(R.id.Fragment_change, new Shopping().newInstance(mDataSet2[position]));
+                    fragmentTransaction.commit();
+                }
+            }
+        });
     }
 
 
@@ -96,12 +130,6 @@ public class BrandAdapter extends RecyclerView.Adapter<BrandAdapter.BrandViewHol
 
         ImageView imageView1;
         ImageView imageView2;
-        Button save_1;
-        Button size_1;
-        Button like_1;
-        Button save_2;
-        Button size_2;
-        Button like_2;
 
         public BrandViewHolder(View itemView) {
             super(itemView);
