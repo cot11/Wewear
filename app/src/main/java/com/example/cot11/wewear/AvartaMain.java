@@ -1,20 +1,19 @@
 package com.example.cot11.wewear;
 
-import android.app.Fragment;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
+
+import android.app.ProgressDialog;
+import android.content.Intent;
 import android.graphics.Color;
-import android.graphics.Rect;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
-import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -31,19 +30,75 @@ import com.nightonke.boommenu.Piece.PiecePlaceEnum;
 
 public class AvartaMain extends AppCompatActivity{
     private boolean isFragmentB = true ;
+    Thread thread;
+    private FragmentManager fm;
+    private ProgressDialog dialog;
     Button button;
+
+    String[] MenuSet = new String[4];
+
+
+
+    public void brandSet(String brand, boolean back)
+    {
+
+        Shopping shopping = new Shopping();
+        Bundle args = new Bundle();
+        args.putString("Brand",brand);
+        args.putBoolean("Back", back);
+        shopping.setArguments(args);
+
+        fm = getSupportFragmentManager();
+        android.support.v4.app.FragmentTransaction fragmentTransaction = fm.beginTransaction();
+        fragmentTransaction.replace(R.id.Fragment_change,shopping);
+        fragmentTransaction.commit();
+    }
+
+    public void openWeb(String Link, String Brand)
+    {
+        webView webView = new webView();
+        Bundle args = new Bundle();
+        args.putString("Link",Link);
+        args.putString("Brand",Brand);
+        webView.setArguments(args);
+
+        fm = getSupportFragmentManager();
+        android.support.v4.app.FragmentTransaction fragmentTransaction = fm.beginTransaction();
+        fragmentTransaction.replace(R.id.Fragment_change,webView);
+        fragmentTransaction.commit();
+    }
+    public void backtoFrag(String brand)
+    {
+        brandSet(brand, false);
+    }
+
+    public void ProgressRun()
+    {
+        dialog = ProgressDialog.show(this, "", "Please wait....", true);
+    }
+
+    public void ProgressStop()
+    {
+        dialog.dismiss();
+    }
+
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         // ... 코드 계속 [STE]
+        MenuSet[0] = "아바타 만들기";
+        MenuSet[1] = "아바타 만들기2";
+        MenuSet[2] = "아바타 만들기3";
+        MenuSet[3] = "아바타 만들기4";
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
         button = (Button)findViewById(R.id.avarta);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
-        FragmentManager fm = getFragmentManager();
-        FragmentTransaction fragmentTransaction = fm.beginTransaction();
-        fragmentTransaction.add(R.id.Fragment_change, new Avarta());
+        fm = getSupportFragmentManager();
+        android.support.v4.app.FragmentTransaction fragmentTransaction = fm.beginTransaction();
+        fragmentTransaction.replace(R.id.Fragment_change, new Avarta());
         fragmentTransaction.commit();
 
         //Action Bar code start
@@ -71,12 +126,19 @@ public class AvartaMain extends AppCompatActivity{
             HamButton.Builder builder = new HamButton.Builder()
                     .normalImageRes(R.drawable.peacock)
                     .normalColor(Color.BLACK)
-                    .normalText("Butter Doesn't fly!")
-                    .subNormalText("hh")
+                    .normalText(MenuSet[i])
+                    .subNormalText(MenuSet[i])
                     .listener(new OnBMClickListener() {
                         @Override
                         public void onBoomButtonClick(int index) {
                             Toast.makeText(AvartaMain.this, "Clicked " + index, Toast.LENGTH_SHORT).show();
+                            if(index == 0)
+                            {
+                                Intent intent = new Intent(AvartaMain.this, SuccessActivity.class);
+                                intent.putExtra("userprofile","10");
+                                startActivity(intent);
+                                finish();
+                            }
                         }
                     });
             rightBmb.addBuilder(builder);
@@ -88,8 +150,8 @@ public class AvartaMain extends AppCompatActivity{
 
     public void tab_change(View v)
     {
-        FragmentManager fm = getFragmentManager();
-        FragmentTransaction fragmentTransaction = fm.beginTransaction();
+        fm = getSupportFragmentManager();
+        android.support.v4.app.FragmentTransaction fragmentTransaction = fm.beginTransaction();
         switch (v.getId())
         {
             case R.id.avarta:

@@ -12,35 +12,40 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
         <LinearLayout
-            android:orientation="horizontal"
+            android:weightSum="100"
+            android:orientation="vertical"
             android:layout_weight="92"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
-            <Button
-                android:onClick="tab_change"
-                android:text="아바타"
-                android:id="@+id/avarta"
-                android:background="@color/white"
-                android:layout_weight="1"
+            <LinearLayout
+                android:layout_weight="20"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent" />
-            <Button
-                android:onClick="tab_change"
-                android:text="쇼핑몰 목록"
-                android:id="@+id/shopping"
-                android:background="@color/white"
-                android:layout_weight="1"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
-            <Button
-                android:onClick="tab_change"
-                android:text="랭킹"
-                android:id="@+id/ranking"
-                android:background="@color/white"
-                android:layout_weight="1"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent" />
-
+                android:layout_height="match_parent">
+                <Button
+                    android:layout_weight="30"
+                    android:onClick="tab_change"
+                    android:text="아바타"
+                    android:id="@+id/avarta"
+                    android:background="@color/white"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+                <Button
+                    android:layout_weight="30"
+                    android:onClick="tab_change"
+                    android:text="쇼핑몰 목록"
+                    android:id="@+id/shopping"
+                    android:background="@color/white"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+                <Button
+                    android:layout_weight="30"
+                    android:onClick="tab_change"
+                    android:text="랭킹"
+                    android:id="@+id/ranking"
+                    android:background="@color/white"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent" />
+            </LinearLayout>
         </LinearLayout>
         <FrameLayout
             android:layout_width="match_parent"

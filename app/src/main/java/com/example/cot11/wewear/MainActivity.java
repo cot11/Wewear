@@ -111,7 +111,7 @@ public class MainActivity extends AppCompatActivity {
                     //사용자 ID는 보안상의 문제로 제공하지 않고 일련번호는 제공합니다.
                     Log.e("UserProfile", userProfile.toString());
                     Intent intent = new Intent(MainActivity.this, SuccessActivity.class);
-                    intent.putExtra("userprofile",userProfile);
+                    //intent.putExtra("userprofile",userProfile);
                     if(!Auto_OK)
                     {
                         System.out.println("Logout 되어있음");

@@ -11,8 +11,11 @@ import android.widget.ImageView;
 
 import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+
+import java.util.ArrayList;
 
 /**
  * Created by cot11 on 2017-03-22.
@@ -20,27 +23,25 @@ import com.google.firebase.storage.StorageReference;
 
 public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductViewHolder>
 {
-    private String[] mDataSet1;
-    private String[] mLinkSet1;
-    private String[] mDataSet2;
-    private String[] mLinkSet2;
     private Context mContext;
+
+    private String BrandName;
+    private ArrayList<productList> productAdapter1;
+    private ArrayList<productList> productAdapter2;
 
     private FirebaseStorage mStorage;
     private StorageReference storageRef;
     private Uri url;
 
 
-    public ProductAdapter(String[] linkSet, String[] dataSet,String[] linkSet2, String[] dataSet2, Context context)
+    public ProductAdapter(String brandName, ArrayList<productList> adapter1, ArrayList<productList> adapter2, Context context)
     {
-        mLinkSet1 = linkSet;
-        mDataSet1 = dataSet;
-        mLinkSet2 = linkSet2;
-        mDataSet2 = dataSet2;
+        BrandName = brandName;
+        productAdapter1 = adapter1;
+        productAdapter2 = adapter2;
         mContext = context;
-
-
     }
+
     @Override
     public ProductAdapter.ProductViewHolder onCreateViewHolder(ViewGroup viewGroup, int i)
     {
@@ -49,39 +50,50 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
     }
 
     @Override
-    public void onBindViewHolder(final ProductAdapter.ProductViewHolder myViewHolder, int position)
+    public void onBindViewHolder(final ProductAdapter.ProductViewHolder myViewHolder, final int position)
     {
         mStorage= FirebaseStorage.getInstance();
         storageRef = mStorage.getReferenceFromUrl("gs://wewear-db78b.appspot.com/");
-        storageRef.child("소녀나라/" + mDataSet1[position]+ ".jpg").getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+        storageRef.child(BrandName+"/" + productAdapter1.get(position).getName()+ ".jpg").getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
             @Override
             public void onSuccess(Uri uri) {
                 Glide.with(mContext).load(uri).into(myViewHolder.imageView1);
-                System.out.println(myViewHolder.imageView1.getHeight());
-                System.out.println(myViewHolder.imageView1.getWidth());
             }
         });
 
-
-        if(position < mDataSet2.length)
+        if(position < productAdapter2.size())
         {
-            storageRef.child("소녀나라/" + mDataSet2[position]+ ".jpg").getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+            storageRef.child(BrandName+"/" + productAdapter2.get(position).getName()+ ".jpg").getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                 @Override
                 public void onSuccess(Uri uri) {
                     Glide.with(mContext).load(uri).into(myViewHolder.imageView2);
+                    ((AvartaMain) mContext).ProgressStop();
                 }
             });
         }
 
+        myViewHolder.imageView1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ((AvartaMain) mContext).openWeb(productAdapter1.get(position).getLink(),BrandName);
 
-
+            }
+        });
+        myViewHolder.imageView2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(position < productAdapter2.size())
+                {
+                    ((AvartaMain) mContext).openWeb(productAdapter2.get(position).getLink(),BrandName);
+                }
+            }
+        });
     }
-
 
     @Override
     public int getItemCount()
     {
-        return mDataSet1.length;
+        return productAdapter1.size();
     }
 
     protected static class ProductViewHolder extends RecyclerView.ViewHolder {

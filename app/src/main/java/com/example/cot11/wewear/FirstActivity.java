@@ -49,18 +49,14 @@ public class FirstActivity extends AppCompatActivity {
 
     }
 
-    private View.OnClickListener mCloseButton = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            int infoFirst = 1;
-            SharedPreferences sharedPreferences = getSharedPreferences("A",MODE_PRIVATE);
-            SharedPreferences.Editor editor = sharedPreferences.edit();
-            editor.putInt("First",infoFirst);
-            editor.commit();
-            Toast.makeText(getApplicationContext(), "저장완료", Toast.LENGTH_LONG).show();
-            finish();
-        }
-    };
-
-
+    public void SetFirestKey()
+    {
+        int infoFirst = 1;
+        SharedPreferences sharedPreferences = getSharedPreferences("A",MODE_PRIVATE);
+        SharedPreferences.Editor editor = sharedPreferences.edit();
+        editor.putInt("First",infoFirst);
+        editor.commit();
+        Toast.makeText(getApplicationContext(), "저장완료", Toast.LENGTH_LONG).show();
+        finish();
+    }
 }

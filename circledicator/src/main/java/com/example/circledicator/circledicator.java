@@ -194,7 +194,6 @@ public class circledicator  extends LinearLayout {
                 mAnimatorOut.end();
                 mAnimatorOut.cancel();
             }
-            System.out.println("AAAA");
             View currentIndicator;
             if (mLastPosition >= 0 && (currentIndicator = getChildAt(mLastPosition)) != null) {
                 currentIndicator.setBackgroundResource(mIndicatorUnselectedBackgroundResId);

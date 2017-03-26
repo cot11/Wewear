@@ -1,11 +1,14 @@
 package com.example.cot11.wewear;
 
-import android.app.Fragment;
+
 import android.graphics.Rect;
 import android.os.Bundle;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +17,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.UploadTask;
 
 import butterknife.ButterKnife;
 
@@ -33,6 +37,7 @@ public class Brand extends Fragment {
     int count1 = 0;
     int count2 = 0;
 
+
     public Brand() {
         // Required empty public constructor
     }
@@ -40,28 +45,33 @@ public class Brand extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        // Storage 이미지 다운로드 경로
+
+        ((AvartaMain) getActivity()).ProgressRun();
+
         mDatabase = FirebaseDatabase.getInstance().getReference();
-
-
         mDatabase.child("Brand").addListenerForSingleValueEvent(
                 new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         // Get user value
-
-                        dataSet1 = new String[(int)dataSnapshot.getChildrenCount()/2 + 1];
-                        linkSet1 = new String[(int)dataSnapshot.getChildrenCount()/2 + 1];
+                        if(dataSnapshot.getChildrenCount() % 2 == 1)
+                        {
+                            dataSet1 = new String[(int)dataSnapshot.getChildrenCount()/2 + 1];
+                            linkSet1 = new String[(int)dataSnapshot.getChildrenCount()/2 + 1];
+                        }
+                        else
+                        {
+                            dataSet1 = new String[(int)dataSnapshot.getChildrenCount()/2];
+                            linkSet1 = new String[(int)dataSnapshot.getChildrenCount()/2];
+                        }
                         dataSet2 = new String[(int)dataSnapshot.getChildrenCount()/2];
                         linkSet2 = new String[(int)dataSnapshot.getChildrenCount()/2];
                         int i = 0;
 
                         for(DataSnapshot post : dataSnapshot.getChildren() ){
                             String name = post.getKey();
-
                             for(DataSnapshot post2 : post.getChildren())
                             {
-
                                 if(i % 2 == 0)
                                 {
                                     dataSet1[count1] = name;
@@ -99,6 +109,9 @@ public class Brand extends Fragment {
 
         // firebase Storage 읽기
         v =  inflater.inflate(R.layout.brand, container, false);
+
+
+
         ButterKnife.bind(v);
 
         return v;

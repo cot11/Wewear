@@ -7,6 +7,11 @@
     android:id="@+id/viewpager"
     android:layout_width="match_parent"
     android:layout_height="match_parent"/>
+    <Button
+        android:id="@+id/button1"
+        android:visibility="invisible"
+        android:layout_width="match_parent"
+        android:layout_height="50dp" />
 
 <com.example.circledicator.circledicator
     android:id="@+id/indicator"

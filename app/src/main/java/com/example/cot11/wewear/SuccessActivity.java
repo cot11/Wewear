@@ -134,18 +134,28 @@ public class SuccessActivity extends AppCompatActivity {
         int firstviewshow = preferences.getInt("First",0);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
-        if(firstviewshow != 1) // 처음 접속시 -> 모델 없을 경우
+        Intent intent_get = getIntent();
+        String userinfo = intent_get.getStringExtra("userprofile");
+        if(userinfo == null)
         {
-            //Intent intent = new Intent(SuccessActivity.this, FirstActivity.class);
-            //startActivity(intent);
+            userinfo = "1";
         }
-        else // 모델이 있을 경우 -> main page로 이동
+        if(firstviewshow != 1 && userinfo.equals("1")) // 처음 접속시 -> 모델 없을 경우
         {
-
+            Intent intent = new Intent(SuccessActivity.this, FirstActivity.class);
+            startActivity(intent);
+        }
+        else if(firstviewshow == 1 && userinfo.equals("1")) // 모델이 있을 경우 -> main page로 이동
+        {
+            Intent intent = new Intent(SuccessActivity.this, AvartaMain.class);
+            startActivity(intent);
+            finish();
+        }
+        else
+        {
+            System.out.println("아바타 만들기");
         }
 
-        Intent intent = new Intent(SuccessActivity.this, AvartaMain.class);
-        startActivity(intent);
 
         //init
          // class
@@ -406,11 +416,10 @@ public class SuccessActivity extends AppCompatActivity {
                 mHandler.obtainMessage(MSG_STATUS, 1, 0).sendToTarget();
                 ASMFit.fitting(image, shapes, 30);
                 for(int i = 0; i < shapes.rows(); i++){
-                    for(int j = 0; j < shapes.row(i).cols()/2; j++){
+                    for(int j = 0; j < (shapes.row(i).cols()/2)/2; j++){
                         double x = shapes.get(i, 2*j)[0];
                         double y = shapes.get(i, 2*j+1)[0];
                         Point pt = new Point(x, y);
-
                         Core.circle(image, pt, 3, mCyanColor, 2);
                     }
                 }

@@ -1,2 +1,2 @@
-include ':app', ':circledicator', ':mylibrary', ':picasso-2.5.2'
+include ':app', ':circledicator', ':picasso-2.5.2'
 include ':openCVLibrary2410'

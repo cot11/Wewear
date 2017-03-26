@@ -9,6 +9,7 @@ import android.support.v4.view.PagerAdapter;
 import android.view.Gravity;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.TextView;
 import java.util.Random;
 
@@ -36,6 +37,8 @@ public class PagerAdapater extends PagerAdapter {
     @Override public void destroyItem(ViewGroup view, int position, Object object) {
         view.removeView((View) object);
     }
+
+
 
     @Override public Object instantiateItem(ViewGroup view, int position) {
         TextView textView = new TextView(view.getContext());
