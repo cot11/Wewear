@@ -1,22 +1,13 @@
 package com.example.cot11.wewear;
 
-import android.app.Activity;
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.os.ParcelableCompat;
-import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
-import android.view.LayoutInflater;
-import android.view.MotionEvent;
-import android.view.View;
 import android.view.WindowManager;
-import android.widget.FrameLayout;
 import android.widget.Toast;
 
 /**

@@ -12,8 +12,7 @@ import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.Button;
-import android.widget.ProgressBar;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -33,7 +32,12 @@ public class AvartaMain extends AppCompatActivity{
     Thread thread;
     private FragmentManager fm;
     private ProgressDialog dialog;
-    Button button;
+    private int FragmentHeight = 0;
+    private int FragmentWidth = 0;
+    LinearLayout avarta_button;
+    LinearLayout shopping_button;
+    LinearLayout ranking_button;
+
 
     String[] MenuSet = new String[4];
 
@@ -67,6 +71,9 @@ public class AvartaMain extends AppCompatActivity{
         fragmentTransaction.replace(R.id.Fragment_change,webView);
         fragmentTransaction.commit();
     }
+
+
+
     public void backtoFrag(String brand)
     {
         brandSet(brand, false);
@@ -82,7 +89,24 @@ public class AvartaMain extends AppCompatActivity{
         dialog.dismiss();
     }
 
+    public int getHeight()
+    {
+        return FragmentHeight/3;
+    }
 
+    public int getWidth()
+    {
+        return FragmentWidth/2;
+    }
+
+
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus) {
+
+        LinearLayout linearLayout = (LinearLayout)findViewById(R.id.Fragment_change);
+        FragmentHeight = Integer.valueOf(linearLayout.getHeight());
+        FragmentWidth = Integer.valueOf(linearLayout.getWidth());
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,9 +115,14 @@ public class AvartaMain extends AppCompatActivity{
         MenuSet[1] = "아바타 만들기2";
         MenuSet[2] = "아바타 만들기3";
         MenuSet[3] = "아바타 만들기4";
+
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
-        button = (Button)findViewById(R.id.avarta);
+
+        avarta_button = (LinearLayout)findViewById(R.id.line1);
+        shopping_button = (LinearLayout)findViewById(R.id.line2);
+        ranking_button = (LinearLayout)findViewById(R.id.line3);
         getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,WindowManager.LayoutParams.FLAG_FULLSCREEN);
 
         fm = getSupportFragmentManager();
@@ -121,6 +150,8 @@ public class AvartaMain extends AppCompatActivity{
         rightBmb.setPiecePlaceEnum(PiecePlaceEnum.HAM_4);
         rightBmb.setButtonPlaceEnum(ButtonPlaceEnum.HAM_4);
 
+        avarta_button.setBackgroundColor(Color.BLACK);
+
         for (int i = 0; i < rightBmb.getPiecePlaceEnum().pieceNumber(); i++)
         {
             HamButton.Builder builder = new HamButton.Builder()
@@ -137,7 +168,7 @@ public class AvartaMain extends AppCompatActivity{
                                 Intent intent = new Intent(AvartaMain.this, SuccessActivity.class);
                                 intent.putExtra("userprofile","10");
                                 startActivity(intent);
-                                finish();
+                                // finish();
                             }
                         }
                     });
@@ -155,14 +186,24 @@ public class AvartaMain extends AppCompatActivity{
         switch (v.getId())
         {
             case R.id.avarta:
+                avarta_button.setBackgroundColor(Color.BLACK);
+                shopping_button.setBackgroundColor(Color.WHITE);
+                ranking_button.setBackgroundColor(Color.WHITE);
                 fragmentTransaction.replace(R.id.Fragment_change, new Avarta());
                 fragmentTransaction.commit();
                 break;
             case R.id.shopping:
+                avarta_button.setBackgroundColor(Color.WHITE);
+                shopping_button.setBackgroundColor(Color.BLACK);
+                ranking_button.setBackgroundColor(Color.WHITE);
                 fragmentTransaction.replace(R.id.Fragment_change, new Brand());
                 fragmentTransaction.commit();
                 break;
             case R.id.ranking:
+                avarta_button.setElevation(10);
+                avarta_button.setBackgroundColor(Color.WHITE);
+                shopping_button.setBackgroundColor(Color.WHITE);
+                ranking_button.setBackgroundColor(Color.BLACK);
                 fragmentTransaction.replace(R.id.Fragment_change, new Ranking());
                 fragmentTransaction.commit();
                 break;

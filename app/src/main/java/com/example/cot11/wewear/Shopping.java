@@ -5,7 +5,6 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
-import android.support.v4.util.ArrayMap;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -14,16 +13,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
-
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-
 import java.util.ArrayList;
-
-import butterknife.ButterKnife;
 
 
 
@@ -38,6 +33,9 @@ public class Shopping extends Fragment {
     private String[] dataSet2;
     private String[] linkSet2;
 
+    private long timer;
+    private long timerend;
+
     private ArrayList<productList> productListArrayList1 = new ArrayList<productList>();
     private ArrayList<productList> productListArrayList2 = new ArrayList<productList>();
 
@@ -51,11 +49,17 @@ public class Shopping extends Fragment {
 
     }
 
+    @Override
+    public void onDestroy() {
+        System.out.println("destroy : shopping 프래그먼트 멈춤");
+        super.onDestroy();
+    }
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
-        ((AvartaMain) getActivity()).ProgressRun();
+        //((AvartaMain) getActivity()).ProgressRun();
 
         if(getArguments() != null)
         {
@@ -67,6 +71,8 @@ public class Shopping extends Fragment {
         {
             Toast.makeText(getActivity(), "불러오기 실패", Toast.LENGTH_SHORT).show();
         }
+
+        timer = System.currentTimeMillis();
 
         mDatabase = FirebaseDatabase.getInstance().getReference();
         // Storage 이미지 다운로드 경로
@@ -121,7 +127,7 @@ public class Shopping extends Fragment {
                                     {
 
                                         productList.setSize(k,post3.getKey(),post3.getValue().toString());
-                                        System.out.println("count11 : " + productList.getSize(k));
+                                        //System.out.println("count11 : " + productList.getSize(k));
                                         k++;
                                     }
                                 }
@@ -148,6 +154,8 @@ public class Shopping extends Fragment {
                             }
                         });
                         mRecyclerView.setAdapter(adapter);
+                        timerend = System.currentTimeMillis();
+                        System.out.println("count11_s : " + (timerend - timer));
 
                     }
                     @Override

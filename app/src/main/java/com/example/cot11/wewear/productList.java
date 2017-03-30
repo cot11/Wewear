@@ -27,6 +27,16 @@ public class productList{
         this.code = code;
     }
 
+    public int getSizeCount()
+    {
+        return size.length;
+    }
+
+    public int getColorCount()
+    {
+        return color.length;
+    }
+
     public String getLink() {
         return this.link;
     }

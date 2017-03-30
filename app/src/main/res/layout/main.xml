@@ -18,45 +18,88 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
             <LinearLayout
+                android:weightSum="90"
                 android:layout_weight="20"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
-                <Button
+                <LinearLayout
+                    android:weightSum="100"
+                    android:orientation="vertical"
                     android:layout_weight="30"
-                    android:onClick="tab_change"
-                    android:text="아바타"
-                    android:id="@+id/avarta"
-                    android:background="@color/white"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
-                <Button
+                    android:layout_height="match_parent">
+                    <Button
+                        android:layout_weight="10"
+                        android:onClick="tab_change"
+                        android:text="아바타"
+                        android:id="@+id/avarta"
+                        android:background="@color/white"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent" />
+                    <LinearLayout
+                        android:orientation="horizontal"
+                        android:id="@+id/line1"
+                        android:layout_weight="90"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+                    </LinearLayout>
+                </LinearLayout>
+                <LinearLayout
+                    android:weightSum="100"
+                    android:orientation="vertical"
                     android:layout_weight="30"
-                    android:onClick="tab_change"
-                    android:text="쇼핑몰 목록"
-                    android:id="@+id/shopping"
-                    android:background="@color/white"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
-                <Button
+                    android:layout_height="match_parent">
+                    <Button
+                        android:elevation="10dp"
+                        android:layout_weight="10"
+                        android:onClick="tab_change"
+                        android:text="쇼핑몰 목록"
+                        android:id="@+id/shopping"
+                        android:background="@color/white"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent" />
+                    <LinearLayout
+                        android:orientation="horizontal"
+                        android:id="@+id/line2"
+                        android:layout_weight="90"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+                    </LinearLayout>
+
+                </LinearLayout>
+                <LinearLayout
+                    android:weightSum="100"
+                    android:orientation="vertical"
                     android:layout_weight="30"
-                    android:onClick="tab_change"
-                    android:text="랭킹"
-                    android:id="@+id/ranking"
-                    android:background="@color/white"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
+                    android:layout_height="match_parent">
+                    <Button
+                        android:layout_weight="10"
+                        android:onClick="tab_change"
+                        android:text="랭킹"
+                        android:id="@+id/ranking"
+                        android:background="@color/white"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent" />
+                    <LinearLayout
+                        android:orientation="horizontal"
+                        android:id="@+id/line3"
+                        android:layout_weight="90"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent">
+                    </LinearLayout>
+
+                </LinearLayout>
             </LinearLayout>
         </LinearLayout>
-        <FrameLayout
+
+        <LinearLayout
+            android:orientation="horizontal"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="8"
-            android:id="@+id/Fragment_change" />
+            android:id="@+id/Fragment_change">
+        </LinearLayout>
     </LinearLayout>
-
-
-
-
-
-
 </LinearLayout>

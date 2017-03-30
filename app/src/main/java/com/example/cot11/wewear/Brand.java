@@ -4,11 +4,9 @@ package com.example.cot11.wewear;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,7 +15,6 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
-import com.google.firebase.storage.UploadTask;
 
 import butterknife.ButterKnife;
 
@@ -37,7 +34,6 @@ public class Brand extends Fragment {
     int count1 = 0;
     int count2 = 0;
 
-
     public Brand() {
         // Required empty public constructor
     }
@@ -46,7 +42,7 @@ public class Brand extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
 
-        ((AvartaMain) getActivity()).ProgressRun();
+        // ((AvartaMain) getActivity()).ProgressRun();
 
         mDatabase = FirebaseDatabase.getInstance().getReference();
         mDatabase.child("Brand").addListenerForSingleValueEvent(
@@ -54,6 +50,7 @@ public class Brand extends Fragment {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         // Get user value
+
                         if(dataSnapshot.getChildrenCount() % 2 == 1)
                         {
                             dataSet1 = new String[(int)dataSnapshot.getChildrenCount()/2 + 1];

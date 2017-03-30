@@ -1,37 +1,19 @@
 package com.example.cot11.wewear;
 
-import android.app.Activity;
-import android.app.Fragment;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
+
 import android.content.Context;
 import android.net.Uri;
-import android.os.Bundle;
-import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
-import android.text.format.DateUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.webkit.WebView;
-import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
-import android.widget.TextView;
-
 import com.bumptech.glide.Glide;
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
-
 import java.io.File;
-import java.io.IOException;
-import java.util.List;
 
-import butterknife.Bind;
-import butterknife.ButterKnife;
 
 /**
  * Created by cot11 on 2017-03-22.
@@ -49,6 +31,7 @@ public class BrandAdapter extends RecyclerView.Adapter<BrandAdapter.BrandViewHol
     private StorageReference storageRef;
     private Uri url;
     private  File localFile;
+
 
     public BrandAdapter(String[] linkSet, String[] dataSet,String[] linkSet2, String[] dataSet2, Context context)
     {
@@ -72,18 +55,12 @@ public class BrandAdapter extends RecyclerView.Adapter<BrandAdapter.BrandViewHol
     {
         mStorage= FirebaseStorage.getInstance();
         storageRef = mStorage.getReferenceFromUrl("gs://wewear-db78b.appspot.com/");
-        try
-        {
-           localFile = File.createTempFile("images", "jpg");
-        }catch (IOException e)
-        {
-            e.printStackTrace();
-        }
 
         storageRef.child("Logo/" + mDataSet1[position]+ ".jpg").getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
             @Override
             public void onSuccess(Uri uri) {
-                Glide.with(mContext).load(uri).into(myViewHolder.imageView1);
+                Glide.with(mContext).load(uri).thumbnail(0.1f).into(myViewHolder.imageView1);
+
             }
         });
 
@@ -92,8 +69,8 @@ public class BrandAdapter extends RecyclerView.Adapter<BrandAdapter.BrandViewHol
             storageRef.child("Logo/" + mDataSet2[position]+ ".jpg").getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                 @Override
                 public void onSuccess(Uri uri) {
-                    Glide.with(mContext).load(uri).into(myViewHolder.imageView2);
-                    ((AvartaMain) mContext).ProgressStop();
+                    Glide.with(mContext).load(uri).thumbnail(0.1f).into(myViewHolder.imageView2);
+                    //   ((AvartaMain) mContext).ProgressStop();
                 }
             });
         }

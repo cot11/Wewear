@@ -1,12 +1,8 @@
 package com.example.cot11.wewear;
 
-import android.app.ProgressDialog;
 import android.graphics.Bitmap;
-import android.support.annotation.BoolRes;
 import android.support.v4.app.Fragment;
 import android.os.Bundle;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -74,7 +70,7 @@ public class webView extends Fragment {
         public void onPageStarted(WebView view, String url, Bitmap favicon) {super.onPageStarted(view, url, favicon);
             if(run)
             {
-                ((AvartaMain) getActivity()).ProgressRun();
+                //((AvartaMain) getActivity()).ProgressRun();
                 run = false;
             }
 
@@ -82,7 +78,7 @@ public class webView extends Fragment {
         @Override
         public void onPageFinished(WebView view, String url) {
             super.onPageFinished(view, url);
-            ((AvartaMain) getActivity()).ProgressStop();
+            //((AvartaMain) getActivity()).ProgressStop();
             run = true;
         }
     }
