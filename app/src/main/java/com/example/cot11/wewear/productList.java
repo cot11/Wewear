@@ -11,6 +11,7 @@ public class productList{
     String price;
     String like;
     String split;
+    String img;
     String[] color;
     String[][] size;
 
@@ -61,6 +62,10 @@ public class productList{
         return this.split;
     }
 
+    public String getImg() {
+        return this.img;
+    }
+
     public String getColor(int n) {
         return this.color[n];
     }
@@ -71,6 +76,10 @@ public class productList{
 
     public void setLink(String link) {
         this.link = link;
+    }
+
+    public void setImg(String Img) {
+        this.img = Img;
     }
 
     public void setName(String name) {

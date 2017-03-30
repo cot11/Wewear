@@ -188,12 +188,12 @@ public class AvartaMain extends AppCompatActivity{
         switch (v.getId())
         {
             case R.id.avarta:
+                Animation animation = new AlphaAnimation(0,1);
+                animation.setDuration(1000);
+                avarta_button.setAnimation(animation);
                 avarta_button.setBackgroundColor(Color.BLACK);
                 shopping_button.setBackgroundColor(Color.WHITE);
                 ranking_button.setBackgroundColor(Color.WHITE);
-                Animation animation = new AlphaAnimation(0,1);
-                animation.setDuration(1000);
-                shopping_button.setAnimation(animation);
                 fragmentTransaction.replace(R.id.Fragment_change, new Avarta());
                 fragmentTransaction.commit();
                 break;

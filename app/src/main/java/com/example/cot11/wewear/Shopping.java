@@ -12,6 +12,7 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -55,6 +56,12 @@ public class Shopping extends Fragment {
         super.onDestroy();
     }
 
+    public void Systemm()
+    {
+        LinearLayout linearLayout = (LinearLayout)v.findViewById(R.id.linear1);
+        linearLayout.setVisibility(View.INVISIBLE);
+    }
+
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -94,6 +101,11 @@ public class Shopping extends Fragment {
                                 else if(post2.getKey().equals("code"))
                                 {
                                     productList.setCode(post2.getValue().toString());
+                                }
+                                else if(post2.getKey().equals("img"))
+                                {
+                                    productList.setImg(post2.getValue().toString());
+                                    System.out.println("count11 : " + post2.getValue().toString());
                                 }
                                 else if(post2.getKey().equals("like"))
                                 {
@@ -154,7 +166,6 @@ public class Shopping extends Fragment {
                         });
                         mRecyclerView.setAdapter(adapter);
                         timerend = System.currentTimeMillis();
-                        System.out.println("count11_s : " + (timerend - timer));
 
                     }
                     @Override

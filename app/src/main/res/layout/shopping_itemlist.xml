@@ -18,4 +18,13 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
+    <LinearLayout
+        android:orientation="horizontal"
+        android:id="@+id/linear1"
+        android:background="@color/blue"
+        android:layout_alignBottom="@+id/recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="50dp">
+    </LinearLayout>
+
 </RelativeLayout>

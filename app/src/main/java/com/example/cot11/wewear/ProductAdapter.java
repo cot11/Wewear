@@ -1,7 +1,9 @@
 package com.example.cot11.wewear;
 
 import android.content.Context;
+import android.graphics.Color;
 import android.net.Uri;
+import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
@@ -31,6 +33,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
     private ArrayList<productList> productAdapter2;
     private FirebaseStorage mStorage;
     private StorageReference storageRef;
+    private View vieW;
 
     private int Height_image = 0;
     private int Width_image = 0;
@@ -48,6 +51,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
     public ProductAdapter.ProductViewHolder onCreateViewHolder(ViewGroup viewGroup, int i)
     {
         View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.product_list, viewGroup, false);
+        vieW = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.shopping_itemlist, viewGroup, false);
         Height_image = ((AvartaMain) mContext).getHeight();
         Width_image = ((AvartaMain) mContext).getWidth();
         CardView cardView = (CardView)v.findViewById(R.id.cardview);
@@ -73,23 +77,11 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         mStorage= FirebaseStorage.getInstance();
         storageRef = mStorage.getReferenceFromUrl("gs://wewear-db78b.appspot.com/");
 
-
-        storageRef.child(BrandName+"/" + productAdapter1.get(position).getName()+ ".jpg").getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-            @Override
-            public void onSuccess(Uri uri) {
-                Glide.with(mContext).load(uri).into(myViewHolder.imageView1);
-            }
-        });
+        Glide.with(mContext).load(productAdapter1.get(position).getImg()).override(Width_image,Height_image).into(myViewHolder.imageView1);
 
         if(position < productAdapter2.size())
         {
-            storageRef.child(BrandName+"/" + productAdapter2.get(position).getName()+ ".jpg").getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                @Override
-                public void onSuccess(Uri uri) {
-                    Glide.with(mContext).load(uri).override(300,Height_image).into(myViewHolder.imageView2);
-                    //((AvartaMain) mContext).ProgressStop();
-                }
-            });
+            Glide.with(mContext).load(productAdapter2.get(position).getImg()).override(Width_image,Height_image).into(myViewHolder.imageView2);
         }
 
         myViewHolder.imageView1.setOnClickListener(new View.OnClickListener() {
@@ -102,12 +94,26 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         myViewHolder.imageView2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                System.out.println("LLLLLL");
                 if(position < productAdapter2.size())
                 {
                     ((AvartaMain) mContext).openWeb(productAdapter2.get(position).getLink(),BrandName);
                 }
             }
         });
+
+        myViewHolder.try_on1.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+            }
+        });
+
+        myViewHolder.try_on2.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+            }
+        });
+
     }
 
     @Override
@@ -121,8 +127,8 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         ImageView imageView1;
         ImageView imageView2;
         Button try_on1;
-        Button like_1;
         Button try_on2;
+        Button like_1;
         Button like_2;
 
         public ProductViewHolder(View itemView) {
