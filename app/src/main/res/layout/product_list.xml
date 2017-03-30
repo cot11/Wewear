@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="horizontal"
-    android:weightSum="100"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
@@ -9,10 +8,10 @@
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:card_view="http://schemas.android.com/apk/res-auto"
         android:id="@+id/cardview"
-        android:layout_weight="50"
+        android:layout_weight="1"
         android:layout_height="250dp"
         android:layout_width="match_parent"
-        card_view:cardCornerRadius="8dp">
+        card_view:cardCornerRadius="6dp">
 
         <LinearLayout
             android:weightSum="100"
@@ -21,36 +20,24 @@
             android:layout_height="match_parent"
             android:orientation="vertical">
             <ImageView
-                android:layout_weight="25"
+                android:layout_weight="15"
                 android:id="@+id/image"
-                android:scaleType="fitXY"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" />
             <LinearLayout
                 android:orientation="horizontal"
-                android:weightSum="90"
-                android:layout_weight="75"
+                android:weightSum="60"
+                android:layout_weight="85"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
-                <Button
-                    android:layout_weight="30"
-                    android:id="@+id/size"
-                    android:layout_alignParentRight="true"
-                    android:layout_alignParentBottom="true"
-                    android:text="Size"
-                    android:textColor="@android:color/white"
-                    android:backgroundTint="@color/colorAccent"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
-
                 <Button
                     android:layout_weight="30"
                     android:id="@+id/try_on"
                     android:layout_alignParentRight="true"
                     android:layout_alignParentBottom="true"
-                    android:text="Try on"
+                    android:text="입기"
                     android:textColor="@android:color/white"
-                    android:backgroundTint="@color/colorAccent"
+                    android:background="@drawable/test"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent" />
 
@@ -59,9 +46,9 @@
                     android:id="@+id/share_button"
                     android:layout_alignParentRight="true"
                     android:layout_alignParentBottom="true"
-                    android:text="Save"
+                    android:text="저장"
                     android:textColor="@android:color/white"
-                    android:backgroundTint="@color/colorAccent"
+                    android:background="@drawable/test"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent" />
             </LinearLayout>
@@ -74,47 +61,38 @@
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:card_view="http://schemas.android.com/apk/res-auto"
         android:id="@+id/cardview2"
-        android:layout_weight="50"
+        android:layout_weight="1"
         android:layout_height="250dp"
         android:layout_width="match_parent"
-        card_view:cardCornerRadius="8dp">
+        card_view:cardCornerRadius="6dp">
 
         <LinearLayout
             android:weightSum="100"
+
             android:id="@+id/layout2"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:orientation="vertical">
             <ImageView
-                android:layout_weight="25"
+                android:layout_weight="15"
                 android:id="@+id/image2"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent" />
             <LinearLayout
                 android:orientation="horizontal"
-                android:weightSum="90"
-                android:layout_weight="75"
+                android:weightSum="60"
+                android:layout_weight="85"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
-                <Button
-                    android:layout_weight="30"
-                    android:id="@+id/size2"
-                    android:layout_alignParentRight="true"
-                    android:layout_alignParentBottom="true"
-                    android:text="Size"
-                    android:textColor="@android:color/white"
-                    android:backgroundTint="@color/colorAccent"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent" />
 
                 <Button
                     android:layout_weight="30"
                     android:id="@+id/try_on2"
                     android:layout_alignParentRight="true"
                     android:layout_alignParentBottom="true"
-                    android:text="Try on"
+                    android:text="입기"
                     android:textColor="@android:color/white"
-                    android:backgroundTint="@color/colorAccent"
+                    android:background="@drawable/test"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent" />
 
@@ -123,9 +101,9 @@
                     android:id="@+id/share_button2"
                     android:layout_alignParentRight="true"
                     android:layout_alignParentBottom="true"
-                    android:text="Save"
+                    android:text="저장"
                     android:textColor="@android:color/white"
-                    android:backgroundTint="@color/colorAccent"
+                    android:background="@drawable/test"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent" />
             </LinearLayout>

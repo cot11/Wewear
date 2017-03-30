@@ -12,6 +12,8 @@ import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.animation.AlphaAnimation;
+import android.view.animation.Animation;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -189,6 +191,9 @@ public class AvartaMain extends AppCompatActivity{
                 avarta_button.setBackgroundColor(Color.BLACK);
                 shopping_button.setBackgroundColor(Color.WHITE);
                 ranking_button.setBackgroundColor(Color.WHITE);
+                Animation animation = new AlphaAnimation(0,1);
+                animation.setDuration(1000);
+                shopping_button.setAnimation(animation);
                 fragmentTransaction.replace(R.id.Fragment_change, new Avarta());
                 fragmentTransaction.commit();
                 break;

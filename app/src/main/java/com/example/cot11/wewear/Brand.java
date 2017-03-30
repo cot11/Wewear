@@ -16,6 +16,8 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
+
 import butterknife.ButterKnife;
 
 /**
@@ -26,10 +28,8 @@ public class Brand extends Fragment {
 
     private RecyclerView mRecyclerView;
     private DatabaseReference mDatabase;
-    private String[] dataSet1;
-    private String[] linkSet1;
-    private String[] dataSet2;
-    private String[] linkSet2;
+    private ArrayList<Brandlist> Brandlist1 = new ArrayList<Brandlist>();
+    private ArrayList<Brandlist> Brandlist2 = new ArrayList<Brandlist>();
     private View v;
     int count1 = 0;
     int count2 = 0;
@@ -45,48 +45,41 @@ public class Brand extends Fragment {
         // ((AvartaMain) getActivity()).ProgressRun();
 
         mDatabase = FirebaseDatabase.getInstance().getReference();
-        mDatabase.child("Brand").addListenerForSingleValueEvent(
-                new ValueEventListener() {
+        mDatabase.child("Brand").addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         // Get user value
-
-                        if(dataSnapshot.getChildrenCount() % 2 == 1)
-                        {
-                            dataSet1 = new String[(int)dataSnapshot.getChildrenCount()/2 + 1];
-                            linkSet1 = new String[(int)dataSnapshot.getChildrenCount()/2 + 1];
-                        }
-                        else
-                        {
-                            dataSet1 = new String[(int)dataSnapshot.getChildrenCount()/2];
-                            linkSet1 = new String[(int)dataSnapshot.getChildrenCount()/2];
-                        }
-                        dataSet2 = new String[(int)dataSnapshot.getChildrenCount()/2];
-                        linkSet2 = new String[(int)dataSnapshot.getChildrenCount()/2];
                         int i = 0;
-
-                        for(DataSnapshot post : dataSnapshot.getChildren() ){
-                            String name = post.getKey();
+                        for(DataSnapshot post : dataSnapshot.getChildren() ) {
+                            Brandlist brandlist = new Brandlist();
+                            brandlist.setName(post.getKey());
                             for(DataSnapshot post2 : post.getChildren())
                             {
-                                if(i % 2 == 0)
+                                if(post2.getKey().equals("logo"))
                                 {
-                                    dataSet1[count1] = name;
-                                    linkSet1[count1] = post2.getValue().toString();
-                                    count1++;
+                                    System.out.println("count11 : " + post2.getValue());
+                                    brandlist.setRogo(post2.getValue().toString());
                                 }
-                                else
+                                else if(post2.getKey().equals("Link"))
                                 {
-                                    dataSet2[count2] = name;
-                                    linkSet2[count2] = post2.getValue().toString();
-                                    count2++;
+                                    brandlist.settLink(post2.getValue().toString());
+                                    //System.out.println("count11 : " + post2.getValue());
                                 }
+                            }
+
+                            if(i % 2 == 0)
+                            {
+                                Brandlist1.add(brandlist);
+                            }
+                            else
+                            {
+                                Brandlist2.add(brandlist);
                             }
                             i++;
                         }
 
                         mRecyclerView = (RecyclerView)v.findViewById(R.id.recycler_view);
-                        BrandAdapter adapter = new BrandAdapter(linkSet1, dataSet1, linkSet2, dataSet2, getActivity());
+                        BrandAdapter adapter = new BrandAdapter(Brandlist1, Brandlist2, getActivity());
                         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
                         mRecyclerView.addItemDecoration(new RecyclerView.ItemDecoration() {
                             @Override
@@ -96,6 +89,7 @@ public class Brand extends Fragment {
                             }
                         });
                         mRecyclerView.setAdapter(adapter);
+
                         // ...
                     }
                     @Override

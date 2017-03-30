@@ -76,8 +76,7 @@ public class Shopping extends Fragment {
 
         mDatabase = FirebaseDatabase.getInstance().getReference();
         // Storage 이미지 다운로드 경로
-        mDatabase.child("Clothes").child(BrandName).addListenerForSingleValueEvent(
-                new ValueEventListener() {
+        mDatabase.child("Clothes").child(BrandName).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
 

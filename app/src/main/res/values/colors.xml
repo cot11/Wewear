@@ -6,5 +6,18 @@
     <color name="white">#FFFFFF</color>
     <color name="blue">#2e60bb</color>
     <color name="gray">#e2e6e9</color>
+    <color name="black">#000000</color>
     <color name="mint">#0dd09e</color>
+
+    <color name="stroke">#00000000</color>
+    <color name="pressed1">#959ca4</color>
+    <color name="pressed2">#646d79</color>
+
+    <color name="focused1">#959ca4</color>
+    <color name="focused2">#646d79</color>
+
+    <color name="default1">#686e77</color>
+    <color name="default2">#40474f</color>
+
+
 </resources>

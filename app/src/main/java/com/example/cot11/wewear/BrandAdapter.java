@@ -9,10 +9,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.GlideDrawableImageViewTarget;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import java.io.File;
+import java.util.ArrayList;
 
 
 /**
@@ -21,24 +23,17 @@ import java.io.File;
 
 public class BrandAdapter extends RecyclerView.Adapter<BrandAdapter.BrandViewHolder>
 {
-    private String[] mDataSet1;
-    private String[] mLinkSet1;
-    private String[] mDataSet2;
-    private String[] mLinkSet2;
+
     private Context mContext;
-
+    private ArrayList<Brandlist> Brandlist1;
+    private ArrayList<Brandlist> Brandlist2;
     private FirebaseStorage mStorage;
-    private StorageReference storageRef;
-    private Uri url;
-    private  File localFile;
 
 
-    public BrandAdapter(String[] linkSet, String[] dataSet,String[] linkSet2, String[] dataSet2, Context context)
+    public BrandAdapter(ArrayList<Brandlist> brandlist1, ArrayList<Brandlist> brandlist2, Context context)
     {
-        mLinkSet1 = linkSet;
-        mDataSet1 = dataSet;
-        mLinkSet2 = linkSet2;
-        mDataSet2 = dataSet2;
+        Brandlist1 = brandlist1;
+        Brandlist2 = brandlist2;
         mContext = context;
 
     }
@@ -54,40 +49,27 @@ public class BrandAdapter extends RecyclerView.Adapter<BrandAdapter.BrandViewHol
     public void onBindViewHolder(final BrandAdapter.BrandViewHolder myViewHolder, final int position)
     {
         mStorage= FirebaseStorage.getInstance();
-        storageRef = mStorage.getReferenceFromUrl("gs://wewear-db78b.appspot.com/");
+        GlideDrawableImageViewTarget imageViewTarget = new GlideDrawableImageViewTarget(myViewHolder.imageView1);
+        Glide.with(mContext).load(Brandlist1.get(position).getRogo()).thumbnail(0.1f).into(imageViewTarget);
 
-        storageRef.child("Logo/" + mDataSet1[position]+ ".jpg").getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-            @Override
-            public void onSuccess(Uri uri) {
-                Glide.with(mContext).load(uri).thumbnail(0.1f).into(myViewHolder.imageView1);
-
-            }
-        });
-
-        if(position < mDataSet2.length)
+        if(position < Brandlist2.size())
         {
-            storageRef.child("Logo/" + mDataSet2[position]+ ".jpg").getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                @Override
-                public void onSuccess(Uri uri) {
-                    Glide.with(mContext).load(uri).thumbnail(0.1f).into(myViewHolder.imageView2);
-                    //   ((AvartaMain) mContext).ProgressStop();
-                }
-            });
+            Glide.with(mContext).load(Brandlist2.get(position).getRogo()).asBitmap().thumbnail(0.1f).into(myViewHolder.imageView2);
         }
 
         myViewHolder.imageView1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ((AvartaMain) mContext).brandSet(mDataSet1[position], true);
+                ((AvartaMain) mContext).brandSet(Brandlist1.get(position).getName(), true);
             }
         });
 
         myViewHolder.imageView2.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(position < mDataSet2.length)
+                if(position < Brandlist2.size())
                 {
-                    ((AvartaMain) mContext).brandSet(mDataSet2[position], true);
+                    ((AvartaMain) mContext).brandSet(Brandlist2.get(position).getName(), true);
                 }
             }
         });
@@ -97,7 +79,7 @@ public class BrandAdapter extends RecyclerView.Adapter<BrandAdapter.BrandViewHol
     @Override
     public int getItemCount()
     {
-        return mDataSet1.length;
+        return Brandlist1.size();
 
     }
 
