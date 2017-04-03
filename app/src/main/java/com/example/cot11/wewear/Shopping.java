@@ -24,21 +24,29 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
-
+import java.util.List;
 
 
 public class Shopping extends Fragment {
 
     private RecyclerView mRecyclerView;
+    private RecyclerView mRecyclerView1;
     private RecyclerView mRecyclerView2;
     private RecyclerView.LayoutManager	mLayoutManager;
+    private RecyclerView.LayoutManager	mLayoutManager1;
+    private RecyclerView.LayoutManager	mLayoutManager2;
     private DatabaseReference mDatabase;
 
     private ArrayList<productList> productListArrayList1 = new ArrayList<productList>();
+    private ArrayList<productList> productListArrayList = new ArrayList<productList>();
 
     private View v;
     private boolean back = false;
     public String BrandName = "";
+
+    boolean[] code_bool = new boolean[4];
+    String[] code_String = new String[4];
+
 
     public Shopping() {
 
@@ -52,6 +60,8 @@ public class Shopping extends Fragment {
 
     public void Systemm()
     {
+        System.out.println("KKKKKKKKKKKKk");
+        System.out.println("count11 : " + BrandName);
         //LinearLayout linearLayout = (LinearLayout)v.findViewById(R.id.linear1);
         //linearLayout.setVisibility(View.INVISIBLE);
     }
@@ -61,6 +71,11 @@ public class Shopping extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         //((AvartaMain) getActivity()).ProgressRun();
+
+        code_String[0] = "상의";
+        code_String[1] = "하의";
+        code_String[2] = "아우터";
+        code_String[3] = "원피스";
 
         if(getArguments() != null)
         {
@@ -91,11 +106,13 @@ public class Shopping extends Fragment {
                                 else if(post2.getKey().equals("code"))
                                 {
                                     productList.setCode(post2.getValue().toString());
+                                    int code = Integer.valueOf(post2.getValue().toString());
+                                    code_bool[code-1] = true;
                                 }
                                 else if(post2.getKey().equals("img"))
                                 {
                                     productList.setImg(post2.getValue().toString());
-                                    System.out.println("count11 : " + post2.getValue().toString());
+                                    //System.out.println("count11 : " + post2.getValue().toString());
                                 }
                                 else if(post2.getKey().equals("like"))
                                 {
@@ -136,10 +153,35 @@ public class Shopping extends Fragment {
                             productListArrayList1.add(productList);
                         }
 
+                        for(int i = 0; i < productListArrayList1.size(); i++)
+                        {
+                            if(productListArrayList1.get(i).getCode().equals("1"))
+                            {
+                                productList productList = new productList();
+                                productList = productListArrayList1.get(i);
+                                productListArrayList.add(productList);
+                            }
+                        }
+
+                        mRecyclerView1 = (RecyclerView)v.findViewById(R.id.recycler_view1);
+                        mRecyclerView1.setLayoutManager(new LinearLayoutManager(getActivity()));
+                        List<String> mDataset= new ArrayList<String>();
+                        for(int i = 0; i < code_bool.length; i++)
+                        {
+                            if(code_bool[i])
+                            {
+                                mDataset.add(code_String[i]);
+                            }
+                        }
+                        CodeApdater mAdapter = new CodeApdater(mDataset, getActivity(), productListArrayList1);
+                        mLayoutManager1  = new StaggeredGridLayoutManager(1, StaggeredGridLayoutManager.HORIZONTAL);
+                        mRecyclerView1.setLayoutManager(mLayoutManager1);
+                        mRecyclerView1.setAdapter(mAdapter);
+
+                        /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
                         mRecyclerView = (RecyclerView)v.findViewById(R.id.recycler_view);
-                        mRecyclerView2 = (RecyclerView)v.findViewById(R.id.recycler_view2);
-                        ProductAdapter adapter = new ProductAdapter(BrandName,productListArrayList1, getActivity());
+                        ProductAdapter adapter = new ProductAdapter(BrandName,productListArrayList, getActivity());
                         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
                         mRecyclerView.addItemDecoration(new RecyclerView.ItemDecoration() {
                             @Override
@@ -148,11 +190,10 @@ public class Shopping extends Fragment {
                                 outRect.bottom = getResources().getDimensionPixelSize(R.dimen.activity_vertical_margin);
                             }
                         });
-
                         mLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
                         mRecyclerView.setLayoutManager(mLayoutManager);
-
                         mRecyclerView.setAdapter(adapter);
+
                     }
                     @Override
                     public void onCancelled(DatabaseError databaseError) {

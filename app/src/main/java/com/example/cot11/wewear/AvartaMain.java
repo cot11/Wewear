@@ -4,10 +4,15 @@ package com.example.cot11.wewear;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,6 +30,8 @@ import com.nightonke.boommenu.BoomMenuButton;
 import com.nightonke.boommenu.ButtonEnum;
 import com.nightonke.boommenu.Piece.PiecePlaceEnum;
 
+import java.util.ArrayList;
+
 /**
  * Created by 이언우 on 2017-03-13.
  */
@@ -36,10 +43,13 @@ public class AvartaMain extends AppCompatActivity{
     private ProgressDialog dialog;
     private int FragmentHeight = 0;
     private int FragmentWidth = 0;
+    private int Current_Code = 0;
     LinearLayout avarta_button;
     LinearLayout shopping_button;
     LinearLayout ranking_button;
-
+    private RecyclerView mRecyclerView;
+    private View header;
+    private ArrayList<productList> productListArrayList1 = new ArrayList<productList>();
 
     String[] MenuSet = new String[4];
 
@@ -74,11 +84,38 @@ public class AvartaMain extends AppCompatActivity{
         fragmentTransaction.commit();
     }
 
-
+    public void test(ArrayList<productList> adapter)
+    {
+        System.out.println("HI");
+        productListArrayList1 = adapter;
+        System.out.println(productListArrayList1.size());
+        ProductAdapter AA = new ProductAdapter("소녀나라",productListArrayList1, this);
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        mRecyclerView.addItemDecoration(new RecyclerView.ItemDecoration() {
+            @Override
+            public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
+                super.getItemOffsets(outRect, view, parent, state);
+                outRect.bottom = getResources().getDimensionPixelSize(R.dimen.activity_vertical_margin);
+            }
+        });
+        RecyclerView.LayoutManager	mLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
+        mRecyclerView.setLayoutManager(mLayoutManager);
+        mRecyclerView.setAdapter(AA);
+    }
 
     public void backtoFrag(String brand)
     {
         brandSet(brand, false);
+    }
+
+    public void setCurrent_Code(int code)
+    {
+        Current_Code = code;
+    }
+
+    public int getCurrent_Code()
+    {
+        return Current_Code;
     }
 
     public void ProgressRun()
@@ -118,6 +155,8 @@ public class AvartaMain extends AppCompatActivity{
         MenuSet[2] = "아바타 만들기3";
         MenuSet[3] = "아바타 만들기4";
 
+        header = getLayoutInflater().inflate(R.layout.shopping_itemlist, null, false);
+        mRecyclerView = (RecyclerView)header.findViewById(R.id.recycler_view);
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);

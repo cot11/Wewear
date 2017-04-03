@@ -27,12 +27,12 @@ import java.util.ArrayList;
 public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductViewHolder>
 {
     private Context mContext;
-
     private String BrandName;
     private ArrayList<productList> productAdapter1;
     private FirebaseStorage mStorage;
     private StorageReference storageRef;
     private View vieW;
+    private int currentitem;
 
     private int Height_image = 0;
     private int Width_image = 0;
@@ -71,7 +71,6 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
 
         mStorage= FirebaseStorage.getInstance();
         storageRef = mStorage.getReferenceFromUrl("gs://wewear-db78b.appspot.com/");
-
         Glide.with(mContext).load(productAdapter1.get(position).getImg()).override(Width_image,Height_image).into(myViewHolder.imageView1);
 
         myViewHolder.imageView1.setOnClickListener(new View.OnClickListener() {
@@ -79,12 +78,14 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
             public void onClick(View v) {
                 ((AvartaMain) mContext).openWeb(productAdapter1.get(position).getLink(),BrandName);
 
+
             }
         });
 
         myViewHolder.try_on1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                System.out.println("count11 : " + ((AvartaMain) mContext).getCurrent_Code());
             }
         });
     }
