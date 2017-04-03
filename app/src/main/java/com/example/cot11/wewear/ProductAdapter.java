@@ -30,7 +30,6 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
 
     private String BrandName;
     private ArrayList<productList> productAdapter1;
-    private ArrayList<productList> productAdapter2;
     private FirebaseStorage mStorage;
     private StorageReference storageRef;
     private View vieW;
@@ -39,11 +38,10 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
     private int Width_image = 0;
 
 
-    public ProductAdapter(String brandName, ArrayList<productList> adapter1, ArrayList<productList> adapter2, Context context)
+    public ProductAdapter(String brandName, ArrayList<productList> adapter1, Context context)
     {
         BrandName = brandName;
         productAdapter1 = adapter1;
-        productAdapter2 = adapter2;
         mContext = context;
     }
 
@@ -55,8 +53,6 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         Height_image = ((AvartaMain) mContext).getHeight();
         Width_image = ((AvartaMain) mContext).getWidth();
         CardView cardView = (CardView)v.findViewById(R.id.cardview);
-        CardView cardView2 = (CardView)v.findViewById(R.id.cardview2);
-
         LayoutParams params = new LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 Height_image,
@@ -65,7 +61,6 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         params.setMargins(6,6,6,6);
         cardView.setLayoutParams(params);
         cardView.setLayoutParams(params);
-        cardView2.setLayoutParams(params);
 
         return new ProductViewHolder(v);
     }
@@ -79,26 +74,11 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
 
         Glide.with(mContext).load(productAdapter1.get(position).getImg()).override(Width_image,Height_image).into(myViewHolder.imageView1);
 
-        if(position < productAdapter2.size())
-        {
-            Glide.with(mContext).load(productAdapter2.get(position).getImg()).override(Width_image,Height_image).into(myViewHolder.imageView2);
-        }
-
         myViewHolder.imageView1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 ((AvartaMain) mContext).openWeb(productAdapter1.get(position).getLink(),BrandName);
 
-            }
-        });
-        myViewHolder.imageView2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                System.out.println("LLLLLL");
-                if(position < productAdapter2.size())
-                {
-                    ((AvartaMain) mContext).openWeb(productAdapter2.get(position).getLink(),BrandName);
-                }
             }
         });
 
@@ -107,13 +87,6 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
             public void onClick(View v) {
             }
         });
-
-        myViewHolder.try_on2.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-            }
-        });
-
     }
 
     @Override
@@ -125,18 +98,13 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
     protected static class ProductViewHolder extends RecyclerView.ViewHolder {
 
         ImageView imageView1;
-        ImageView imageView2;
         Button try_on1;
-        Button try_on2;
         Button like_1;
-        Button like_2;
 
         public ProductViewHolder(View itemView) {
             super(itemView);
             try_on1 = (Button)itemView.findViewById(R.id.try_on);
-            try_on2 = (Button)itemView.findViewById(R.id.try_on2);
             imageView1 = (ImageView)itemView.findViewById(R.id.image);
-            imageView2 = (ImageView)itemView.findViewById(R.id.image2);
         }
     }
 }

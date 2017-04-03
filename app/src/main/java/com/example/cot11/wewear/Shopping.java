@@ -1,5 +1,6 @@
 package com.example.cot11.wewear;
 
+import android.database.DataSetObserver;
 import android.graphics.Rect;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -7,12 +8,15 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Adapter;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -25,26 +29,16 @@ import java.util.ArrayList;
 
 public class Shopping extends Fragment {
 
-    private static final String ARG_PARAM1 = "param1";
-    private String mParam1;
     private RecyclerView mRecyclerView;
+    private RecyclerView mRecyclerView2;
+    private RecyclerView.LayoutManager	mLayoutManager;
     private DatabaseReference mDatabase;
-    private String[] dataSet1;
-    private String[] linkSet1;
-    private String[] dataSet2;
-    private String[] linkSet2;
-
-    private long timer;
-    private long timerend;
 
     private ArrayList<productList> productListArrayList1 = new ArrayList<productList>();
-    private ArrayList<productList> productListArrayList2 = new ArrayList<productList>();
 
     private View v;
     private boolean back = false;
     public String BrandName = "";
-    int count1 = 0;
-    int count2 = 0;
 
     public Shopping() {
 
@@ -58,8 +52,8 @@ public class Shopping extends Fragment {
 
     public void Systemm()
     {
-        LinearLayout linearLayout = (LinearLayout)v.findViewById(R.id.linear1);
-        linearLayout.setVisibility(View.INVISIBLE);
+        //LinearLayout linearLayout = (LinearLayout)v.findViewById(R.id.linear1);
+        //linearLayout.setVisibility(View.INVISIBLE);
     }
 
 
@@ -79,15 +73,11 @@ public class Shopping extends Fragment {
             Toast.makeText(getActivity(), "불러오기 실패", Toast.LENGTH_SHORT).show();
         }
 
-        timer = System.currentTimeMillis();
-
         mDatabase = FirebaseDatabase.getInstance().getReference();
         // Storage 이미지 다운로드 경로
         mDatabase.child("Clothes").child(BrandName).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
-
-                        int i = 0;
 
                         for(DataSnapshot post : dataSnapshot.getChildren() ) {
                             productList productList = new productList();
@@ -143,19 +133,13 @@ public class Shopping extends Fragment {
                                     }
                                 }
                             }
-                            if(i % 2 == 0)
-                            {
-                                productListArrayList1.add(productList);
-                            }
-                            else
-                            {
-                                productListArrayList2.add(productList);
-                            }
-                            i++;
+                            productListArrayList1.add(productList);
                         }
 
+
                         mRecyclerView = (RecyclerView)v.findViewById(R.id.recycler_view);
-                        ProductAdapter adapter = new ProductAdapter(BrandName,productListArrayList1, productListArrayList2, getActivity());
+                        mRecyclerView2 = (RecyclerView)v.findViewById(R.id.recycler_view2);
+                        ProductAdapter adapter = new ProductAdapter(BrandName,productListArrayList1, getActivity());
                         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
                         mRecyclerView.addItemDecoration(new RecyclerView.ItemDecoration() {
                             @Override
@@ -164,9 +148,11 @@ public class Shopping extends Fragment {
                                 outRect.bottom = getResources().getDimensionPixelSize(R.dimen.activity_vertical_margin);
                             }
                         });
-                        mRecyclerView.setAdapter(adapter);
-                        timerend = System.currentTimeMillis();
 
+                        mLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
+                        mRecyclerView.setLayoutManager(mLayoutManager);
+
+                        mRecyclerView.setAdapter(adapter);
                     }
                     @Override
                     public void onCancelled(DatabaseError databaseError) {

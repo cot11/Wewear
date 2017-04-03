@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -28,11 +29,9 @@ public class Brand extends Fragment {
 
     private RecyclerView mRecyclerView;
     private DatabaseReference mDatabase;
+    private RecyclerView.LayoutManager	mLayoutManager;
     private ArrayList<Brandlist> Brandlist1 = new ArrayList<Brandlist>();
-    private ArrayList<Brandlist> Brandlist2 = new ArrayList<Brandlist>();
     private View v;
-    int count1 = 0;
-    int count2 = 0;
 
     public Brand() {
         // Required empty public constructor
@@ -49,7 +48,6 @@ public class Brand extends Fragment {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
                         // Get user value
-                        int i = 0;
                         for(DataSnapshot post : dataSnapshot.getChildren() ) {
                             Brandlist brandlist = new Brandlist();
                             brandlist.setName(post.getKey());
@@ -66,20 +64,11 @@ public class Brand extends Fragment {
                                     //System.out.println("count11 : " + post2.getValue());
                                 }
                             }
-
-                            if(i % 2 == 0)
-                            {
-                                Brandlist1.add(brandlist);
-                            }
-                            else
-                            {
-                                Brandlist2.add(brandlist);
-                            }
-                            i++;
+                            Brandlist1.add(brandlist);
                         }
 
                         mRecyclerView = (RecyclerView)v.findViewById(R.id.recycler_view);
-                        BrandAdapter adapter = new BrandAdapter(Brandlist1, Brandlist2, getActivity());
+                        BrandAdapter adapter = new BrandAdapter(Brandlist1, getActivity());
                         mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
                         mRecyclerView.addItemDecoration(new RecyclerView.ItemDecoration() {
                             @Override
@@ -88,6 +77,9 @@ public class Brand extends Fragment {
                                 outRect.bottom = getResources().getDimensionPixelSize(R.dimen.activity_vertical_margin);
                             }
                         });
+
+                        mLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
+                        mRecyclerView.setLayoutManager(mLayoutManager);
                         mRecyclerView.setAdapter(adapter);
 
                         // ...
