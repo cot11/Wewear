@@ -68,7 +68,6 @@ public class CodeApdater extends RecyclerView.Adapter<CodeApdater.ViewHolder> {
 
         public void delete(int position) {
             try {
-                ((AvartaMain)mContext).test(productAdapter1);
                 //mDataSet.remove(position);
                 //notifyItemRemoved(position);
             } catch(IndexOutOfBoundsException ex) {

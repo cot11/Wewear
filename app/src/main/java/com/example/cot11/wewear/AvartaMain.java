@@ -2,6 +2,7 @@ package com.example.cot11.wewear;
 
 
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Color;
 import android.graphics.Rect;
@@ -23,6 +24,11 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.nightonke.boommenu.BoomButtons.ButtonPlaceEnum;
 import com.nightonke.boommenu.BoomButtons.HamButton;
 import com.nightonke.boommenu.BoomButtons.OnBMClickListener;
@@ -44,11 +50,16 @@ public class AvartaMain extends AppCompatActivity{
     private int FragmentHeight = 0;
     private int FragmentWidth = 0;
     private int Current_Code = 0;
+    private ProductAdapter productAdapter;
     LinearLayout avarta_button;
     LinearLayout shopping_button;
     LinearLayout ranking_button;
+
+
     private RecyclerView mRecyclerView;
-    private View header;
+    private DatabaseReference mDatabase;
+    boolean[] code_bool = new boolean[4];
+    String[] code_String = new String[4];
     private ArrayList<productList> productListArrayList1 = new ArrayList<productList>();
 
     String[] MenuSet = new String[4];
@@ -84,23 +95,98 @@ public class AvartaMain extends AppCompatActivity{
         fragmentTransaction.commit();
     }
 
-    public void test(ArrayList<productList> adapter)
+    public ProductAdapter test(final String Brandname, final View view)
     {
-        System.out.println("HI");
-        productListArrayList1 = adapter;
-        System.out.println(productListArrayList1.size());
-        ProductAdapter AA = new ProductAdapter("소녀나라",productListArrayList1, this);
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        mRecyclerView.addItemDecoration(new RecyclerView.ItemDecoration() {
+        final Context context = this;
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+        // Storage 이미지 다운로드 경로
+        mDatabase.child("Clothes").child(Brandname).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
-                super.getItemOffsets(outRect, view, parent, state);
-                outRect.bottom = getResources().getDimensionPixelSize(R.dimen.activity_vertical_margin);
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for(DataSnapshot post : dataSnapshot.getChildren() ) {
+                    productList productList = new productList();
+                    productList.setName(post.getKey());
+                    for(DataSnapshot post2 : post.getChildren())
+                    {
+                        if(post2.getKey().equals("link"))
+                        {
+                            productList.setLink(post2.getValue().toString());
+                        }
+                        else if(post2.getKey().equals("code"))
+                        {
+                            productList.setCode(post2.getValue().toString());
+                            int code = Integer.valueOf(post2.getValue().toString());
+                            code_bool[code-1] = true;
+                        }
+                        else if(post2.getKey().equals("img"))
+                        {
+                            productList.setImg(post2.getValue().toString());
+                            //System.out.println("count11 : " + post2.getValue().toString());
+                        }
+                        else if(post2.getKey().equals("like"))
+                        {
+                            productList.setLike(post2.getValue().toString());
+                        }
+                        else if(post2.getKey().equals("price"))
+                        {
+                            productList.setPrice(post2.getValue().toString());
+                        }
+                        else if(post2.getKey().equals("split"))
+                        {
+                            productList.setSplit(post2.getValue().toString());
+                        }
+                        else if(post2.getKey().equals("color"))
+                        {
+                            int k = 0;
+                            productList.newColor((int)post2.getChildrenCount());
+                            for(DataSnapshot post3 : post2.getChildren())
+                            {
+                                productList.setColor(k,post3.getKey().toString());
+                                System.out.println("count11 : " + productList.getColor(k));
+                                k++;
+                            }
+                        }
+                        else
+                        {
+                            int k = 0;
+                            productList.newSize((int)post2.getChildrenCount());
+                            for(DataSnapshot post3 : post2.getChildren())
+                            {
+
+                                productList.setSize(k,post3.getKey(),post3.getValue().toString());
+                                //System.out.println("count11 : " + productList.getSize(k));
+                                k++;
+                            }
+                        }
+                    }
+                    productListArrayList1.add(productList);
+                }
+
+                System.out.println(productListArrayList1.size());
+                mRecyclerView = (RecyclerView)view.findViewById(R.id.recycler_view);
+                productAdapter = new ProductAdapter(Brandname, productListArrayList1, context);
+                mRecyclerView.setLayoutManager(new LinearLayoutManager(context));
+                mRecyclerView.addItemDecoration(new RecyclerView.ItemDecoration() {
+                    @Override
+                    public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
+                        super.getItemOffsets(outRect, view, parent, state);
+                        outRect.bottom = getResources().getDimensionPixelSize(R.dimen.activity_vertical_margin);
+                    }
+                });
+                RecyclerView.LayoutManager	mLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
+                System.out.println("적용");
+                mRecyclerView.setLayoutManager(mLayoutManager);
+                mRecyclerView.setAdapter(productAdapter);
+                System.out.println(productAdapter.getItemCount());
+
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+
             }
         });
-        RecyclerView.LayoutManager	mLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
-        mRecyclerView.setLayoutManager(mLayoutManager);
-        mRecyclerView.setAdapter(AA);
+        return productAdapter;
     }
 
     public void backtoFrag(String brand)
@@ -155,8 +241,11 @@ public class AvartaMain extends AppCompatActivity{
         MenuSet[2] = "아바타 만들기3";
         MenuSet[3] = "아바타 만들기4";
 
-        header = getLayoutInflater().inflate(R.layout.shopping_itemlist, null, false);
-        mRecyclerView = (RecyclerView)header.findViewById(R.id.recycler_view);
+        code_String[0] = "상의";
+        code_String[1] = "하의";
+        code_String[2] = "아우터";
+        code_String[3] = "원피스";
+
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);

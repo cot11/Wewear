@@ -87,9 +87,12 @@ public class Shopping extends Fragment {
         {
             Toast.makeText(getActivity(), "불러오기 실패", Toast.LENGTH_SHORT).show();
         }
+        v =  inflater.inflate(R.layout.shopping_itemlist, container, false);
+        ProductAdapter adapter = ((AvartaMain) getActivity()).test(BrandName,v);
 
-        mDatabase = FirebaseDatabase.getInstance().getReference();
+
         // Storage 이미지 다운로드 경로
+        /*
         mDatabase.child("Clothes").child(BrandName).addListenerForSingleValueEvent(new ValueEventListener() {
                     @Override
                     public void onDataChange(DataSnapshot dataSnapshot) {
@@ -180,19 +183,7 @@ public class Shopping extends Fragment {
 
                         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-                        mRecyclerView = (RecyclerView)v.findViewById(R.id.recycler_view);
-                        ProductAdapter adapter = new ProductAdapter(BrandName,productListArrayList, getActivity());
-                        mRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-                        mRecyclerView.addItemDecoration(new RecyclerView.ItemDecoration() {
-                            @Override
-                            public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
-                                super.getItemOffsets(outRect, view, parent, state);
-                                outRect.bottom = getResources().getDimensionPixelSize(R.dimen.activity_vertical_margin);
-                            }
-                        });
-                        mLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
-                        mRecyclerView.setLayoutManager(mLayoutManager);
-                        mRecyclerView.setAdapter(adapter);
+
 
                     }
                     @Override
@@ -202,8 +193,7 @@ public class Shopping extends Fragment {
 
 
                 });
-
-        v =  inflater.inflate(R.layout.shopping_itemlist, container, false);
+        */
         v.setFocusableInTouchMode(true);
         v.requestFocus();
         v.setOnKeyListener(new View.OnKeyListener() {
