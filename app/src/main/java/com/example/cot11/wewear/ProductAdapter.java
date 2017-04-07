@@ -31,11 +31,15 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
     private ArrayList<productList> productAdapter1;
     private FirebaseStorage mStorage;
     private StorageReference storageRef;
-    private View vieW;
-    private int currentitem;
 
     private int Height_image = 0;
     private int Width_image = 0;
+
+    public void Clear(ArrayList<productList> arrayList)
+    {
+        productAdapter1 = arrayList;
+        notifyDataSetChanged();
+    }
 
 
     public ProductAdapter(String brandName, ArrayList<productList> adapter1, Context context)
@@ -49,7 +53,6 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
     public ProductAdapter.ProductViewHolder onCreateViewHolder(ViewGroup viewGroup, int i)
     {
         View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.product_list, viewGroup, false);
-        vieW = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.shopping_itemlist, viewGroup, false);
         Height_image = ((AvartaMain) mContext).getHeight();
         Width_image = ((AvartaMain) mContext).getWidth();
         CardView cardView = (CardView)v.findViewById(R.id.cardview);
@@ -68,7 +71,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
     @Override
     public void onBindViewHolder(final ProductAdapter.ProductViewHolder myViewHolder, final int position)
     {
-
+        System.out.println("HI");
         mStorage= FirebaseStorage.getInstance();
         storageRef = mStorage.getReferenceFromUrl("gs://wewear-db78b.appspot.com/");
         Glide.with(mContext).load(productAdapter1.get(position).getImg()).override(Width_image,Height_image).into(myViewHolder.imageView1);
@@ -78,14 +81,13 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
             public void onClick(View v) {
                 ((AvartaMain) mContext).openWeb(productAdapter1.get(position).getLink(),BrandName);
 
-
             }
         });
 
         myViewHolder.try_on1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                System.out.println("count11 : " + ((AvartaMain) mContext).getCurrent_Code());
+                ((AvartaMain) mContext).putInCloesth(productAdapter1.get(position).getName());
             }
         });
     }

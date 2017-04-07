@@ -29,24 +29,9 @@ import java.util.List;
 
 public class Shopping extends Fragment {
 
-    private RecyclerView mRecyclerView;
-    private RecyclerView mRecyclerView1;
-    private RecyclerView mRecyclerView2;
-    private RecyclerView.LayoutManager	mLayoutManager;
-    private RecyclerView.LayoutManager	mLayoutManager1;
-    private RecyclerView.LayoutManager	mLayoutManager2;
-    private DatabaseReference mDatabase;
-
-    private ArrayList<productList> productListArrayList1 = new ArrayList<productList>();
-    private ArrayList<productList> productListArrayList = new ArrayList<productList>();
-
     private View v;
     private boolean back = false;
     public String BrandName = "";
-
-    boolean[] code_bool = new boolean[4];
-    String[] code_String = new String[4];
-
 
     public Shopping() {
 
@@ -58,29 +43,12 @@ public class Shopping extends Fragment {
         super.onDestroy();
     }
 
-    public void Systemm()
-    {
-        System.out.println("KKKKKKKKKKKKk");
-        System.out.println("count11 : " + BrandName);
-        //LinearLayout linearLayout = (LinearLayout)v.findViewById(R.id.linear1);
-        //linearLayout.setVisibility(View.INVISIBLE);
-    }
-
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-
-        //((AvartaMain) getActivity()).ProgressRun();
-
-        code_String[0] = "상의";
-        code_String[1] = "하의";
-        code_String[2] = "아우터";
-        code_String[3] = "원피스";
 
         if(getArguments() != null)
         {
             BrandName = getArguments().getString("Brand");
-            System.out.println("BrandName : " + BrandName);
             back = getArguments().getBoolean("Back");
         }
         else
@@ -88,7 +56,7 @@ public class Shopping extends Fragment {
             Toast.makeText(getActivity(), "불러오기 실패", Toast.LENGTH_SHORT).show();
         }
         v =  inflater.inflate(R.layout.shopping_itemlist, container, false);
-        ProductAdapter adapter = ((AvartaMain) getActivity()).test(BrandName,v);
+        ((AvartaMain) getActivity()).init_Product(BrandName,v);
 
 
         // Storage 이미지 다운로드 경로
@@ -183,8 +151,6 @@ public class Shopping extends Fragment {
 
                         /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
-
-
                     }
                     @Override
                     public void onCancelled(DatabaseError databaseError) {
@@ -205,7 +171,6 @@ public class Shopping extends Fragment {
                     FragmentTransaction fragmentTransaction = fm.beginTransaction();
                     fragmentTransaction.replace(R.id.Fragment_change, new Brand());
                     fragmentTransaction.commit();
-                    System.out.println("shopping back");
                     return  true;
                 }
                 else if(!back)
@@ -217,7 +182,6 @@ public class Shopping extends Fragment {
                 {
                     return false;
                 }
-
             }
         });
 

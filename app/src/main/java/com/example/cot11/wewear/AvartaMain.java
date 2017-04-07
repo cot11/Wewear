@@ -37,34 +37,37 @@ import com.nightonke.boommenu.ButtonEnum;
 import com.nightonke.boommenu.Piece.PiecePlaceEnum;
 
 import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Created by 이언우 on 2017-03-13.
  */
 
 public class AvartaMain extends AppCompatActivity{
-    private boolean isFragmentB = true ;
-    Thread thread;
     private FragmentManager fm;
-    private ProgressDialog dialog;
     private int FragmentHeight = 0;
     private int FragmentWidth = 0;
     private int Current_Code = 0;
     private ProductAdapter productAdapter;
+    private putAdapter putAdapter;
+    private View import_view;
+    private String BrandName;
     LinearLayout avarta_button;
     LinearLayout shopping_button;
     LinearLayout ranking_button;
+    private Context context;
 
 
     private RecyclerView mRecyclerView;
+    private RecyclerView mRecyclerView1;
+    private RecyclerView mRecyclerView2;
     private DatabaseReference mDatabase;
     boolean[] code_bool = new boolean[4];
     String[] code_String = new String[4];
     private ArrayList<productList> productListArrayList1 = new ArrayList<productList>();
+    private ArrayList<productList> productListArrayList2 = new ArrayList<productList>();
 
     String[] MenuSet = new String[4];
-
-
 
     public void brandSet(String brand, boolean back)
     {
@@ -95,9 +98,46 @@ public class AvartaMain extends AppCompatActivity{
         fragmentTransaction.commit();
     }
 
-    public ProductAdapter test(final String Brandname, final View view)
+    public void putInCloesth(String Name)
     {
-        final Context context = this;
+        putAdapter.putAdapterAdd(Name);
+    }
+
+
+    public void Product(String cate)
+    {
+        int cate_int = 0;
+        for(int i = 0; i < code_String.length; i++)
+        {
+            if(code_String[i].equals(cate))
+            {
+                cate_int = i+1;
+                break;
+            }
+        }
+        productListArrayList1.clear();
+        for(int i = 0; i < productListArrayList2.size(); i++)
+        {
+            if(Integer.valueOf(productListArrayList2.get(i).getCode()) == cate_int)
+            {
+                productListArrayList1.add(productListArrayList2.get(i));
+            }
+        }
+        System.out.println("size : " + productListArrayList1.size());
+        productAdapter.Clear(productListArrayList1);
+    }
+
+
+    public void init_Product(final String Brandname, final View view)
+    {
+        import_view = view;
+        BrandName = Brandname;
+        productListArrayList1.clear();
+        productListArrayList2.clear();
+        for(int i = 0; i < code_bool.length; i++)
+        {
+            code_bool[i] = false;
+        }
         mDatabase = FirebaseDatabase.getInstance().getReference();
         // Storage 이미지 다운로드 경로
         mDatabase.child("Clothes").child(Brandname).addListenerForSingleValueEvent(new ValueEventListener() {
@@ -106,6 +146,7 @@ public class AvartaMain extends AppCompatActivity{
                 for(DataSnapshot post : dataSnapshot.getChildren() ) {
                     productList productList = new productList();
                     productList.setName(post.getKey());
+                    int code = 0;
                     for(DataSnapshot post2 : post.getChildren())
                     {
                         if(post2.getKey().equals("link"))
@@ -115,7 +156,7 @@ public class AvartaMain extends AppCompatActivity{
                         else if(post2.getKey().equals("code"))
                         {
                             productList.setCode(post2.getValue().toString());
-                            int code = Integer.valueOf(post2.getValue().toString());
+                            code = Integer.valueOf(post2.getValue().toString());
                             code_bool[code-1] = true;
                         }
                         else if(post2.getKey().equals("img"))
@@ -142,7 +183,6 @@ public class AvartaMain extends AppCompatActivity{
                             for(DataSnapshot post3 : post2.getChildren())
                             {
                                 productList.setColor(k,post3.getKey().toString());
-                                System.out.println("count11 : " + productList.getColor(k));
                                 k++;
                             }
                         }
@@ -159,11 +199,17 @@ public class AvartaMain extends AppCompatActivity{
                             }
                         }
                     }
-                    productListArrayList1.add(productList);
+                    productListArrayList2.add(productList);
+                    if(1 == code)
+                    {
+                        productListArrayList1.add(productList);
+                    }
                 }
-
                 System.out.println(productListArrayList1.size());
                 mRecyclerView = (RecyclerView)view.findViewById(R.id.recycler_view);
+                mRecyclerView1 = (RecyclerView)view.findViewById(R.id.recycler_view1);
+                mRecyclerView2 = (RecyclerView)view.findViewById(R.id.recycler_view2);
+
                 productAdapter = new ProductAdapter(Brandname, productListArrayList1, context);
                 mRecyclerView.setLayoutManager(new LinearLayoutManager(context));
                 mRecyclerView.addItemDecoration(new RecyclerView.ItemDecoration() {
@@ -174,11 +220,29 @@ public class AvartaMain extends AppCompatActivity{
                     }
                 });
                 RecyclerView.LayoutManager	mLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
-                System.out.println("적용");
                 mRecyclerView.setLayoutManager(mLayoutManager);
                 mRecyclerView.setAdapter(productAdapter);
-                System.out.println(productAdapter.getItemCount());
 
+                mRecyclerView1.setLayoutManager(new LinearLayoutManager(context));
+                RecyclerView.LayoutManager	mLayoutManager1 = new StaggeredGridLayoutManager(1, StaggeredGridLayoutManager.HORIZONTAL);
+                RecyclerView.LayoutManager	mLayoutManager2 = new StaggeredGridLayoutManager(1, StaggeredGridLayoutManager.HORIZONTAL);
+                List<String> mDataset= new ArrayList<String>();
+                for(int i = 0; i < code_bool.length; i++)
+                {
+                    if(code_bool[i])
+                    {
+                        mDataset.add(code_String[i]);
+                    }
+                }
+                CodeApdater mAdapter = new CodeApdater(mDataset, context, productListArrayList1, 1);
+                mRecyclerView1.setLayoutManager(mLayoutManager1);
+                mRecyclerView1.setAdapter(mAdapter);
+                ArrayList<String> temp = new ArrayList<String>();
+                temp.add("꿈사탕맨투맨");
+                mRecyclerView2.setLayoutManager(new LinearLayoutManager(context));
+                mRecyclerView2.setLayoutManager(mLayoutManager2);
+                putAdapter = new putAdapter(Brandname,temp,context);
+                mRecyclerView2.setAdapter(putAdapter);
             }
 
             @Override
@@ -186,7 +250,6 @@ public class AvartaMain extends AppCompatActivity{
 
             }
         });
-        return productAdapter;
     }
 
     public void backtoFrag(String brand)
@@ -202,16 +265,6 @@ public class AvartaMain extends AppCompatActivity{
     public int getCurrent_Code()
     {
         return Current_Code;
-    }
-
-    public void ProgressRun()
-    {
-        dialog = ProgressDialog.show(this, "", "Please wait....", true);
-    }
-
-    public void ProgressStop()
-    {
-        dialog.dismiss();
     }
 
     public int getHeight()
@@ -245,6 +298,8 @@ public class AvartaMain extends AppCompatActivity{
         code_String[1] = "하의";
         code_String[2] = "아우터";
         code_String[3] = "원피스";
+
+        context = this;
 
 
         super.onCreate(savedInstanceState);
