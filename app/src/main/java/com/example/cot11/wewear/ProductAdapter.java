@@ -63,7 +63,6 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         );
         params.setMargins(6,6,6,6);
         cardView.setLayoutParams(params);
-        cardView.setLayoutParams(params);
 
         return new ProductViewHolder(v);
     }
@@ -73,7 +72,6 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
     {
         System.out.println("HI");
         mStorage= FirebaseStorage.getInstance();
-        storageRef = mStorage.getReferenceFromUrl("gs://wewear-db78b.appspot.com/");
         Glide.with(mContext).load(productAdapter1.get(position).getImg()).override(Width_image,Height_image).into(myViewHolder.imageView1);
 
         myViewHolder.imageView1.setOnClickListener(new View.OnClickListener() {
@@ -87,7 +85,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         myViewHolder.try_on1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ((AvartaMain) mContext).putInCloesth(productAdapter1.get(position).getName());
+                ((AvartaMain) mContext).putAdditem(productAdapter1.get(position).getName());
             }
         });
     }

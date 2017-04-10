@@ -91,13 +91,23 @@
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>
-
-        <LinearLayout
-            android:orientation="horizontal"
+        <RelativeLayout
+            android:orientation="vertical"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="8"
-            android:id="@+id/Fragment_change">
-        </LinearLayout>
+            android:layout_weight="8">
+            <LinearLayout
+                android:orientation="horizontal"
+                android:id="@+id/Fragment_change"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent">
+            </LinearLayout>
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/Mainrecycler_view"
+                android:background="@color/white"
+                android:layout_alignBottom ="@+id/Fragment_change"
+                android:layout_width="match_parent"
+                android:layout_height="80dp" />
+        </RelativeLayout>
     </LinearLayout>
 </LinearLayout>

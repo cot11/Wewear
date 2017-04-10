@@ -4,6 +4,7 @@ package com.example.cot11.wewear;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.os.Bundle;
@@ -15,6 +16,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
@@ -61,11 +63,18 @@ public class AvartaMain extends AppCompatActivity{
     private RecyclerView mRecyclerView;
     private RecyclerView mRecyclerView1;
     private RecyclerView mRecyclerView2;
+
+    private RecyclerView bRecyclerView;
+    private RecyclerView bRecyclerView1;
+
     private DatabaseReference mDatabase;
     boolean[] code_bool = new boolean[4];
     String[] code_String = new String[4];
+    private ArrayList<String> putDataset = new ArrayList<>();
+    private ArrayList<Bitmap> putBitmap = new ArrayList<>();
     private ArrayList<productList> productListArrayList1 = new ArrayList<productList>();
     private ArrayList<productList> productListArrayList2 = new ArrayList<productList>();
+    private ArrayList<Brandlist> Brandlist1 = new ArrayList<Brandlist>();
 
     String[] MenuSet = new String[4];
 
@@ -96,11 +105,6 @@ public class AvartaMain extends AppCompatActivity{
         android.support.v4.app.FragmentTransaction fragmentTransaction = fm.beginTransaction();
         fragmentTransaction.replace(R.id.Fragment_change,webView);
         fragmentTransaction.commit();
-    }
-
-    public void putInCloesth(String Name)
-    {
-        putAdapter.putAdapterAdd(Name);
     }
 
 
@@ -237,12 +241,23 @@ public class AvartaMain extends AppCompatActivity{
                 CodeApdater mAdapter = new CodeApdater(mDataset, context, productListArrayList1, 1);
                 mRecyclerView1.setLayoutManager(mLayoutManager1);
                 mRecyclerView1.setAdapter(mAdapter);
-                ArrayList<String> temp = new ArrayList<String>();
-                temp.add("꿈사탕맨투맨");
-                mRecyclerView2.setLayoutManager(new LinearLayoutManager(context));
-                mRecyclerView2.setLayoutManager(mLayoutManager2);
-                putAdapter = new putAdapter(Brandname,temp,context);
-                mRecyclerView2.setAdapter(putAdapter);
+
+                if(putDataset.size() == 0)
+                {
+                    mRecyclerView2.setLayoutManager(new LinearLayoutManager(context));
+                    mRecyclerView2.setLayoutManager(mLayoutManager2);
+                    putAdapter = new putAdapter(context, Brandname);
+                    mRecyclerView2.setAdapter(putAdapter);
+                    //mRecyclerView2.setVisibility(View.INVISIBLE);
+                }
+                else
+                {
+                    mRecyclerView2.setLayoutManager(new LinearLayoutManager(context));
+                    mRecyclerView2.setLayoutManager(mLayoutManager2);
+                    putAdapter = new putAdapter(context, Brandname,putDataset,putBitmap);
+                    mRecyclerView2.setAdapter(putAdapter);
+                    //mRecyclerView2.setVisibility(View.INVISIBLE);
+                }
             }
 
             @Override
@@ -250,6 +265,76 @@ public class AvartaMain extends AppCompatActivity{
 
             }
         });
+    }
+
+    public void init_Brand(final View view)
+    {
+        Brandlist1.clear();
+        mDatabase = FirebaseDatabase.getInstance().getReference();
+        mDatabase.child("Brand").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                // Get user value
+                for(DataSnapshot post : dataSnapshot.getChildren() ) {
+                    Brandlist brandlist = new Brandlist();
+                    brandlist.setName(post.getKey());
+                    for(DataSnapshot post2 : post.getChildren())
+                    {
+                        if(post2.getKey().equals("logo"))
+                        {
+                            System.out.println("count11 : " + post2.getValue());
+                            brandlist.setRogo(post2.getValue().toString());
+                        }
+                        else if(post2.getKey().equals("Link"))
+                        {
+                            brandlist.settLink(post2.getValue().toString());
+                            //System.out.println("count11 : " + post2.getValue());
+                        }
+                    }
+                    Brandlist1.add(brandlist);
+                }
+
+                bRecyclerView = (RecyclerView)view.findViewById(R.id.brecycler_view);
+                bRecyclerView1 = (RecyclerView)view.findViewById(R.id.brecycler_view2);
+                BrandAdapter adapter = new BrandAdapter(Brandlist1, context);
+                bRecyclerView.setLayoutManager(new LinearLayoutManager(context));
+
+                bRecyclerView.addItemDecoration(new RecyclerView.ItemDecoration() {
+                    @Override
+                    public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
+                        super.getItemOffsets(outRect, view, parent, state);
+                        outRect.bottom = getResources().getDimensionPixelSize(R.dimen.activity_vertical_margin);
+                    }
+                });
+
+                RecyclerView.LayoutManager mLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
+                RecyclerView.LayoutManager	mLayoutManager1 = new StaggeredGridLayoutManager(1, StaggeredGridLayoutManager.HORIZONTAL);
+                bRecyclerView.setLayoutManager(mLayoutManager);
+                bRecyclerView.setAdapter(adapter);
+                AvartPutAdapter avartPutAdapter = new AvartPutAdapter(context,putBitmap,putDataset);
+                bRecyclerView1.setLayoutManager(new LinearLayoutManager(context));
+                bRecyclerView1.setLayoutManager(mLayoutManager1);
+                bRecyclerView1.setAdapter(avartPutAdapter);
+
+                // ...
+            }
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Log.w("DDD", "getUser:onCancelled", databaseError.toException());
+            }
+        });
+    }
+
+    public void putAdditem(String item)
+    {
+        putDataset = putAdapter.Add(item);
+        mRecyclerView2.setVisibility(View.VISIBLE);
+        System.out.println("KKKK : " + putDataset.size());
+    }
+
+    public void setPutBitmap(Bitmap bitmap)
+    {
+        putBitmap.add(bitmap);
     }
 
     public void backtoFrag(String brand)
