@@ -3,6 +3,7 @@ package com.example.cot11.wewear;
 import android.content.Context;
 import android.graphics.Color;
 import android.net.Uri;
+import android.view.MotionEvent;
 import android.widget.LinearLayout;
 import android.widget.LinearLayout.LayoutParams;
 import android.support.v7.widget.CardView;
@@ -85,10 +86,12 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         myViewHolder.try_on1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ((AvartaMain) mContext).putAdditem(productAdapter1.get(position).getName());
+                ((AvartaMain) mContext).putAdditem(BrandName+"_"+productAdapter1.get(position).getName());
             }
         });
     }
+
+
 
     @Override
     public int getItemCount()

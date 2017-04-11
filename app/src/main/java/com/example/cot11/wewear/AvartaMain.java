@@ -18,10 +18,14 @@ import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.view.animation.TranslateAnimation;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -46,37 +50,40 @@ import java.util.List;
  */
 
 public class AvartaMain extends AppCompatActivity{
-    private FragmentManager fm;
+
     private int FragmentHeight = 0;
     private int FragmentWidth = 0;
     private int Current_Code = 0;
+    private String BrandName;
+    private Context context;
+    private FragmentManager fm;
+    private DatabaseReference mDatabase;
     private ProductAdapter productAdapter;
     private putAdapter putAdapter;
-    private View import_view;
-    private String BrandName;
-    LinearLayout avarta_button;
-    LinearLayout shopping_button;
-    LinearLayout ranking_button;
-    private Context context;
+    private Animation animation_Right;
+    private Animation animation_Left;
 
+    private LinearLayout avarta_button;
+    private LinearLayout shopping_button;
+    private LinearLayout ranking_button;
 
+    private Button putBtton;
+    private RecyclerView mainRecy;
     private RecyclerView mRecyclerView;
     private RecyclerView mRecyclerView1;
-    private RecyclerView mRecyclerView2;
-
     private RecyclerView bRecyclerView;
-    private RecyclerView bRecyclerView1;
+    private View import_view;
 
-    private DatabaseReference mDatabase;
     boolean[] code_bool = new boolean[4];
-    String[] code_String = new String[4];
+    private String[] code_String = new String[4];
+    private String[] MenuSet = new String[4];
     private ArrayList<String> putDataset = new ArrayList<>();
     private ArrayList<Bitmap> putBitmap = new ArrayList<>();
     private ArrayList<productList> productListArrayList1 = new ArrayList<productList>();
     private ArrayList<productList> productListArrayList2 = new ArrayList<productList>();
     private ArrayList<Brandlist> Brandlist1 = new ArrayList<Brandlist>();
 
-    String[] MenuSet = new String[4];
+
 
     public void brandSet(String brand, boolean back)
     {
@@ -212,7 +219,7 @@ public class AvartaMain extends AppCompatActivity{
                 System.out.println(productListArrayList1.size());
                 mRecyclerView = (RecyclerView)view.findViewById(R.id.recycler_view);
                 mRecyclerView1 = (RecyclerView)view.findViewById(R.id.recycler_view1);
-                mRecyclerView2 = (RecyclerView)view.findViewById(R.id.recycler_view2);
+                //mRecyclerView2 = (RecyclerView)view.findViewById(R.id.recycler_view2);
 
                 productAdapter = new ProductAdapter(Brandname, productListArrayList1, context);
                 mRecyclerView.setLayoutManager(new LinearLayoutManager(context));
@@ -226,6 +233,13 @@ public class AvartaMain extends AppCompatActivity{
                 RecyclerView.LayoutManager	mLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
                 mRecyclerView.setLayoutManager(mLayoutManager);
                 mRecyclerView.setAdapter(productAdapter);
+                mRecyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
+                    @Override
+                    public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                        super.onScrollStateChanged(recyclerView, newState);
+                        Invisible_put();
+                    }
+                });
 
                 mRecyclerView1.setLayoutManager(new LinearLayoutManager(context));
                 RecyclerView.LayoutManager	mLayoutManager1 = new StaggeredGridLayoutManager(1, StaggeredGridLayoutManager.HORIZONTAL);
@@ -241,23 +255,7 @@ public class AvartaMain extends AppCompatActivity{
                 CodeApdater mAdapter = new CodeApdater(mDataset, context, productListArrayList1, 1);
                 mRecyclerView1.setLayoutManager(mLayoutManager1);
                 mRecyclerView1.setAdapter(mAdapter);
-
-                if(putDataset.size() == 0)
-                {
-                    mRecyclerView2.setLayoutManager(new LinearLayoutManager(context));
-                    mRecyclerView2.setLayoutManager(mLayoutManager2);
-                    putAdapter = new putAdapter(context, Brandname);
-                    mRecyclerView2.setAdapter(putAdapter);
-                    //mRecyclerView2.setVisibility(View.INVISIBLE);
-                }
-                else
-                {
-                    mRecyclerView2.setLayoutManager(new LinearLayoutManager(context));
-                    mRecyclerView2.setLayoutManager(mLayoutManager2);
-                    putAdapter = new putAdapter(context, Brandname,putDataset,putBitmap);
-                    mRecyclerView2.setAdapter(putAdapter);
-                    //mRecyclerView2.setVisibility(View.INVISIBLE);
-                }
+                putAdapter.setBrandName(Brandname);
             }
 
             @Override
@@ -295,10 +293,8 @@ public class AvartaMain extends AppCompatActivity{
                 }
 
                 bRecyclerView = (RecyclerView)view.findViewById(R.id.brecycler_view);
-                bRecyclerView1 = (RecyclerView)view.findViewById(R.id.brecycler_view2);
                 BrandAdapter adapter = new BrandAdapter(Brandlist1, context);
                 bRecyclerView.setLayoutManager(new LinearLayoutManager(context));
-
                 bRecyclerView.addItemDecoration(new RecyclerView.ItemDecoration() {
                     @Override
                     public void getItemOffsets(Rect outRect, View view, RecyclerView parent, RecyclerView.State state) {
@@ -306,16 +302,18 @@ public class AvartaMain extends AppCompatActivity{
                         outRect.bottom = getResources().getDimensionPixelSize(R.dimen.activity_vertical_margin);
                     }
                 });
+                bRecyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
+                    @Override
+                    public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                        super.onScrollStateChanged(recyclerView, newState);
+                        Invisible_put();
+                    }
+                });
 
                 RecyclerView.LayoutManager mLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
                 RecyclerView.LayoutManager	mLayoutManager1 = new StaggeredGridLayoutManager(1, StaggeredGridLayoutManager.HORIZONTAL);
                 bRecyclerView.setLayoutManager(mLayoutManager);
                 bRecyclerView.setAdapter(adapter);
-                AvartPutAdapter avartPutAdapter = new AvartPutAdapter(context,putBitmap,putDataset);
-                bRecyclerView1.setLayoutManager(new LinearLayoutManager(context));
-                bRecyclerView1.setLayoutManager(mLayoutManager1);
-                bRecyclerView1.setAdapter(avartPutAdapter);
-
                 // ...
             }
             @Override
@@ -328,8 +326,18 @@ public class AvartaMain extends AppCompatActivity{
     public void putAdditem(String item)
     {
         putDataset = putAdapter.Add(item);
-        mRecyclerView2.setVisibility(View.VISIBLE);
+        mainRecy.setVisibility(View.VISIBLE);
+        putBtton.setVisibility(View.INVISIBLE);
+        putBtton.startAnimation(animation_Right);
         System.out.println("KKKK : " + putDataset.size());
+    }
+
+    public void Invisible_put()
+    {
+
+        mainRecy.startAnimation(animation_Left);
+        mainRecy.setVisibility(View.INVISIBLE);
+        putBtton.setVisibility(View.VISIBLE);
     }
 
     public void setPutBitmap(Bitmap bitmap)
@@ -383,13 +391,23 @@ public class AvartaMain extends AppCompatActivity{
         code_String[1] = "하의";
         code_String[2] = "아우터";
         code_String[3] = "원피스";
-
         context = this;
-
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main);
 
+        animation_Right = AnimationUtils.loadAnimation(this,R.anim.anim_right);
+        animation_Left = AnimationUtils.loadAnimation(this,R.anim.anim_left);
+
+        putBtton = (Button)findViewById(R.id.putButton);
+
+        mainRecy = (RecyclerView)findViewById(R.id.Mainrecycler_view);
+        mainRecy.setLayoutManager(new LinearLayoutManager(context));
+        RecyclerView.LayoutManager	mLayoutManager2 = new StaggeredGridLayoutManager(1, StaggeredGridLayoutManager.HORIZONTAL);
+        mainRecy.setLayoutManager(mLayoutManager2);
+        putAdapter = new putAdapter(context);
+        mainRecy.setAdapter(putAdapter);
+        mainRecy.setVisibility(View.INVISIBLE);
         avarta_button = (LinearLayout)findViewById(R.id.line1);
         shopping_button = (LinearLayout)findViewById(R.id.line2);
         ranking_button = (LinearLayout)findViewById(R.id.line3);
@@ -445,8 +463,6 @@ public class AvartaMain extends AppCompatActivity{
             rightBmb.addBuilder(builder);
             //rightBmb.addBuilder(BuilderManager.getHamButtonBuilderWithDifferentPieceColor());
         }
-
-
     }
 
     public void tab_change(View v)
@@ -456,9 +472,6 @@ public class AvartaMain extends AppCompatActivity{
         switch (v.getId())
         {
             case R.id.avarta:
-                Animation animation = new AlphaAnimation(0,1);
-                animation.setDuration(1000);
-                avarta_button.setAnimation(animation);
                 avarta_button.setBackgroundColor(Color.BLACK);
                 shopping_button.setBackgroundColor(Color.WHITE);
                 ranking_button.setBackgroundColor(Color.WHITE);

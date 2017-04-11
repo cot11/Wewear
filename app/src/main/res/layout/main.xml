@@ -102,9 +102,17 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
             </LinearLayout>
+            <Button
+                android:layout_alignParentLeft="true"
+                android:id="@+id/putButton"
+                android:layout_alignBottom ="@+id/Fragment_change"
+                android:visibility="visible"
+                android:layout_width="20dp"
+                android:layout_height="80dp" />
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/Mainrecycler_view"
                 android:background="@color/white"
+                android:visibility="invisible"
                 android:layout_alignBottom ="@+id/Fragment_change"
                 android:layout_width="match_parent"
                 android:layout_height="80dp" />

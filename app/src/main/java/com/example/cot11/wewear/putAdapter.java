@@ -37,29 +37,21 @@ import java.util.concurrent.ExecutionException;
 public class putAdapter extends RecyclerView.Adapter<putAdapter.ViewHolder> {
 
     private ArrayList<String> mDataSet;
-    private ArrayList<Bitmap> mBitSet;
     private Context mContext;
     private FirebaseStorage storage;
     private StorageReference storageRef;
     private String BrandName;
-    private int Mode = 0;
 
-    public putAdapter(Context context, String brandName) {
+    public void setBrandName(String Brand)
+    {
+        BrandName = Brand;
+        storage = FirebaseStorage.getInstance();
+        storageRef = storage.getReferenceFromUrl("gs://wewear-db78b.appspot.com");
+    }
+
+    public putAdapter(Context context) {
         mDataSet = new ArrayList<>();
         mContext = context;
-        storage = FirebaseStorage.getInstance();
-        storageRef = storage.getReferenceFromUrl("gs://wewear-db78b.appspot.com");
-        BrandName = brandName;
-        Mode = 0;
-    }
-    public putAdapter(Context context, String brandName, ArrayList StringArray, ArrayList BitmapArray) {
-        mDataSet = StringArray;
-        mBitSet = BitmapArray;
-        mContext = context;
-        storage = FirebaseStorage.getInstance();
-        storageRef = storage.getReferenceFromUrl("gs://wewear-db78b.appspot.com");
-        BrandName = brandName;
-        Mode = 1;
     }
 
 
@@ -73,6 +65,7 @@ public class putAdapter extends RecyclerView.Adapter<putAdapter.ViewHolder> {
                 return mDataSet;
             }
         }
+        System.out.println(item);
         mDataSet.add(item);
         notifyDataSetChanged();
         return mDataSet;
@@ -100,37 +93,35 @@ public class putAdapter extends RecyclerView.Adapter<putAdapter.ViewHolder> {
     @Override
     public void onBindViewHolder(final ViewHolder holder, final int position) {
 
-        if(Mode == 1)
-        {
-            holder.imageView.setImageBitmap(mBitSet.get(position));
-            holder.textView.setText(mDataSet.get(position));
-            if(position == mDataSet.size()-1)
-            {
-                Mode = 0;
+        //StorageReference storageRef = FirebaseStorage.getInstance().getReference().child(BrandName+"/"+"이미지/" + mDataSet.get(position) + ".png");
+        StorageReference storageRef = FirebaseStorage.getInstance().getReference().child("product_Image/" + mDataSet.get(position) + ".png");
+        storageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+            @Override
+            public void onSuccess(Uri uri) {
+                Glide.with(mContext).load(uri).asBitmap().into(new SimpleTarget<Bitmap>() {
+                    @Override
+                    public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
+                        holder.imageView.setImageBitmap(resource);
+                        holder.textView.setText(mDataSet.get(position));
+                        ((AvartaMain) mContext).setPutBitmap(resource);
+                    }
+                });
             }
-        }
-        else
-        {
-            StorageReference storageRef = FirebaseStorage.getInstance().getReference().child(BrandName+"/"+"이미지/" + mDataSet.get(position) + ".png");
-            storageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                @Override
-                public void onSuccess(Uri uri) {
-                    Glide.with(mContext).load(uri).asBitmap().into(new SimpleTarget<Bitmap>() {
-                        @Override
-                        public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
-                            holder.imageView.setImageBitmap(resource);
-                            holder.textView.setText(mDataSet.get(position));
-                            ((AvartaMain) mContext).setPutBitmap(resource);
-                        }
-                    });
-                }
-            }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception exception) {
-                    // Handle any errors
-                }
-            });
-        }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception exception) {
+                exception.printStackTrace();
+                System.out.println("position : " + mDataSet.get(position));
+                // Handle any errors
+            }
+        });
+
+        holder.imageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                System.out.println("hh : " + mDataSet.get(position));
+            }
+        });
 
     }
 
