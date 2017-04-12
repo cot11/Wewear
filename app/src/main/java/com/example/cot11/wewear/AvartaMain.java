@@ -5,9 +5,15 @@ import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Rect;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
+import android.os.SystemClock;
 import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.ActionBar;
@@ -26,7 +32,9 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.view.animation.TranslateAnimation;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -53,6 +61,10 @@ public class AvartaMain extends AppCompatActivity{
 
     private int FragmentHeight = 0;
     private int FragmentWidth = 0;
+    private float init_put_Y = 0;
+    private float recycle_height = 0;
+    private float current_put_Y = 0;
+    private float percent_Y = 0;
     private int Current_Code = 0;
     private String BrandName;
     private Context context;
@@ -61,26 +73,31 @@ public class AvartaMain extends AppCompatActivity{
     private ProductAdapter productAdapter;
     private putAdapter putAdapter;
     private Animation animation_Right;
-    private Animation animation_Left;
+    private float first_touch = 0;
+    private float last_touch = 0;
+    private Bitmap face, body, leg, ankle, arm;
+    private SendMassgeHandler mMainHandler = null;
+
 
     private LinearLayout avarta_button;
     private LinearLayout shopping_button;
     private LinearLayout ranking_button;
 
-    private Button putBtton;
     private RecyclerView mainRecy;
     private RecyclerView mRecyclerView;
     private RecyclerView mRecyclerView1;
     private RecyclerView bRecyclerView;
     private View import_view;
+    private ImageView setBody;
 
     boolean[] code_bool = new boolean[4];
     private String[] code_String = new String[4];
     private String[] MenuSet = new String[4];
     private ArrayList<String> putDataset = new ArrayList<>();
-    private ArrayList<Bitmap> putBitmap = new ArrayList<>();
     private ArrayList<productList> productListArrayList1 = new ArrayList<productList>();
     private ArrayList<productList> productListArrayList2 = new ArrayList<productList>();
+    private ArrayList<productList> MainProduct = new ArrayList<productList>();
+    private ArrayList<product_split> split_product = new ArrayList<product_split>();
     private ArrayList<Brandlist> Brandlist1 = new ArrayList<Brandlist>();
 
 
@@ -233,11 +250,43 @@ public class AvartaMain extends AppCompatActivity{
                 RecyclerView.LayoutManager	mLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
                 mRecyclerView.setLayoutManager(mLayoutManager);
                 mRecyclerView.setAdapter(productAdapter);
-                mRecyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
+                mRecyclerView.setOnTouchListener(new View.OnTouchListener() {
                     @Override
-                    public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                        super.onScrollStateChanged(recyclerView, newState);
-                        Invisible_put();
+                    public boolean onTouch(View v, MotionEvent event) {
+                        switch(event.getAction()) {
+                            case MotionEvent.ACTION_DOWN :
+                                first_touch = event.getY();
+                                System.out.println("Down : " + first_touch);
+                            case MotionEvent.ACTION_MOVE :
+                                last_touch = event.getY();
+                                float dis = last_touch - first_touch;
+
+                                if(dis > 1 )
+                                {
+                                    if(current_put_Y == init_put_Y)
+                                    {
+                                        return false;
+                                    }
+                                    current_put_Y = current_put_Y - percent_Y;
+                                    if(current_put_Y <= init_put_Y)
+                                    {
+                                        current_put_Y = init_put_Y;
+                                    }
+                                    mainRecy.setY(current_put_Y);
+                                }
+                                else if(dis < -1)
+                                {
+                                    current_put_Y = current_put_Y + percent_Y;
+
+                                    if(current_put_Y >= init_put_Y+recycle_height)
+                                    {
+                                        current_put_Y = init_put_Y+recycle_height;
+                                    }
+                                    mainRecy.setY(current_put_Y);
+                                }
+                                first_touch = last_touch;
+                        }
+                        return false;
                     }
                 });
 
@@ -302,11 +351,43 @@ public class AvartaMain extends AppCompatActivity{
                         outRect.bottom = getResources().getDimensionPixelSize(R.dimen.activity_vertical_margin);
                     }
                 });
-                bRecyclerView.setOnScrollListener(new RecyclerView.OnScrollListener() {
+                bRecyclerView.setOnTouchListener(new View.OnTouchListener() {
                     @Override
-                    public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-                        super.onScrollStateChanged(recyclerView, newState);
-                        Invisible_put();
+                    public boolean onTouch(View v, MotionEvent event) {
+                        switch(event.getAction()) {
+                            case MotionEvent.ACTION_DOWN :
+                                first_touch = event.getY();
+                                System.out.println("Down : " + first_touch);
+                            case MotionEvent.ACTION_MOVE :
+                                last_touch = event.getY();
+                                float dis = last_touch - first_touch;
+
+                                if(dis > 1 )
+                                {
+                                    if(current_put_Y == init_put_Y)
+                                    {
+                                        return false;
+                                    }
+                                    current_put_Y = current_put_Y - percent_Y;
+                                    if(current_put_Y <= init_put_Y)
+                                    {
+                                        current_put_Y = init_put_Y;
+                                    }
+                                    mainRecy.setY(current_put_Y);
+                                }
+                                else if(dis < -1)
+                                {
+                                    current_put_Y = current_put_Y + percent_Y;
+
+                                    if(current_put_Y >= init_put_Y+recycle_height)
+                                    {
+                                        current_put_Y = init_put_Y+recycle_height;
+                                    }
+                                    mainRecy.setY(current_put_Y);
+                                }
+                                first_touch = last_touch;
+                        }
+                        return false;
                     }
                 });
 
@@ -323,28 +404,75 @@ public class AvartaMain extends AppCompatActivity{
         });
     }
 
-    public void putAdditem(String item)
+    public void AvartaSet(View v)
     {
-        putDataset = putAdapter.Add(item);
+        setBody = (ImageView) v.findViewById(R.id.Mainbody);
+        face = BitmapFactory.decodeResource(this.getResources(), R.drawable.face);
+        body = BitmapFactory.decodeResource(this.getResources(), R.drawable.body);
+        arm = BitmapFactory.decodeResource(this.getResources(), R.drawable.arm);
+        leg = BitmapFactory.decodeResource(this.getResources(), R.drawable.leg);
+        ankle = BitmapFactory.decodeResource(this.getResources(), R.drawable.ankle);
+        mMainHandler = new SendMassgeHandler();
+
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                // TODO Auto-generated method stub
+
+                body = overlayMark(body, face);
+                body = overlayMark(body, arm);
+                body = overlayMark(body, leg);
+                body = overlayMark(body, ankle);
+
+                Message msg = mMainHandler.obtainMessage();
+                msg.what = 1;
+                mMainHandler.sendMessage(msg);
+
+            }
+        }).start();
+
+    }
+
+    public void putAdditem(String item, productList productList)
+    {
+        MainProduct.add(productList);
+        putAdapter.Add(item, Integer.valueOf(productList.getSplit()));
         mainRecy.setVisibility(View.VISIBLE);
-        putBtton.setVisibility(View.INVISIBLE);
-        putBtton.startAnimation(animation_Right);
-        System.out.println("KKKK : " + putDataset.size());
+        mainRecy.setY(init_put_Y);
     }
 
-    public void Invisible_put()
+    public Bitmap setPutBitmap(ArrayList<Bitmap> bitmap)
     {
+        product_split product_split = new product_split();
+        int num = bitmap.size();
+        Bitmap bitmap1 = bitmap.get(0);
+        product_split.setImage(bitmap1);
+        if(num == 1)
+        {
+            split_product.add(product_split);
+            System.out.println("remove add: " + split_product.size());
+           return bitmap1;
+        }
+        for(int i = 1; i < num; i++)
+        {
+            if(i < num)
+            {
+                product_split.setImage(bitmap.get(i));
+                bitmap1 = overlayMark(bitmap1,bitmap.get(i));
+            }
 
-        mainRecy.startAnimation(animation_Left);
-        mainRecy.setVisibility(View.INVISIBLE);
-        putBtton.setVisibility(View.VISIBLE);
+        }
+        split_product.add(product_split);
+        System.out.println("remove add: " + split_product.size());
+        return bitmap1;
     }
 
-    public void setPutBitmap(Bitmap bitmap)
+    public void removePutBitmap(int position)
     {
-        putBitmap.add(bitmap);
+        System.out.println("remove : " + split_product.size());
+        split_product.remove(position);
+        System.out.println("remove : " + split_product.size());
     }
-
     public void backtoFrag(String brand)
     {
         brandSet(brand, false);
@@ -375,8 +503,14 @@ public class AvartaMain extends AppCompatActivity{
     public void onWindowFocusChanged(boolean hasFocus) {
 
         LinearLayout linearLayout = (LinearLayout)findViewById(R.id.Fragment_change);
+        RecyclerView recyclerViewk = (RecyclerView) findViewById(R.id.Mainrecycler_view);
         FragmentHeight = Integer.valueOf(linearLayout.getHeight());
         FragmentWidth = Integer.valueOf(linearLayout.getWidth());
+        init_put_Y = Float.valueOf(recyclerViewk.getY());
+        current_put_Y = init_put_Y;
+        percent_Y = Float.valueOf(recyclerViewk.getHeight()) * 0.05f;
+        recycle_height = Float.valueOf(recyclerViewk.getHeight());
+
     }
 
     @Override
@@ -397,9 +531,7 @@ public class AvartaMain extends AppCompatActivity{
         setContentView(R.layout.main);
 
         animation_Right = AnimationUtils.loadAnimation(this,R.anim.anim_right);
-        animation_Left = AnimationUtils.loadAnimation(this,R.anim.anim_left);
 
-        putBtton = (Button)findViewById(R.id.putButton);
 
         mainRecy = (RecyclerView)findViewById(R.id.Mainrecycler_view);
         mainRecy.setLayoutManager(new LinearLayoutManager(context));
@@ -495,5 +627,30 @@ public class AvartaMain extends AppCompatActivity{
                 break;
         }
     }
+
+    private Bitmap overlayMark(Bitmap bmp1, Bitmap bmp2)
+    {
+        Bitmap temp = Bitmap.createBitmap(bmp1.getWidth(), bmp1.getHeight(), bmp1.getConfig());
+        Canvas canvas = new Canvas(temp);
+        canvas.drawBitmap(bmp1, 0, 0, null);
+        canvas.drawBitmap(bmp2, 0, 0, null);
+        return temp;
+    }
+
+    class SendMassgeHandler extends Handler {
+
+        @Override
+        public void handleMessage(Message msg) {
+            super.handleMessage(msg);
+            switch (msg.what) {
+                case 1:
+                    setBody.setImageDrawable(new BitmapDrawable(getResources(), body));
+                    break;
+                default:
+                    break;
+            }
+        }
+
+    };
 
 }

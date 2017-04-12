@@ -15,8 +15,6 @@ public class productList{
     String[] color;
     String[][] size;
 
-
-
     public productList()
     {
 

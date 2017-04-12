@@ -86,7 +86,7 @@ public class ProductAdapter extends RecyclerView.Adapter<ProductAdapter.ProductV
         myViewHolder.try_on1.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ((AvartaMain) mContext).putAdditem(BrandName+"_"+productAdapter1.get(position).getName());
+                ((AvartaMain) mContext).putAdditem(BrandName+"_"+productAdapter1.get(position).getName(),productAdapter1.get(position));
             }
         });
     }
