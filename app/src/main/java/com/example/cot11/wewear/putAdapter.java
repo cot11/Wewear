@@ -39,7 +39,6 @@ import java.util.concurrent.ExecutionException;
 public class putAdapter extends RecyclerView.Adapter<putAdapter.ViewHolder> {
 
     private ArrayList<String> mDataSet;
-    private ArrayList<Bitmap> temp_bitmap;
     private ArrayList<Bitmap> mDataSet_bitmap;
     private Context mContext;
     private FirebaseStorage storage;
@@ -47,124 +46,31 @@ public class putAdapter extends RecyclerView.Adapter<putAdapter.ViewHolder> {
     private String BrandName;
     private int lastPosition = -1;
     private Animation animation;
-    private int Count = 0;
-    private boolean Done = true;
-    private int mode = 1;
-    private String[] split_string;
-    private ArrayList<String> queue;
-
-
-    public void setBrandName(String Brand)
-    {
-        BrandName = Brand;
-    }
+    private ArrayList<Thread> ThreadQueue;
 
     public putAdapter(Context context) {
         mDataSet = new ArrayList<>();
-        queue = new ArrayList<String>();
         mDataSet_bitmap = new ArrayList<>();
+        ThreadQueue = new ArrayList<>();
         mContext = context;
         storage = FirebaseStorage.getInstance();
         storageRef = storage.getReferenceFromUrl("gs://wewear-db78b.appspot.com");
         animation = AnimationUtils.loadAnimation(mContext, R.anim.wiggle_shake);
     }
 
-    public void StartPut(final String item, final int split)
-    {
-        for(int i = 0; i < split; i++)
-        {
-            if(i == 0)
-            {
-                split_string = item.split("_");
-            }
-            final String temp_s = split_string[0]+"/"+"이미지/" + split_string[1];
-            StorageReference storageRefk = FirebaseStorage.getInstance().getReference().child(temp_s + (i+1) + ".png");
-            storageRefk.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                @Override
-                public void onSuccess(Uri uri) {
-                    Glide.with(mContext).load(uri).asBitmap().into(new SimpleTarget<Bitmap>() {
-                        @Override
-                        public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
-                            System.out.println("what...? :" + temp_s);
-                            temp_bitmap.add(resource);
-                            Count++;
-                            if(Count == split)
-                            {
-                                mDataSet_bitmap.add(((AvartaMain) mContext).setPutBitmap(temp_bitmap));
-                                mDataSet.add(item);
-                                notifyDataSetChanged();
-                                Count = 0;
-                                System.out.println("what : Done");
-                            }
-                        }
-                    });
-                }
-            }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception exception) {
-                    exception.printStackTrace();
-                    // Handle any errors
-                }
-            });
-        }
-    }
-
-
-    public void Add(final String item, final int split)
+    public void Add(String item, int split)
     {
         for(int i = 0; i < mDataSet.size(); i++)
         {
             if(mDataSet.get(i).equals(item))
             {
-                System.out.println("이미 추가된 상품입니다.");
+                System.out.println("sizecc : 이미 추가된 상품입니다.");
                 return;
             }
         }
-        split_string = new String[split];
 
-
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                final ArrayList<Bitmap> temp_bitmap = new ArrayList<>();
-                for(int i = 0; i < split; i++)
-                {
-                    if(i == 0)
-                    {
-                        split_string = item.split("_");
-                    }
-                    final String temp_s = split_string[0]+"/"+"이미지/" + split_string[1];
-                    StorageReference storageRefk = FirebaseStorage.getInstance().getReference().child(temp_s + (i+1) + ".png");
-                    storageRefk.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                        @Override
-                        public void onSuccess(Uri uri) {
-                            Glide.with(mContext).load(uri).asBitmap().into(new SimpleTarget<Bitmap>() {
-                                @Override
-                                public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
-                                    System.out.println("what...? :" + temp_s);
-                                    temp_bitmap.add(resource);
-                                    Count++;
-                                    if(Count == split)
-                                    {
-                                        mDataSet_bitmap.add(((AvartaMain) mContext).setPutBitmap(temp_bitmap));
-                                        mDataSet.add(item);
-                                        notifyDataSetChanged();
-                                        Count = 0;
-                                        System.out.println("what : Done");
-                                    }
-                                }
-                            });
-                        }
-                    }).addOnFailureListener(new OnFailureListener() {
-                        @Override
-                        public void onFailure(@NonNull Exception exception) {
-                            exception.printStackTrace();
-                            // Handle any errors
-                        }
-                    });
-                }
-            }
-        }).start();
+        PutThread putthread = new PutThread(item,split);
+        putthread.start();
     }
 
     @Override
@@ -191,46 +97,10 @@ public class putAdapter extends RecyclerView.Adapter<putAdapter.ViewHolder> {
 
         holder.textView.setText(mDataSet.get(position));
         holder.imageView.setImageBitmap(mDataSet_bitmap.get(position));
-        //StorageReference storageRef = FirebaseStorage.getInstance().getReference().child(BrandName+"/"+"이미지/" + mDataSet.get(position) + ".png");
-        /*
-        for(int i = 0; i < mDataSet_num.get(position); i++)
-        {
-            String need_file = BrandName+"/"+"이미지/" + mDataSet.get(position) + (i+1) + ".png";
-            storageRef = FirebaseStorage.getInstance().getReference().child(need_file);
-            storageRef.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                @Override
-                public void onSuccess(Uri uri) {
-                    Glide.with(mContext).load(uri).asBitmap().into(new SimpleTarget<Bitmap>() {
-                        @Override
-                        public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
-                            temp_bitmap.add(resource);
-                            holder.textView.setText(mDataSet.get(position));
-                            holder.remove.setVisibility(View.INVISIBLE);
-                            setAnimation(holder.imageView, position);
-                            Count++;
-                            if(Count == mDataSet_num.get(position))
-                            {
-                                holder.imageView.setImageBitmap(((AvartaMain) mContext).setPutBitmap(temp_bitmap));
-                                Count = 0;
-                            }
-                        }
-                    });
-                }
-            }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception exception) {
-                    exception.printStackTrace();
-                    System.out.println("position : " + mDataSet.get(position));
-                    // Handle any errors
-                }
-            });
-        }
-        */
-
         holder.imageView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                System.out.println("hh : " + mDataSet.get(position));
+                ((AvartaMain) mContext).itemApply(position);
             }
         });
         holder.imageView.setOnLongClickListener(new View.OnLongClickListener() {
@@ -273,6 +143,58 @@ public class putAdapter extends RecyclerView.Adapter<putAdapter.ViewHolder> {
         if (position > lastPosition)
         {
             lastPosition = position;
+        }
+    }
+
+    class PutThread extends Thread
+    {
+        private String item;
+        private int split;
+        private int count;
+        private ArrayList<Bitmap> temp_bitmap;
+        public PutThread(String item, int split)
+        {
+            this.item = item;
+            this.split = split;
+        }
+        @Override
+        public void run() {
+            super.run();
+            final String[] split_string = item.split("_");
+            temp_bitmap = new ArrayList<>();
+            System.out.println("sizecc init size : " + temp_bitmap.size());
+            for(int i = 1; i <= split; i++)
+            {
+                StorageReference storageRefk = FirebaseStorage.getInstance().getReference().child(split_string[0]+"/"+"이미지/" + split_string[1] + i + ".png");
+                storageRefk.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                    @Override
+                    public void onSuccess(Uri uri) {
+                        Glide.with(mContext).load(uri).asBitmap().into(new SimpleTarget<Bitmap>() {
+                            @Override
+                            public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
+                                temp_bitmap.add(resource);
+                                System.out.println("sizecc : " + temp_bitmap.size());
+                                count++;
+                                if(count == split)
+                                {
+                                    mDataSet_bitmap.add(((AvartaMain) mContext).setPutBitmap(temp_bitmap));
+                                    mDataSet.add(item);
+                                    temp_bitmap.clear();
+                                    notifyDataSetChanged();
+                                    System.out.println("sizecc : Done");
+                                    System.out.println("sizecc done size : " + temp_bitmap.size());
+                                }
+                            }
+                        });
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception exception) {
+                        exception.printStackTrace();
+                        // Handle any errors
+                    }
+                });
+            }
         }
     }
 }

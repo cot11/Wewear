@@ -20,4 +20,8 @@ public class product_split {
     {
         return product.get(position);
     }
+    public int getSize()
+    {
+        return product.size();
+    }
 }

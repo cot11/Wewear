@@ -76,7 +76,10 @@ public class AvartaMain extends AppCompatActivity{
     private float first_touch = 0;
     private float last_touch = 0;
     private Bitmap face, body, leg, ankle, arm;
+    private Bitmap Allbody,Notarm, Notlegankle, CurrentBody;
     private SendMassgeHandler mMainHandler = null;
+    private boolean Ready = true;
+    private product_split[] aleady = new product_split[4];
 
 
     private LinearLayout avarta_button;
@@ -304,7 +307,6 @@ public class AvartaMain extends AppCompatActivity{
                 CodeApdater mAdapter = new CodeApdater(mDataset, context, productListArrayList1, 1);
                 mRecyclerView1.setLayoutManager(mLayoutManager1);
                 mRecyclerView1.setAdapter(mAdapter);
-                putAdapter.setBrandName(Brandname);
             }
 
             @Override
@@ -407,38 +409,103 @@ public class AvartaMain extends AppCompatActivity{
     public void AvartaSet(View v)
     {
         setBody = (ImageView) v.findViewById(R.id.Mainbody);
-        face = BitmapFactory.decodeResource(this.getResources(), R.drawable.face);
-        body = BitmapFactory.decodeResource(this.getResources(), R.drawable.body);
-        arm = BitmapFactory.decodeResource(this.getResources(), R.drawable.arm);
-        leg = BitmapFactory.decodeResource(this.getResources(), R.drawable.leg);
-        ankle = BitmapFactory.decodeResource(this.getResources(), R.drawable.ankle);
-        mMainHandler = new SendMassgeHandler();
+        if(Ready)
+        {
+            face = BitmapFactory.decodeResource(this.getResources(), R.drawable.face);
+            body = BitmapFactory.decodeResource(this.getResources(), R.drawable.body);
+            arm = BitmapFactory.decodeResource(this.getResources(), R.drawable.arm);
+            leg = BitmapFactory.decodeResource(this.getResources(), R.drawable.leg);
+            ankle = BitmapFactory.decodeResource(this.getResources(), R.drawable.ankle);
+            mMainHandler = new SendMassgeHandler();
 
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                // TODO Auto-generated method stub
+            new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    // TODO Auto-generated method stub
 
-                body = overlayMark(body, face);
-                body = overlayMark(body, arm);
-                body = overlayMark(body, leg);
-                body = overlayMark(body, ankle);
+                    body = overlayMark(body, face);
+                    body = overlayMark(body, leg);
+                    body = overlayMark(body, ankle);
+                    Notarm = body;
+                    body = overlayMark(body, arm);
+                    Allbody = body;
+                    CurrentBody = Allbody;
+                    Message msg = mMainHandler.obtainMessage();
+                    msg.what = 1;
+                    mMainHandler.sendMessage(msg);
 
-                Message msg = mMainHandler.obtainMessage();
-                msg.what = 1;
-                mMainHandler.sendMessage(msg);
-
-            }
-        }).start();
-
+                }
+            }).start();
+            Ready = false;
+        }
+        else
+        {
+            System.out.println("what?");
+            setBody.setImageBitmap(CurrentBody);
+        }
     }
 
+
+    public void itemApply(int position)
+    {
+        boolean rr = false;
+        System.out.println("sizecc : " + MainProduct.get(position).getName());
+        System.out.println("sizecc : " + split_product.get(position).getSize());
+        System.out.println("sizecc : " + MainProduct.get(position).getCode());
+        System.out.println("sizecc : " + MainProduct.get(position).getPrice());
+        System.out.println("sizecc size : " + split_product.get(position).getImage(0).getWidth());
+        System.out.println("sizecc size : " + split_product.get(position).getImage(0).getHeight());
+        int code = Integer.valueOf(MainProduct.get(position).getCode());
+
+        for(int i = 0; i < 4; i++)
+        {
+            if(aleady[i] != null)
+            {
+                rr= ture;
+            }
+        }
+
+
+        aleady[code-1] = split_product.get(position);
+        if(aleady[1] == null)
+        {
+            for(int i = 0; i < 4; i++)
+            {
+                if(aleady[i] != null)
+                {
+                    for(int j = 0; j < aleady[i].getSize(); j++)
+                    {
+                        CurrentBody = overlayMark(CurrentBody,aleady[i].getImage(j));
+                    }
+                }
+            }
+            setBody.setImageBitmap(CurrentBody);
+            // 상의먼저
+        }
+        else
+        {
+            for(int i = 3; i > 0; i--)
+            {
+                if(aleady[i] != null)
+                {
+                    for(int j = 0; j < aleady[i].getSize(); j++)
+                    {
+                        CurrentBody = overlayMark(CurrentBody,aleady[i].getImage(j));
+                    }
+                }
+            }
+            setBody.setImageBitmap(CurrentBody);
+        }
+
+
+    }
     public void putAdditem(String item, productList productList)
     {
         MainProduct.add(productList);
         putAdapter.Add(item, Integer.valueOf(productList.getSplit()));
         mainRecy.setVisibility(View.VISIBLE);
         mainRecy.setY(init_put_Y);
+        //System.out.println("sizecc main: " + MainProduct.size());
     }
 
     public Bitmap setPutBitmap(ArrayList<Bitmap> bitmap)
@@ -446,24 +513,26 @@ public class AvartaMain extends AppCompatActivity{
         product_split product_split = new product_split();
         int num = bitmap.size();
         Bitmap bitmap1 = bitmap.get(0);
-        product_split.setImage(bitmap1);
+        Bitmap temp2 = Bitmap.createScaledBitmap(bitmap.get(0),bitmap.get(0).getWidth()*2,bitmap.get(0).getHeight()*2,false);
+        product_split.setImage(temp2);
         if(num == 1)
         {
             split_product.add(product_split);
-            System.out.println("remove add: " + split_product.size());
+            System.out.println("sizecc split : " + split_product.size());
            return bitmap1;
         }
         for(int i = 1; i < num; i++)
         {
             if(i < num)
             {
-                product_split.setImage(bitmap.get(i));
+                Bitmap temp = Bitmap.createScaledBitmap(bitmap.get(i),bitmap.get(i).getWidth()*2,bitmap.get(i).getHeight()*2,false);
+                product_split.setImage(temp);
                 bitmap1 = overlayMark(bitmap1,bitmap.get(i));
             }
 
         }
         split_product.add(product_split);
-        System.out.println("remove add: " + split_product.size());
+        //System.out.println("sizecc split: " + split_product.size());
         return bitmap1;
     }
 
@@ -510,7 +579,6 @@ public class AvartaMain extends AppCompatActivity{
         current_put_Y = init_put_Y;
         percent_Y = Float.valueOf(recyclerViewk.getHeight()) * 0.05f;
         recycle_height = Float.valueOf(recyclerViewk.getHeight());
-
     }
 
     @Override
