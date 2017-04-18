@@ -24,6 +24,7 @@ import android.view.SurfaceView;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -67,6 +68,8 @@ import com.nightonke.boommenu.BoomMenuButton;
 import com.nightonke.boommenu.ButtonEnum;
 import com.nightonke.boommenu.Piece.PiecePlaceEnum;
 
+import uk.co.senab.photoview.PhotoViewAttacher;
+
 public class SuccessActivity extends AppCompatActivity {
 
     static {
@@ -80,10 +83,11 @@ public class SuccessActivity extends AppCompatActivity {
     private static final int MSG_STATUS = 3;
     private static final Scalar mRedColor = new Scalar(255, 0, 0);
     private static final Scalar 	mCyanColor = new Scalar(0, 255, 255);
+    PhotoViewAttacher attacher;
 
     // class
     private UserProfile myprofile;
-    private MatrixImageView mImageView;
+    private ImageView mImageView;
     private GlobalApplication	mApp;
 
     // Activity
@@ -158,17 +162,20 @@ public class SuccessActivity extends AppCompatActivity {
 
 
         //init
-         // class
+        // class
         // Activity
         unlick = (Button)findViewById(R.id.unlink);
         add = (Button)findViewById(R.id.add);
         logout = (Button)findViewById(R.id.logout);
         mGallaryButton = (Button)findViewById(R.id.gallaryButton);
         mApp = (GlobalApplication)getApplication();
-        mImageView = (MatrixImageView)findViewById(R.id.image_view);
+        mImageView = (ImageView) findViewById(R.id.image_view);
+        attacher = new PhotoViewAttacher(mImageView);
 
 
-          // Action
+
+
+        // Action
         mGallaryButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View arg0) {
@@ -412,17 +419,31 @@ public class SuccessActivity extends AppCompatActivity {
                     mHandler.obtainMessage(MSG_FAILURE).sendToTarget();
                     return;
                 }
+                int count = 0;
+
+                Point[] pp = new Point[16];
 
                 mHandler.obtainMessage(MSG_STATUS, 1, 0).sendToTarget();
-                ASMFit.fitting(image, shapes, 30);
+                ASMFit.fitting(image, shapes, 15);
                 for(int i = 0; i < shapes.rows(); i++){
                     for(int j = 0; j < (shapes.row(i).cols()/2)/2; j++){
                         double x = shapes.get(i, 2*j)[0];
                         double y = shapes.get(i, 2*j+1)[0];
                         Point pt = new Point(x, y);
-                        Core.circle(image, pt, 3, mCyanColor, 2);
+                        if(j < 15)
+                        {
+                            Core.circle(image, pt, 3, mCyanColor, 2);
+                            pp[count] = pt;
+                            if(count >= 1)
+                            {
+                                Core.line(image,pp[count],pp[count-1],new Scalar(0,0,0));
+                            }
+                            count++;
+                        }
                     }
                 }
+
+                System.out.println("point : " + count);
 
                 Imgproc.cvtColor(image, image, Imgproc.COLOR_RGB2BGR);
                 if(mScaleFactor == 1)

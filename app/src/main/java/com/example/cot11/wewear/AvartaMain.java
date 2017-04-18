@@ -26,6 +26,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.animation.AlphaAnimation;
 import android.view.animation.Animation;
@@ -34,6 +35,7 @@ import android.view.animation.TranslateAnimation;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -78,8 +80,10 @@ public class AvartaMain extends AppCompatActivity{
     private Bitmap face, body, leg, ankle, arm;
     private Bitmap Notarm, CurrentBody;
     private SendMassgeHandler mMainHandler = null;
-    private boolean Ready = true;
     private product_split[] aleady = new product_split[4];
+    private int temp_Height;
+    private int temp_Width;
+    private boolean finish_window = false;
 
 
     private LinearLayout avarta_button;
@@ -409,6 +413,10 @@ public class AvartaMain extends AppCompatActivity{
     public void AvartaSet(View v)
     {
         setBody = (ImageView) v.findViewById(R.id.Mainbody);
+        if(finish_window)
+        {
+            setBody.setImageBitmap(CurrentBody);
+        }
     }
 
 
@@ -423,53 +431,73 @@ public class AvartaMain extends AppCompatActivity{
         System.out.println("sizecc size : " + split_product.get(position).getImage(0).getHeight());
         int code = Integer.valueOf(MainProduct.get(position).getCode());
 
-        for(int i = 0; i < 4; i++)
-        {
-            if(aleady[i] != null)
-            {
-                System.out.println("sisisi : " + i);
-                rr= true;
-            }
-        }
-
-        if(rr)
-        {
-            CurrentBody = Notarm;
-        }
-
-
         aleady[code-1] = split_product.get(position);
         System.out.println(aleady[code-1].getSize());
-        if(aleady[1] == null)
+
+        if(aleady[0] != null && aleady[1] != null)
         {
-            for(int i = 0; i < 4; i++)
-            {
-                if(aleady[i] != null)
-                {
-                    for(int j = 0; j < aleady[i].getSize(); j++)
-                    {
-                        CurrentBody = overlayMark(CurrentBody,aleady[i].getImage(j));
-                    }
-                }
-            }
-            setBody.setImageBitmap(CurrentBody);
-            // 상의먼저
+            CurrentBody = Bitmap.createBitmap(Notarm);
+        }
+        else if(aleady[0] != null && aleady[1] == null)
+        {
+            CurrentBody = Bitmap.createBitmap(Notarm);
+        }
+        else if(aleady[0] == null && aleady[1] != null)
+        {
+            CurrentBody = Bitmap.createBitmap(body);
         }
         else
         {
-            System.out.println("하의가 있네?");
-            for(int i = 3; i >= 0; i--)
+            CurrentBody = Bitmap.createBitmap(Notarm);
+        }
+
+        if((code-1) == 3)
+        {
+            for(int j = 0; j < aleady[3].getSize(); j++)
             {
-                if(aleady[i] != null)
-                {
-                    for(int j = 0; j < aleady[i].getSize(); j++)
-                    {
-                        CurrentBody = overlayMark(CurrentBody,aleady[i].getImage(j));
-                    }
-                }
+                CurrentBody = overlayMark(CurrentBody,aleady[3].getImage(j));
+            }
+            for(int i = 0; i < 3; i++)
+            {
+                aleady[i] = null;
             }
             setBody.setImageBitmap(CurrentBody);
         }
+        else
+        {
+            if(aleady[1] == null)
+            {
+                for(int i = 0; i < 3; i++)
+                {
+                    if(aleady[i] != null)
+                    {
+                        for(int j = 0; j < aleady[i].getSize(); j++)
+                        {
+                            CurrentBody = overlayMark(CurrentBody,aleady[i].getImage(j));
+                        }
+                    }
+                }
+                setBody.setImageBitmap(CurrentBody);
+                // 상의먼저
+            }
+            else
+            {
+                System.out.println("하의가 있네?");
+                for(int i = 2; i >= 0; i--)
+                {
+                    if(aleady[i] != null)
+                    {
+                        for(int j = 0; j < aleady[i].getSize(); j++)
+                        {
+                            CurrentBody = overlayMark(CurrentBody,aleady[i].getImage(j));
+                        }
+                    }
+                }
+                setBody.setImageBitmap(CurrentBody);
+            }
+        }
+
+
 
 
     }
@@ -538,63 +566,60 @@ public class AvartaMain extends AppCompatActivity{
         return FragmentWidth/2;
     }
 
+    public int getPuttemHeight()
+    {
+        return FragmentHeight/3;
+    }
+
+    public int getPuttemWidth()
+    {
+        return (int)((FragmentHeight/3)/2.28);
+    }
+
 
     @Override
     public void onWindowFocusChanged(boolean hasFocus) {
 
-        LinearLayout linearLayout = (LinearLayout)findViewById(R.id.Fragment_change);
-        RecyclerView recyclerViewk = (RecyclerView) findViewById(R.id.Mainrecycler_view);
+        LinearLayout linearLayout = (LinearLayout) findViewById(R.id.Fragment_change);
         ImageView imageView = (ImageView)findViewById(R.id.Mainbody);
+        temp_Height = imageView.getHeight();
+        temp_Width = (int)(temp_Height/2.28);
+        RecyclerView recyclerViewk = (RecyclerView) findViewById(R.id.Mainrecycler_view);
         FragmentHeight = Integer.valueOf(linearLayout.getHeight());
         FragmentWidth = Integer.valueOf(linearLayout.getWidth());
         init_put_Y = Float.valueOf(recyclerViewk.getY());
         current_put_Y = init_put_Y;
         percent_Y = Float.valueOf(recyclerViewk.getHeight()) * 0.05f;
         recycle_height = Float.valueOf(recyclerViewk.getHeight());
+        RelativeLayout.LayoutParams params = new RelativeLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                temp_Height/5
+        );
+        recyclerViewk.setLayoutParams(params);
 
-        System.out.println("sizesize : " + imageView.getWidth());
-        System.out.println("sizesize : " + imageView.getHeight());
 
-        if(Ready)
-        {
-            BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inJustDecodeBounds = true;
-
-            // Calculate inSampleSize
-            options.inScaled = false;
-
-            // Decode bitmap with inSampleSize set
-            options.inJustDecodeBounds = false;
+        System.out.println("kk : " + temp_Height);
 
 
 
+            face = BitmapFactory.decodeResource(this.getResources(), R.drawable.face);
+            face = Bitmap.createScaledBitmap(face,temp_Width,temp_Height,true);
 
-            face = BitmapFactory.decodeResource(this.getResources(), R.drawable.face, options);
-            face = Bitmap.createScaledBitmap(face,imageView.getWidth(),imageView.getHeight(),true);
+            body = BitmapFactory.decodeResource(this.getResources(), R.drawable.body);
+            body = Bitmap.createScaledBitmap(body,temp_Width,temp_Height,true);
 
-            body = BitmapFactory.decodeResource(this.getResources(), R.drawable.body, options);
-            body = Bitmap.createScaledBitmap(body,imageView.getWidth(),imageView.getHeight(),true);
+            arm = BitmapFactory.decodeResource(this.getResources(), R.drawable.arm);
+            arm = Bitmap.createScaledBitmap(arm,temp_Width,temp_Height,true);
 
-            arm = BitmapFactory.decodeResource(this.getResources(), R.drawable.arm, options);
-            arm = Bitmap.createScaledBitmap(arm,imageView.getWidth(),imageView.getHeight(),true);
+            leg = BitmapFactory.decodeResource(this.getResources(), R.drawable.leg );
+            leg = Bitmap.createScaledBitmap(leg,temp_Width,temp_Height,true);
 
-            leg = BitmapFactory.decodeResource(this.getResources(), R.drawable.leg,options );
-            leg = Bitmap.createScaledBitmap(leg,imageView.getWidth(),imageView.getHeight(),true);
+            ankle = BitmapFactory.decodeResource(this.getResources(), R.drawable.ankle);
+            ankle = Bitmap.createScaledBitmap(ankle,temp_Width,temp_Height,true);
 
-            ankle = BitmapFactory.decodeResource(this.getResources(), R.drawable.ankle, options);
-            ankle = Bitmap.createScaledBitmap(ankle,imageView.getWidth(),imageView.getHeight(),true);
-
-            setBody.setImageBitmap(face);
-
+            //setBody.setImageBitmap(body);
 
 
-
-            System.out.println("sizesize a: " + body.getWidth());
-            System.out.println("sizesize a: " + body.getHeight());
-            System.out.println("sizesize a: " + face.getWidth());
-            System.out.println("sizesize a: " + face.getHeight());
-
-            /*
             mMainHandler = new SendMassgeHandler();
 
             new Thread(new Runnable() {
@@ -602,11 +627,11 @@ public class AvartaMain extends AppCompatActivity{
                 public void run() {
                     // TODO Auto-generated method stub
 
-                    face = overlayMark(face, body);
-                    face = overlayMark(face, leg);
-                    face = overlayMark(face, ankle);
+                    body = overlayMark(body, face);
+                    body = overlayMark(body, leg);
+                    body = overlayMark(body, ankle);
                     Notarm = body;
-                    face = overlayMark(face, arm);
+                    body = overlayMark(body, arm);
                     CurrentBody = body;
                     Message msg = mMainHandler.obtainMessage();
                     msg.what = 1;
@@ -614,17 +639,6 @@ public class AvartaMain extends AppCompatActivity{
 
                 }
             }).start();
-            Ready = false;
-            */
-
-        }
-        else
-        {
-            System.out.println("what?");
-            setBody.setImageBitmap(CurrentBody);
-        }
-
-
     }
 
     @Override
@@ -745,6 +759,7 @@ public class AvartaMain extends AppCompatActivity{
     private Bitmap overlayMark(Bitmap bmp1, Bitmap bmp2)
     {
         Bitmap temp = Bitmap.createBitmap(bmp1.getWidth(), bmp1.getHeight(), bmp1.getConfig());
+        bmp2 = Bitmap.createScaledBitmap(bmp2, temp_Width, temp_Height, true);
         Canvas canvas = new Canvas(temp);
         canvas.drawBitmap(bmp1, 0, 0, null);
         canvas.drawBitmap(bmp2, 0, 0, null);
@@ -758,8 +773,8 @@ public class AvartaMain extends AppCompatActivity{
             super.handleMessage(msg);
             switch (msg.what) {
                 case 1:
-                    setBody.setImageDrawable(new BitmapDrawable(getResources(), face));
-                    System.out.println("sizesize a: " + face.getHeight());
+                    setBody.setImageDrawable(new BitmapDrawable(getResources(), body));
+                    finish_window = true;
                     break;
                 default:
                     break;

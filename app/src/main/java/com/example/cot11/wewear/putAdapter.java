@@ -46,16 +46,18 @@ public class putAdapter extends RecyclerView.Adapter<putAdapter.ViewHolder> {
     private String BrandName;
     private int lastPosition = -1;
     private Animation animation;
-    private ArrayList<Thread> ThreadQueue;
 
     public putAdapter(Context context) {
         mDataSet = new ArrayList<>();
         mDataSet_bitmap = new ArrayList<>();
-        ThreadQueue = new ArrayList<>();
         mContext = context;
         storage = FirebaseStorage.getInstance();
         storageRef = storage.getReferenceFromUrl("gs://wewear-db78b.appspot.com");
         animation = AnimationUtils.loadAnimation(mContext, R.anim.wiggle_shake);
+
+
+
+
     }
 
     public void Add(String item, int split)
@@ -152,10 +154,15 @@ public class putAdapter extends RecyclerView.Adapter<putAdapter.ViewHolder> {
         private int split;
         private int count;
         private ArrayList<Bitmap> temp_bitmap;
+        private int width;
+        private int height;
+
         public PutThread(String item, int split)
         {
             this.item = item;
             this.split = split;
+            width =  ((AvartaMain) mContext).getPuttemWidth();
+            height =  ((AvartaMain) mContext).getPuttemHeight();
         }
         @Override
         public void run() {
@@ -163,13 +170,15 @@ public class putAdapter extends RecyclerView.Adapter<putAdapter.ViewHolder> {
             final String[] split_string = item.split("_");
             temp_bitmap = new ArrayList<>();
             System.out.println("sizecc init size : " + temp_bitmap.size());
+            System.out.println("window123 : " + width);
+            System.out.println("window123 : " + height);
             for(int i = 1; i <= split; i++)
             {
                 StorageReference storageRefk = FirebaseStorage.getInstance().getReference().child(split_string[0]+"/"+"이미지/" + split_string[1] + i + ".png");
                 storageRefk.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                     @Override
                     public void onSuccess(Uri uri) {
-                        Glide.with(mContext).load(uri).asBitmap().override(35,80).into(new SimpleTarget<Bitmap>() {
+                        Glide.with(mContext).load(uri).asBitmap().into(new SimpleTarget<Bitmap>() {
                             @Override
                             public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
                                 temp_bitmap.add(resource);

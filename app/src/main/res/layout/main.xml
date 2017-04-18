@@ -96,17 +96,23 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_weight="8">
-            <LinearLayout
+            <RelativeLayout
+                android:id="@+id/Fra"
                 android:orientation="horizontal"
-                android:id="@+id/Fragment_change"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
-            </LinearLayout>
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:id="@+id/Fragment_change"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent">
+                </LinearLayout>
+            </RelativeLayout>
             <android.support.v7.widget.RecyclerView
                 android:id="@+id/Mainrecycler_view"
                 android:background="@color/white"
                 android:visibility="invisible"
-                android:layout_alignBottom="@+id/Fragment_change"
+                android:layout_alignBottom="@+id/Fra"
                 android:layout_width="match_parent"
                 android:layout_height="80dp" />
         </RelativeLayout>

@@ -53,7 +53,7 @@
         </LinearLayout>
 
 
-        <com.example.cot11.wewear.MatrixImageView
+        <ImageView
             android:layout_weight="10"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
