@@ -169,11 +169,12 @@ public class putAdapter extends RecyclerView.Adapter<putAdapter.ViewHolder> {
                 storageRefk.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                     @Override
                     public void onSuccess(Uri uri) {
-                        Glide.with(mContext).load(uri).asBitmap().into(new SimpleTarget<Bitmap>() {
+                        Glide.with(mContext).load(uri).asBitmap().override(35,80).into(new SimpleTarget<Bitmap>() {
                             @Override
                             public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
                                 temp_bitmap.add(resource);
-                                System.out.println("sizecc : " + temp_bitmap.size());
+                                System.out.println("sizesize pic : " + resource.getWidth());
+                                System.out.println("sizesize pic : " + resource.getHeight());
                                 count++;
                                 if(count == split)
                                 {
