@@ -172,9 +172,12 @@ public class putAdapter extends RecyclerView.Adapter<putAdapter.ViewHolder> {
             System.out.println("sizecc init size : " + temp_bitmap.size());
             System.out.println("window123 : " + width);
             System.out.println("window123 : " + height);
+            System.out.println("window123 :" + split_string[0]);
+            System.out.println("window123 :" + split_string[1]);
+            System.out.println("window123 :" + item);
             for(int i = 1; i <= split; i++)
             {
-                StorageReference storageRefk = FirebaseStorage.getInstance().getReference().child(split_string[0]+"/"+"이미지/" + split_string[1] + i + ".png");
+                StorageReference storageRefk = FirebaseStorage.getInstance().getReference().child(split_string[0]+"/이미지/" + split_string[1] + i + ".png");
                 storageRefk.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
                     @Override
                     public void onSuccess(Uri uri) {
