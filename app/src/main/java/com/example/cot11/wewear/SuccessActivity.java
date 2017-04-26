@@ -391,7 +391,7 @@ public class SuccessActivity extends AppCompatActivity {
                 }
                 int count = 0;
 
-                Point[] pp = new Point[16];
+                Point[] pp = new Point[30];
 
                 mHandler.obtainMessage(MSG_STATUS, 1, 0).sendToTarget();
                 ASMFit.fitting(image, shapes, 15);

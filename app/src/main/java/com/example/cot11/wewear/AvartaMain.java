@@ -419,20 +419,19 @@ public class AvartaMain extends AppCompatActivity{
         }
     }
 
-
     public void itemApply(int position)
     {
-        boolean rr = false;
+
         System.out.println("sizecc : " + MainProduct.get(position).getName());
-        System.out.println("sizecc : " + split_product.get(position).getSize());
+        //System.out.println("sizecc : " + split_product.get(position).getSize());
         System.out.println("sizecc : " + MainProduct.get(position).getCode());
-        System.out.println("sizecc : " + MainProduct.get(position).getPrice());
-        System.out.println("sizecc size : " + split_product.get(position).getImage(0).getWidth());
-        System.out.println("sizecc size : " + split_product.get(position).getImage(0).getHeight());
+        //System.out.println("sizecc : " + MainProduct.get(position).getPrice());
+        //System.out.println("sizecc size : " + split_product.get(position).getImage(0).getWidth());
+        //System.out.println("sizecc size : " + split_product.get(position).getImage(0).getHeight());
+
         int code = Integer.valueOf(MainProduct.get(position).getCode());
 
         aleady[code-1] = split_product.get(position);
-        System.out.println(aleady[code-1].getSize());
 
         if(aleady[0] != null && aleady[1] != null)
         {
@@ -451,7 +450,7 @@ public class AvartaMain extends AppCompatActivity{
             CurrentBody = Bitmap.createBitmap(Notarm);
         }
 
-        if((code-1) == 3)
+        if((code-1) == 3) // 원피스 있음
         {
             for(int j = 0; j < aleady[3].getSize(); j++)
             {
@@ -463,42 +462,67 @@ public class AvartaMain extends AppCompatActivity{
             }
             setBody.setImageBitmap(CurrentBody);
         }
-        else
+        else //원피스 없음
         {
-            if(aleady[1] == null)
+            if(aleady[1] == null) // 하의 없음
             {
-                for(int i = 0; i < 3; i++)
+                if(aleady[2] == null) // 아우터 없음
                 {
-                    if(aleady[i] != null)
+                    for(int j = 0; j < aleady[0].getSize(); j++)
                     {
-                        for(int j = 0; j < aleady[i].getSize(); j++)
-                        {
-                            CurrentBody = overlayMark(CurrentBody,aleady[i].getImage(j));
-                        }
+                        CurrentBody = overlayMark(CurrentBody,aleady[0].getImage(j));
                     }
+                    setBody.setImageBitmap(CurrentBody);
                 }
-                setBody.setImageBitmap(CurrentBody);
-                // 상의먼저
+                else // 아우터 있음
+                {
+                    System.out.println("하의 없고 아우터 있음");
+                    if(aleady[0] != null)
+                    {
+                        CurrentBody = overlayMark(CurrentBody,aleady[0].getImage(0));
+                    }
+                    for(int j = 0; j < aleady[2].getSize(); j++)
+                    {
+                        CurrentBody = overlayMark(CurrentBody,aleady[2].getImage(j));
+                    }
+                    setBody.setImageBitmap(CurrentBody);
+                }
             }
-            else
+            else // 하의 있음
             {
-                System.out.println("하의가 있네?");
-                for(int i = 2; i >= 0; i--)
+                if(aleady[2] == null) // 아우터 없음
                 {
-                    if(aleady[i] != null)
+                    for(int i = 2; i >= 0; i--)
                     {
-                        for(int j = 0; j < aleady[i].getSize(); j++)
+                        if(aleady[i] != null)
                         {
-                            CurrentBody = overlayMark(CurrentBody,aleady[i].getImage(j));
+                            for(int j = 0; j < aleady[i].getSize(); j++)
+                            {
+                                CurrentBody = overlayMark(CurrentBody,aleady[i].getImage(j));
+                            }
                         }
                     }
+                    setBody.setImageBitmap(CurrentBody);
                 }
-                setBody.setImageBitmap(CurrentBody);
+                else // 아우터 있음
+                {
+                    if(aleady[0] != null)
+                    {
+                        CurrentBody = overlayMark(CurrentBody,aleady[0].getImage(0));
+                    }
+                    for(int j = 0; j < aleady[1].getSize(); j++)
+                    {
+                        CurrentBody = overlayMark(CurrentBody,aleady[1].getImage(j));
+                    }
+                    for(int j = 0; j < aleady[2].getSize(); j++)
+                    {
+                        CurrentBody = overlayMark(CurrentBody,aleady[2].getImage(j));
+                    }
+
+                    setBody.setImageBitmap(CurrentBody);
+                }
             }
         }
-
-
-
 
     }
     public void putAdditem(String item, productList productList)

@@ -156,6 +156,7 @@ public class putAdapter extends RecyclerView.Adapter<putAdapter.ViewHolder> {
         private ArrayList<Bitmap> temp_bitmap;
         private int width;
         private int height;
+        int i = 1;
 
         public PutThread(String item, int split)
         {
@@ -175,39 +176,93 @@ public class putAdapter extends RecyclerView.Adapter<putAdapter.ViewHolder> {
             System.out.println("window123 :" + split_string[0]);
             System.out.println("window123 :" + split_string[1]);
             System.out.println("window123 :" + item);
-            for(int i = 1; i <= split; i++)
-            {
-                StorageReference storageRefk = FirebaseStorage.getInstance().getReference().child(split_string[0]+"/이미지/" + split_string[1] + i + ".png");
-                storageRefk.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
-                    @Override
-                    public void onSuccess(Uri uri) {
-                        Glide.with(mContext).load(uri).asBitmap().into(new SimpleTarget<Bitmap>() {
-                            @Override
-                            public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
-                                temp_bitmap.add(resource);
-                                System.out.println("sizesize pic : " + resource.getWidth());
-                                System.out.println("sizesize pic : " + resource.getHeight());
-                                count++;
-                                if(count == split)
-                                {
-                                    mDataSet_bitmap.add(((AvartaMain) mContext).setPutBitmap(temp_bitmap));
-                                    mDataSet.add(item);
-                                    temp_bitmap.clear();
-                                    notifyDataSetChanged();
-                                    System.out.println("sizecc : Done");
-                                    System.out.println("sizecc done size : " + temp_bitmap.size());
-                                }
+
+            StorageReference storageRefk = FirebaseStorage.getInstance().getReference().child(split_string[0]+"/이미지/" + split_string[1] + 1 + ".png");
+            storageRefk.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                @Override
+                public void onSuccess(Uri uri) {
+                    Glide.with(mContext).load(uri).asBitmap().into(new SimpleTarget<Bitmap>() {
+                        @Override
+                        public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
+                            temp_bitmap.add(resource);
+                            count++;
+                            if(count == split)
+                            {
+                                mDataSet_bitmap.add(((AvartaMain) mContext).setPutBitmap(temp_bitmap));
+                                mDataSet.add(item);
+                                temp_bitmap.clear();
+                                notifyDataSetChanged();
                             }
-                        });
-                    }
-                }).addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception exception) {
-                        exception.printStackTrace();
-                        // Handle any errors
-                    }
-                });
-            }
+                            else
+                            {
+                                StorageReference storageRefk = FirebaseStorage.getInstance().getReference().child(split_string[0]+"/이미지/" + split_string[1] + 2 + ".png");
+                                storageRefk.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                    @Override
+                                    public void onSuccess(Uri uri) {
+                                        Glide.with(mContext).load(uri).asBitmap().into(new SimpleTarget<Bitmap>() {
+                                            @Override
+                                            public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
+                                                temp_bitmap.add(resource);
+                                                count++;
+                                                if(count == split)
+                                                {
+                                                    mDataSet_bitmap.add(((AvartaMain) mContext).setPutBitmap(temp_bitmap));
+                                                    mDataSet.add(item);
+                                                    temp_bitmap.clear();
+                                                    notifyDataSetChanged();
+                                                }
+                                                else
+                                                {
+                                                    StorageReference storageRefk = FirebaseStorage.getInstance().getReference().child(split_string[0]+"/이미지/" + split_string[1] + 3 + ".png");
+                                                    storageRefk.getDownloadUrl().addOnSuccessListener(new OnSuccessListener<Uri>() {
+                                                        @Override
+                                                        public void onSuccess(Uri uri) {
+                                                            Glide.with(mContext).load(uri).asBitmap().into(new SimpleTarget<Bitmap>() {
+                                                                @Override
+                                                                public void onResourceReady(Bitmap resource, GlideAnimation<? super Bitmap> glideAnimation) {
+                                                                    temp_bitmap.add(resource);
+                                                                    count++;
+                                                                    if(count == split)
+                                                                    {
+                                                                        mDataSet_bitmap.add(((AvartaMain) mContext).setPutBitmap(temp_bitmap));
+                                                                        mDataSet.add(item);
+                                                                        temp_bitmap.clear();
+                                                                        notifyDataSetChanged();
+                                                                    }
+                                                                }
+                                                            });
+                                                        }
+                                                    }).addOnFailureListener(new OnFailureListener() {
+                                                        @Override
+                                                        public void onFailure(@NonNull Exception exception) {
+                                                            exception.printStackTrace();
+                                                            // Handle any errors
+                                                        }
+                                                    });
+                                                }
+                                            }
+                                        });
+                                    }
+                                }).addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception exception) {
+                                        exception.printStackTrace();
+                                        // Handle any errors
+                                    }
+                                });
+                            }
+                        }
+                    });
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception exception) {
+                    exception.printStackTrace();
+                    // Handle any errors
+                }
+            });
+
+
         }
     }
 }
