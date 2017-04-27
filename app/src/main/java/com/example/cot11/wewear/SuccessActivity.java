@@ -8,12 +8,17 @@ import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
+import android.graphics.Path;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Message;
 import android.provider.MediaStore;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -72,6 +77,11 @@ public class SuccessActivity extends AppCompatActivity {
     private boolean mFittingDone = false;
     private Bitmap mBitmap = null;
     private int mScaleFactor = 1;
+    private Path path;      //페스
+    String mode = "none";
+    float downx = 0, downy = 0, upx = 0, upy = 0;
+    private  Canvas canvas;
+    Paint paint;    //페인트
 
 
     // Thread & Handler
@@ -140,9 +150,11 @@ public class SuccessActivity extends AppCompatActivity {
         mGallaryButton = (Button)findViewById(R.id.gallaryButton);
         mApp = (GlobalApplication)getApplication();
         mImageView = (ImageView) findViewById(R.id.image_view);
-        attacher = new PhotoViewAttacher(mImageView);
-
-
+        path = new Path();
+        paint = new Paint();
+        paint.setColor(Color.RED);
+        paint.setStyle(Paint.Style.STROKE);
+        paint.setStrokeWidth(5F);
 
 
         // Action
@@ -355,10 +367,78 @@ public class SuccessActivity extends AppCompatActivity {
             return;
         }
 
-        mImageView.setImageBitmap(mBitmap);
+        Bitmap bitmap2 = Bitmap.createScaledBitmap(mBitmap, mImageView.getWidth(), mImageView.getHeight(), false);
+        Bitmap copyBitmap = bitmap2.copy(Bitmap.Config.ARGB_8888,true);
+        canvas = new Canvas(copyBitmap);
+        System.out.println("좌표 x : "+ copyBitmap.getWidth());
+        System.out.println("좌표 y : "+ copyBitmap.getHeight());
+        mImageView.setImageBitmap(copyBitmap);
+        attacher = new PhotoViewAttacher(mImageView);
+
+        mImageView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                float x = event.getX();
+                float y = event.getY();
+                int pointerCount = event.getPointerCount();
+                //두손가락 으로 터치시 줌 인 아웃 적용
+                if(pointerCount >= 2)
+                {
+                    attacher.onTouch(v, event);
+                }
+
+                int action = event.getAction();
+
+                switch (action) {
+                    case MotionEvent.ACTION_DOWN:
+                        path.reset();
+                        path.moveTo(x, y);
+                        break;
+
+                    case MotionEvent.ACTION_POINTER_1_DOWN:
+                        mode = "zoom";
+                        break;
+
+                    case MotionEvent.ACTION_POINTER_2_DOWN:
+                        mode = "zoom";
+                        break;
+
+                    case MotionEvent.ACTION_MOVE:
+                        upx = event.getX();
+                        upy = event.getY();
+
+                        //줌 인 아웃이 아닐때, 손가락 드레그 선 그리기
+                        if((upx>=4 || upy>=4) && mode.equalsIgnoreCase("none"))
+                        {
+                            path.lineTo(x, y);
+                            System.out.println("x 좌표 : " +  x);
+                            System.out.println("y 좌표 : " +  y);
+                            canvas.drawPath(path, paint);
+                            mImageView.invalidate();
+                        }
+                        break;
+
+                    case MotionEvent.ACTION_UP:
+                        pointerCount = -1;
+                        mode = "none";
+                        break;
+
+                    case MotionEvent.ACTION_CANCEL:
+                        mode = "none";
+                        break;
+
+                    default:
+                        break;
+                }
+                return true;
+            }
+        });
+
+
         //mProgress = ProgressDialog.show(SuccessActivity.this, null, "Loading", true);
         //mProgress.setCancelable(false);
 
+        /*
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -390,9 +470,7 @@ public class SuccessActivity extends AppCompatActivity {
                     return;
                 }
                 int count = 0;
-
                 Point[] pp = new Point[30];
-
                 mHandler.obtainMessage(MSG_STATUS, 1, 0).sendToTarget();
                 ASMFit.fitting(image, shapes, 15);
                 for(int i = 0; i < shapes.rows(); i++){
@@ -431,5 +509,7 @@ public class SuccessActivity extends AppCompatActivity {
                 mHandler.obtainMessage(MSG_SUCCESS, mBitmap).sendToTarget();
             }
         }).start();
+
+        */
     }
 }
