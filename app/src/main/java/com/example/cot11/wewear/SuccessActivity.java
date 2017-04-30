@@ -10,8 +10,11 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.Rect;
+import android.graphics.RectF;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Message;
@@ -41,7 +44,10 @@ import org.opencv.core.Point;
 import org.opencv.core.Scalar;
 import org.opencv.highgui.Highgui;
 import org.opencv.imgproc.Imgproc;
+
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import uk.co.senab.photoview.PhotoViewAttacher;
 
@@ -81,7 +87,8 @@ public class SuccessActivity extends AppCompatActivity {
     String mode = "none";
     float downx = 0, downy = 0, upx = 0, upy = 0;
     private  Canvas canvas;
-    Paint paint;    //페인트
+    private Paint paint;    //페인트
+    private ArrayList<Point> arrayList;;
 
 
     // Thread & Handler
@@ -378,8 +385,10 @@ public class SuccessActivity extends AppCompatActivity {
         mImageView.setOnTouchListener(new View.OnTouchListener() {
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                float x = event.getX();
-                float y = event.getY();
+                float[] value = new float[9];
+                mImageView.getImageMatrix().getValues(value);
+                int dx = (int)(((event.getX())/attacher.getScale())+(Math.abs(value[2]/attacher.getScale())));
+                int dy = (int)((event.getY()/attacher.getScale())+(Math.abs(value[5])/attacher.getScale()));
                 int pointerCount = event.getPointerCount();
                 //두손가락 으로 터치시 줌 인 아웃 적용
                 if(pointerCount >= 2)
@@ -388,11 +397,12 @@ public class SuccessActivity extends AppCompatActivity {
                 }
 
                 int action = event.getAction();
-
                 switch (action) {
                     case MotionEvent.ACTION_DOWN:
+                        arrayList = new ArrayList<Point>();
+                        arrayList.add(new Point(dx,dy));
                         path.reset();
-                        path.moveTo(x, y);
+                        path.moveTo(dx, dy);
                         break;
 
                     case MotionEvent.ACTION_POINTER_1_DOWN:
@@ -410,9 +420,8 @@ public class SuccessActivity extends AppCompatActivity {
                         //줌 인 아웃이 아닐때, 손가락 드레그 선 그리기
                         if((upx>=4 || upy>=4) && mode.equalsIgnoreCase("none"))
                         {
-                            path.lineTo(x, y);
-                            System.out.println("x 좌표 : " +  x);
-                            System.out.println("y 좌표 : " +  y);
+                            path.lineTo(dx, dy);
+                            arrayList.add(new Point(dx,dy));
                             canvas.drawPath(path, paint);
                             mImageView.invalidate();
                         }
@@ -420,6 +429,7 @@ public class SuccessActivity extends AppCompatActivity {
 
                     case MotionEvent.ACTION_UP:
                         pointerCount = -1;
+                        System.out.println("point count : " + arrayList.size());
                         mode = "none";
                         break;
 
