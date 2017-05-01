@@ -15,6 +15,7 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.graphics.Region;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Message;
@@ -332,6 +333,11 @@ public class SuccessActivity extends AppCompatActivity {
         }
     }
 
+    private void facec()
+    {
+
+    }
+
     private void fittingOnStaticImageAsyn(String imgName){
         mImageFileName = imgName;
         System.out.println("mImageFileName : " + mImageFileName);
@@ -377,8 +383,6 @@ public class SuccessActivity extends AppCompatActivity {
         Bitmap bitmap2 = Bitmap.createScaledBitmap(mBitmap, mImageView.getWidth(), mImageView.getHeight(), false);
         Bitmap copyBitmap = bitmap2.copy(Bitmap.Config.ARGB_8888,true);
         canvas = new Canvas(copyBitmap);
-        System.out.println("좌표 x : "+ copyBitmap.getWidth());
-        System.out.println("좌표 y : "+ copyBitmap.getHeight());
         mImageView.setImageBitmap(copyBitmap);
         attacher = new PhotoViewAttacher(mImageView);
 
@@ -391,6 +395,7 @@ public class SuccessActivity extends AppCompatActivity {
                 int dy = (int)((event.getY()/attacher.getScale())+(Math.abs(value[5])/attacher.getScale()));
                 int pointerCount = event.getPointerCount();
                 //두손가락 으로 터치시 줌 인 아웃 적용
+                System.out.println("dx : " + dx);
                 if(pointerCount >= 2)
                 {
                     attacher.onTouch(v, event);
@@ -429,6 +434,31 @@ public class SuccessActivity extends AppCompatActivity {
 
                     case MotionEvent.ACTION_UP:
                         pointerCount = -1;
+                        if(arrayList.size() > 30)
+                        {
+                            int width   = mBitmap.getWidth();
+                            int height  = mBitmap.getHeight();
+
+                            //배경 이미지를 그린다.
+                            canvas.drawBitmap(mBitmap, 0, 0, null);
+
+                            canvas.save();
+                            // 가져올 부분만 사각형으로 가져온다.
+                            canvas.clipPath(path, Region.Op.DIFFERENCE);
+                            // 나머지 부분의 그림은 없앤다.
+                            canvas.clipRect(0, 0, width, height);
+                            canvas.drawColor(Color.BLACK);
+
+                            canvas.restore();
+                            mImageView.invalidate();
+                        }
+                        else
+                        {
+                            Bitmap bitmap2 = Bitmap.createScaledBitmap(mBitmap, mImageView.getWidth(), mImageView.getHeight(), false);
+                            Bitmap copyBitmap = bitmap2.copy(Bitmap.Config.ARGB_8888,true);
+                            canvas = new Canvas(copyBitmap);
+                            mImageView.setImageBitmap(copyBitmap);
+                        }
                         System.out.println("point count : " + arrayList.size());
                         mode = "none";
                         break;
@@ -438,11 +468,14 @@ public class SuccessActivity extends AppCompatActivity {
                         break;
 
                     default:
+                        System.out.println("dx???????????????????? : ");
                         break;
                 }
                 return true;
             }
         });
+
+
 
 
         //mProgress = ProgressDialog.show(SuccessActivity.this, null, "Loading", true);
