@@ -13,6 +13,7 @@ import android.graphics.Color;
 import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
+import android.graphics.PathMeasure;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Region;
@@ -83,6 +84,7 @@ public class SuccessActivity extends AppCompatActivity {
     private String mImageFileName = "";
     private boolean mFittingDone = false;
     private Bitmap mBitmap = null;
+    Bitmap bitmap2 = null;
     private int mScaleFactor = 1;
     private Path path;      //페스
     String mode = "none";
@@ -380,7 +382,7 @@ public class SuccessActivity extends AppCompatActivity {
             return;
         }
 
-        Bitmap bitmap2 = Bitmap.createScaledBitmap(mBitmap, mImageView.getWidth(), mImageView.getHeight(), false);
+        bitmap2 = Bitmap.createScaledBitmap(mBitmap, mImageView.getWidth(), mImageView.getHeight(), false);
         Bitmap copyBitmap = bitmap2.copy(Bitmap.Config.ARGB_8888,true);
         canvas = new Canvas(copyBitmap);
         mImageView.setImageBitmap(copyBitmap);
@@ -440,7 +442,7 @@ public class SuccessActivity extends AppCompatActivity {
                             int height  = mBitmap.getHeight();
 
                             //배경 이미지를 그린다.
-                            canvas.drawBitmap(mBitmap, 0, 0, null);
+                            canvas.drawBitmap(bitmap2, 0, 0, null);
 
                             canvas.save();
                             // 가져올 부분만 사각형으로 가져온다.
@@ -448,7 +450,6 @@ public class SuccessActivity extends AppCompatActivity {
                             // 나머지 부분의 그림은 없앤다.
                             canvas.clipRect(0, 0, width, height);
                             canvas.drawColor(Color.BLACK);
-
                             canvas.restore();
                             mImageView.invalidate();
                         }
@@ -481,7 +482,7 @@ public class SuccessActivity extends AppCompatActivity {
         //mProgress = ProgressDialog.show(SuccessActivity.this, null, "Loading", true);
         //mProgress.setCancelable(false);
 
-        /*
+
         new Thread(new Runnable() {
             @Override
             public void run() {
@@ -553,6 +554,5 @@ public class SuccessActivity extends AppCompatActivity {
             }
         }).start();
 
-        */
     }
 }
