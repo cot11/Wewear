@@ -92,6 +92,7 @@ public class SuccessActivity extends AppCompatActivity {
     private  Canvas canvas;
     private Paint paint;    //페인트
     private ArrayList<Point> arrayList;;
+    PathMeasure pathMeasure;
 
 
     // Thread & Handler
@@ -436,11 +437,51 @@ public class SuccessActivity extends AppCompatActivity {
 
                     case MotionEvent.ACTION_UP:
                         pointerCount = -1;
+
+                        PathMeasure pathMeasure2 = new PathMeasure(path,false);
+                        float line_lenght = pathMeasure2.getLength();
+                        float line_lenght2 = 0;
+                        System.out.println("lenght : " + pathMeasure2.getLength());
+
                         if(arrayList.size() > 30)
                         {
+                            // 첫부분과 끝부분 연결
+                            if(arrayList.get(0).x != arrayList.get(arrayList.size()-1).x)
+                            {
+                                double m =  ((arrayList.get(arrayList.size()-1).y - arrayList.get(0).y) / (arrayList.get(arrayList.size()-1).x - arrayList.get(0).x));
+                                int bb = (int)(arrayList.get(0).y - (m * arrayList.get(0).x));
+                                int coco = (int)Math.abs(arrayList.get(0).x) - (int)Math.abs(arrayList.get(arrayList.size()-1).x);
+                                coco = Math.abs(coco);
+                                System.out.println("기울기 :  " +arrayList.get(0).x + " y : "  + arrayList.get(0).y);
+                                System.out.println("기울기 :  " +arrayList.get(arrayList.size()-1).x + " y : " + arrayList.get(arrayList.size()-1).y);
+                                System.out.println("기울기 : bb " +bb);
+                                System.out.println("기울기 : m " + m);
+                                System.out.println("기울기 : coco " + coco);
+                                System.out.println("기울기 : " + (arrayList.get(0).x * m));
+
+                                if(arrayList.get(0).x > arrayList.get(arrayList.size()-1).x)
+                                {
+                                    for(float i = (float)arrayList.get(0).x; i > (int)arrayList.get(arrayList.size()-1).x; i--)
+                                    {
+                                        float k = (float) ((i * m) + bb);
+                                        path.lineTo(i,k);
+                                        System.out.println("value x "+ i + "y : " + k);
+                                    }
+                                }
+                                else
+                                {
+                                    for(float i = (float)arrayList.get(0).x; i < (int)arrayList.get(arrayList.size()-1).x; i++)
+                                    {
+                                        float k = (float) ((i * m) + bb);
+                                        path.lineTo(i,k);
+                                        System.out.println("value x "+ i + "y : " + k);
+                                    }
+                                }
+                                canvas.drawPath(path, paint);
+                            }
+
                             int width   = mBitmap.getWidth();
                             int height  = mBitmap.getHeight();
-
                             //배경 이미지를 그린다.
                             canvas.drawBitmap(bitmap2, 0, 0, null);
 
@@ -451,6 +492,46 @@ public class SuccessActivity extends AppCompatActivity {
                             canvas.clipRect(0, 0, width, height);
                             canvas.drawColor(Color.BLACK);
                             canvas.restore();
+
+                            pathMeasure = new PathMeasure(path, false);
+                            Matrix matrix;
+                            float[] pos = new float[2];
+                            float[] tan = new float[2];
+                            float distance = 0;
+                            line_lenght2 = pathMeasure.getLength();
+                            float different_line = line_lenght2 - line_lenght;
+                            System.out.println("lenght : " + pathMeasure.getLength());
+                            int path_count = (int)(line_lenght / 50);
+                            int path_count2 = (int)different_line / path_count;
+                            System.out.println("lenght size : " + path_count2);
+                            System.out.println("different_line size : " + different_line);
+
+
+                            for(int i = 0; i < 50; i++)
+                            {
+                                pathMeasure.getPosTan(distance, pos, tan);
+                                canvas.drawCircle(pos[0],pos[1],1,paint);
+                                if(i == 0)
+                                {
+                                    System.out.println("first pos x : " + pos[0] + " pos y : " + pos[1]);
+                                }
+                                //System.out.println("pos x : " + pos[0] + " pos y : " + pos[1]);
+                                distance = distance+path_count;
+                            }
+
+                            Paint paint2 = new Paint();
+                            paint2.setColor(Color.YELLOW);
+                            paint2.setStyle(Paint.Style.STROKE);
+                            paint2.setStrokeWidth(5F);
+
+                            for(int i = 0; i < (path_count2/2 + 1); i++)
+                            {
+                                pathMeasure.getPosTan(distance, pos, tan);
+                                canvas.drawCircle(pos[0],pos[1],1,paint2);
+                                System.out.println("pos x : " + pos[0] + " pos y : " + pos[1]);
+                                distance = distance+path_count;
+                            }
+
                             mImageView.invalidate();
                         }
                         else
@@ -477,11 +558,10 @@ public class SuccessActivity extends AppCompatActivity {
         });
 
 
-
-
         //mProgress = ProgressDialog.show(SuccessActivity.this, null, "Loading", true);
         //mProgress.setCancelable(false);
 
+        /*
 
         new Thread(new Runnable() {
             @Override
@@ -553,6 +633,8 @@ public class SuccessActivity extends AppCompatActivity {
                 mHandler.obtainMessage(MSG_SUCCESS, mBitmap).sendToTarget();
             }
         }).start();
+
+        */
 
     }
 }
