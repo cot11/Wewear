@@ -53,23 +53,15 @@
         </LinearLayout>
 
         <LinearLayout
+            android:id="@+id/KKK"
             android:orientation="vertical"
             android:layout_weight="10"
-            android:weightSum="100"
             android:layout_width="match_parent"
             android:layout_height="match_parent">
-            <ImageView
-                android:layout_weight="20"
-                android:scaleType="fitCenter"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:background="@android:color/transparent"
-                android:id="@+id/image_view" />
-            <LinearLayout
-                android:layout_weight="80"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent">
-            </LinearLayout>
+            <com.example.cot11.wewear.MyView
+                android:id="@+id/GGGG"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
         </LinearLayout>
 
     </LinearLayout>

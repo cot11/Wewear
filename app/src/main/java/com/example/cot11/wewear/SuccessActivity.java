@@ -1,10 +1,13 @@
 package com.example.cot11.wewear;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -14,20 +17,30 @@ import android.graphics.Matrix;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.graphics.PathMeasure;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.graphics.RectF;
 import android.graphics.Region;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Message;
 import android.provider.MediaStore;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.ActivityChooserView;
+import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.Toast;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
@@ -41,6 +54,7 @@ import com.kakao.usermgmt.response.model.UserProfile;
 import com.kakao.util.helper.log.Logger;
 import org.opencv.android.Utils;
 import org.opencv.core.Core;
+import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.Point;
 import org.opencv.core.Scalar;
@@ -53,7 +67,7 @@ import java.util.List;
 import java.util.Map;
 import uk.co.senab.photoview.PhotoViewAttacher;
 
-public class SuccessActivity extends AppCompatActivity {
+public class SuccessActivity extends Activity {
 
     static {
         System.loadLibrary("opencv_java");
@@ -66,11 +80,11 @@ public class SuccessActivity extends AppCompatActivity {
     private static final int MSG_STATUS = 3;
     private static final Scalar mRedColor = new Scalar(255, 0, 0);
     private static final Scalar 	mCyanColor = new Scalar(0, 255, 255);
-    PhotoViewAttacher attacher;
+
 
     // class
     private UserProfile myprofile;
-    private ImageView mImageView;
+    private MyView mImageView;
     private GlobalApplication	mApp;
 
     // Activity
@@ -91,7 +105,15 @@ public class SuccessActivity extends AppCompatActivity {
     float downx = 0, downy = 0, upx = 0, upy = 0;
     private  Canvas canvas;
     private Paint paint;    //페인트
-    private ArrayList<Point> arrayList;;
+    private ArrayList<Point> arrayList;
+    private ArrayList<Point> pointsList;
+    private boolean setCircle = false;
+    Paint eraserPaint = new Paint();
+    private Button button;
+    private LinearLayout linearLayout;
+    PorterDuffXfermode clear = new PorterDuffXfermode(PorterDuff.Mode.DST_ATOP);
+
+
     PathMeasure pathMeasure;
 
 
@@ -131,6 +153,14 @@ public class SuccessActivity extends AppCompatActivity {
 
         Intent intent_get = getIntent();
         String userinfo = intent_get.getStringExtra("userprofile");
+        eraserPaint.setAntiAlias(true);
+        eraserPaint.setColor(0x00000000);
+        eraserPaint.setXfermode(clear);
+        eraserPaint.setAlpha(0x00);
+        eraserPaint.setDither(true);
+        eraserPaint.setStyle(Paint.Style.STROKE);
+
+
         if(userinfo == null)
         {
             userinfo = "1";
@@ -160,7 +190,6 @@ public class SuccessActivity extends AppCompatActivity {
         logout = (Button)findViewById(R.id.logout);
         mGallaryButton = (Button)findViewById(R.id.gallaryButton);
         mApp = (GlobalApplication)getApplication();
-        mImageView = (ImageView) findViewById(R.id.image_view);
         path = new Path();
         paint = new Paint();
         paint.setColor(Color.RED);
@@ -383,180 +412,11 @@ public class SuccessActivity extends AppCompatActivity {
             return;
         }
 
-        bitmap2 = Bitmap.createScaledBitmap(mBitmap, mImageView.getWidth(), mImageView.getHeight(), false);
-        Bitmap copyBitmap = bitmap2.copy(Bitmap.Config.ARGB_8888,true);
-        canvas = new Canvas(copyBitmap);
-        mImageView.setImageBitmap(copyBitmap);
-        attacher = new PhotoViewAttacher(mImageView);
-
-        mImageView.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                float[] value = new float[9];
-                mImageView.getImageMatrix().getValues(value);
-                int dx = (int)(((event.getX())/attacher.getScale())+(Math.abs(value[2]/attacher.getScale())));
-                int dy = (int)((event.getY()/attacher.getScale())+(Math.abs(value[5])/attacher.getScale()));
-                int pointerCount = event.getPointerCount();
-                //두손가락 으로 터치시 줌 인 아웃 적용
-                System.out.println("dx : " + dx);
-                if(pointerCount >= 2)
-                {
-                    attacher.onTouch(v, event);
-                }
-
-                int action = event.getAction();
-                switch (action) {
-                    case MotionEvent.ACTION_DOWN:
-                        arrayList = new ArrayList<Point>();
-                        arrayList.add(new Point(dx,dy));
-                        path.reset();
-                        path.moveTo(dx, dy);
-                        break;
-
-                    case MotionEvent.ACTION_POINTER_1_DOWN:
-                        mode = "zoom";
-                        break;
-
-                    case MotionEvent.ACTION_POINTER_2_DOWN:
-                        mode = "zoom";
-                        break;
-
-                    case MotionEvent.ACTION_MOVE:
-                        upx = event.getX();
-                        upy = event.getY();
-
-                        //줌 인 아웃이 아닐때, 손가락 드레그 선 그리기
-                        if((upx>=4 || upy>=4) && mode.equalsIgnoreCase("none"))
-                        {
-                            path.lineTo(dx, dy);
-                            arrayList.add(new Point(dx,dy));
-                            canvas.drawPath(path, paint);
-                            mImageView.invalidate();
-                        }
-                        break;
-
-                    case MotionEvent.ACTION_UP:
-                        pointerCount = -1;
-
-                        PathMeasure pathMeasure2 = new PathMeasure(path,false);
-                        float line_lenght = pathMeasure2.getLength();
-                        float line_lenght2 = 0;
-                        System.out.println("lenght : " + pathMeasure2.getLength());
-
-                        if(arrayList.size() > 30)
-                        {
-                            // 첫부분과 끝부분 연결
-                            if(arrayList.get(0).x != arrayList.get(arrayList.size()-1).x)
-                            {
-                                double m =  ((arrayList.get(arrayList.size()-1).y - arrayList.get(0).y) / (arrayList.get(arrayList.size()-1).x - arrayList.get(0).x));
-                                int bb = (int)(arrayList.get(0).y - (m * arrayList.get(0).x));
-                                int coco = (int)Math.abs(arrayList.get(0).x) - (int)Math.abs(arrayList.get(arrayList.size()-1).x);
-                                coco = Math.abs(coco);
-                                System.out.println("기울기 :  " +arrayList.get(0).x + " y : "  + arrayList.get(0).y);
-                                System.out.println("기울기 :  " +arrayList.get(arrayList.size()-1).x + " y : " + arrayList.get(arrayList.size()-1).y);
-                                System.out.println("기울기 : bb " +bb);
-                                System.out.println("기울기 : m " + m);
-                                System.out.println("기울기 : coco " + coco);
-                                System.out.println("기울기 : " + (arrayList.get(0).x * m));
-
-                                if(arrayList.get(0).x > arrayList.get(arrayList.size()-1).x)
-                                {
-                                    for(float i = (float)arrayList.get(0).x; i > (int)arrayList.get(arrayList.size()-1).x; i--)
-                                    {
-                                        float k = (float) ((i * m) + bb);
-                                        path.lineTo(i,k);
-                                        System.out.println("value x "+ i + "y : " + k);
-                                    }
-                                }
-                                else
-                                {
-                                    for(float i = (float)arrayList.get(0).x; i < (int)arrayList.get(arrayList.size()-1).x; i++)
-                                    {
-                                        float k = (float) ((i * m) + bb);
-                                        path.lineTo(i,k);
-                                        System.out.println("value x "+ i + "y : " + k);
-                                    }
-                                }
-                                canvas.drawPath(path, paint);
-                            }
-
-                            int width   = mBitmap.getWidth();
-                            int height  = mBitmap.getHeight();
-                            //배경 이미지를 그린다.
-                            canvas.drawBitmap(bitmap2, 0, 0, null);
-
-                            canvas.save();
-                            // 가져올 부분만 사각형으로 가져온다.
-                            canvas.clipPath(path, Region.Op.DIFFERENCE);
-                            // 나머지 부분의 그림은 없앤다.
-                            canvas.clipRect(0, 0, width, height);
-                            canvas.drawColor(Color.BLACK);
-                            canvas.restore();
-
-                            pathMeasure = new PathMeasure(path, false);
-                            Matrix matrix;
-                            float[] pos = new float[2];
-                            float[] tan = new float[2];
-                            float distance = 0;
-                            line_lenght2 = pathMeasure.getLength();
-                            float different_line = line_lenght2 - line_lenght;
-                            System.out.println("lenght : " + pathMeasure.getLength());
-                            int path_count = (int)(line_lenght / 50);
-                            int path_count2 = (int)different_line / path_count;
-                            System.out.println("lenght size : " + path_count2);
-                            System.out.println("different_line size : " + different_line);
-
-
-                            for(int i = 0; i < 50; i++)
-                            {
-                                pathMeasure.getPosTan(distance, pos, tan);
-                                canvas.drawCircle(pos[0],pos[1],1,paint);
-                                if(i == 0)
-                                {
-                                    System.out.println("first pos x : " + pos[0] + " pos y : " + pos[1]);
-                                }
-                                //System.out.println("pos x : " + pos[0] + " pos y : " + pos[1]);
-                                distance = distance+path_count;
-                            }
-
-                            Paint paint2 = new Paint();
-                            paint2.setColor(Color.YELLOW);
-                            paint2.setStyle(Paint.Style.STROKE);
-                            paint2.setStrokeWidth(5F);
-
-                            for(int i = 0; i < (path_count2/2 + 1); i++)
-                            {
-                                pathMeasure.getPosTan(distance, pos, tan);
-                                canvas.drawCircle(pos[0],pos[1],1,paint2);
-                                System.out.println("pos x : " + pos[0] + " pos y : " + pos[1]);
-                                distance = distance+path_count;
-                            }
-
-                            mImageView.invalidate();
-                        }
-                        else
-                        {
-                            Bitmap bitmap2 = Bitmap.createScaledBitmap(mBitmap, mImageView.getWidth(), mImageView.getHeight(), false);
-                            Bitmap copyBitmap = bitmap2.copy(Bitmap.Config.ARGB_8888,true);
-                            canvas = new Canvas(copyBitmap);
-                            mImageView.setImageBitmap(copyBitmap);
-                        }
-                        System.out.println("point count : " + arrayList.size());
-                        mode = "none";
-                        break;
-
-                    case MotionEvent.ACTION_CANCEL:
-                        mode = "none";
-                        break;
-
-                    default:
-                        System.out.println("dx???????????????????? : ");
-                        break;
-                }
-                return true;
-            }
-        });
-
+        //final Bitmap copyBitmap = bitmap2.copy(Bitmap.Config.ARGB_8888,true);
+        linearLayout = (LinearLayout)findViewById(R.id.KKK);
+        bitmap2 = Bitmap.createScaledBitmap(mBitmap, linearLayout.getWidth(), linearLayout.getHeight(), false);
+        mImageView = (MyView) findViewById(R.id.GGGG);
+        mImageView.setmImage(bitmap2);
 
         //mProgress = ProgressDialog.show(SuccessActivity.this, null, "Loading", true);
         //mProgress.setCancelable(false);
@@ -637,4 +497,5 @@ public class SuccessActivity extends AppCompatActivity {
         */
 
     }
+
 }
