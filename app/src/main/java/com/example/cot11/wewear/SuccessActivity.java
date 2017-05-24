@@ -84,7 +84,7 @@ public class SuccessActivity extends Activity {
 
     // class
     private UserProfile myprofile;
-    private MyView mImageView;
+    private ImageView mImageView;
     private GlobalApplication	mApp;
 
     // Activity
@@ -414,9 +414,31 @@ public class SuccessActivity extends Activity {
 
         //final Bitmap copyBitmap = bitmap2.copy(Bitmap.Config.ARGB_8888,true);
         linearLayout = (LinearLayout)findViewById(R.id.KKK);
+        mImageView = (ImageView) findViewById(R.id.GGGG);
         bitmap2 = Bitmap.createScaledBitmap(mBitmap, linearLayout.getWidth(), linearLayout.getHeight(), false);
-        mImageView = (MyView) findViewById(R.id.GGGG);
-        mImageView.setmImage(bitmap2);
+        Bitmap temp = Bitmap.createBitmap(linearLayout.getWidth(),linearLayout.getHeight(), Bitmap.Config.ARGB_8888);
+        canvas = new Canvas(temp);
+        canvas.drawBitmap(bitmap2, 0, 0, null); // 전체화면의 배경을 그림
+
+        Paint paint1 = new Paint();
+        paint1.setAntiAlias(true);
+        paint1.setARGB(255, 255, 255, 255);
+        Bitmap temp2 = Bitmap.createBitmap(linearLayout.getWidth(),linearLayout.getHeight(), Bitmap.Config.ARGB_8888);
+        Canvas c = new Canvas(temp2);
+        c.drawRect(0,0,linearLayout.getWidth(),linearLayout.getHeight()/2,paint1); // 전경의 바탕 위에 이미지에 전경 이미지 그림
+
+        Paint paint2 = new Paint();
+        paint2.setFilterBitmap(false);
+        paint2.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_OUT) );
+        c.drawCircle(200, 0, 100, paint2); // 전경 이미지 위에 마스크 이미지 그림
+        paint2.setXfermode(null);
+
+
+        canvas.drawBitmap(temp2, 0, 84, null); // 배경 위에 완성된 전경 이미지를 그림
+        mImageView.setImageBitmap(temp);
+
+
+
 
         //mProgress = ProgressDialog.show(SuccessActivity.this, null, "Loading", true);
         //mProgress.setCancelable(false);

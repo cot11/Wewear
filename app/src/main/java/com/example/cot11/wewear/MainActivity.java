@@ -78,6 +78,7 @@ public class MainActivity extends AppCompatActivity {
 
         @Override
         public void onSessionOpened() {
+            System.out.println("Logout 되어있음");
 
             UserManagement.requestMe(new MeResponseCallback() {
 
