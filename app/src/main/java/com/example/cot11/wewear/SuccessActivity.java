@@ -98,23 +98,31 @@ public class SuccessActivity extends Activity {
     private String mImageFileName = "";
     private boolean mFittingDone = false;
     private Bitmap mBitmap = null;
-    Bitmap bitmap2 = null;
+    private Bitmap tempcanvas;
+    private Bitmap temp2canvas;
+    private Bitmap bitmap2 = null;
     private int mScaleFactor = 1;
     private Path path;      //페스
-    String mode = "none";
-    float downx = 0, downy = 0, upx = 0, upy = 0;
+    private String mode = "none";
+    private float downx = 0, downy = 0, upx = 0, upy = 0;
     private  Canvas canvas;
-    private Paint paint;    //페인트
+    private Canvas canvas2;
     private ArrayList<Point> arrayList;
     private ArrayList<Point> pointsList;
+    private ArrayList<Float> floatsList;
     private boolean setCircle = false;
-    Paint eraserPaint = new Paint();
-    private Button button;
-    private LinearLayout linearLayout;
-    PorterDuffXfermode clear = new PorterDuffXfermode(PorterDuff.Mode.DST_ATOP);
+    private RelativeLayout linearLayout;
+    private PathMeasure pathMeasure;
 
+    private Paint paint;
+    private Paint paint1;
+    private Paint paint2;
+    private Paint temppaint2;
+    private Bitmap temp;
+    private Bitmap temp2;
+    private PhotoViewAttacher attacher;
 
-    PathMeasure pathMeasure;
+    private Context context;
 
 
     // Thread & Handler
@@ -153,12 +161,7 @@ public class SuccessActivity extends Activity {
 
         Intent intent_get = getIntent();
         String userinfo = intent_get.getStringExtra("userprofile");
-        eraserPaint.setAntiAlias(true);
-        eraserPaint.setColor(0x00000000);
-        eraserPaint.setXfermode(clear);
-        eraserPaint.setAlpha(0x00);
-        eraserPaint.setDither(true);
-        eraserPaint.setStyle(Paint.Style.STROKE);
+        context = this;
 
 
         if(userinfo == null)
@@ -191,10 +194,6 @@ public class SuccessActivity extends Activity {
         mGallaryButton = (Button)findViewById(R.id.gallaryButton);
         mApp = (GlobalApplication)getApplication();
         path = new Path();
-        paint = new Paint();
-        paint.setColor(Color.RED);
-        paint.setStyle(Paint.Style.STROKE);
-        paint.setStrokeWidth(5F);
 
 
         // Action
@@ -412,30 +411,348 @@ public class SuccessActivity extends Activity {
             return;
         }
 
-        //final Bitmap copyBitmap = bitmap2.copy(Bitmap.Config.ARGB_8888,true);
-        linearLayout = (LinearLayout)findViewById(R.id.KKK);
+        linearLayout = (RelativeLayout)findViewById(R.id.KKK);
         mImageView = (ImageView) findViewById(R.id.GGGG);
+
+        paint = new Paint();
+        paint.setColor(Color.RED);
+        paint.setStrokeWidth(3F);
+        paint1 = new Paint();
+        paint1.setStyle(Paint.Style.STROKE);
+        paint1.setAntiAlias(true);
+        paint1.setARGB(255, 255, 255, 0);
+        paint1.setStrokeWidth(5F);
+        paint2 = new Paint();
+        paint2.setAntiAlias(true);
+        paint2.setStyle(Paint.Style.FILL);
+        paint2.setFilterBitmap(false);
+        paint2.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_OUT));
+
+
         bitmap2 = Bitmap.createScaledBitmap(mBitmap, linearLayout.getWidth(), linearLayout.getHeight(), false);
-        Bitmap temp = Bitmap.createBitmap(linearLayout.getWidth(),linearLayout.getHeight(), Bitmap.Config.ARGB_8888);
+        temp = Bitmap.createBitmap(linearLayout.getWidth(),linearLayout.getHeight(), Bitmap.Config.ARGB_8888);
+        temp2 = Bitmap.createBitmap(linearLayout.getWidth(),linearLayout.getHeight(), Bitmap.Config.ARGB_8888);
+
         canvas = new Canvas(temp);
         canvas.drawBitmap(bitmap2, 0, 0, null); // 전체화면의 배경을 그림
-
-        Paint paint1 = new Paint();
-        paint1.setAntiAlias(true);
-        paint1.setARGB(255, 255, 255, 255);
-        Bitmap temp2 = Bitmap.createBitmap(linearLayout.getWidth(),linearLayout.getHeight(), Bitmap.Config.ARGB_8888);
-        Canvas c = new Canvas(temp2);
-        c.drawRect(0,0,linearLayout.getWidth(),linearLayout.getHeight()/2,paint1); // 전경의 바탕 위에 이미지에 전경 이미지 그림
-
-        Paint paint2 = new Paint();
-        paint2.setFilterBitmap(false);
-        paint2.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_OUT) );
-        c.drawCircle(200, 0, 100, paint2); // 전경 이미지 위에 마스크 이미지 그림
-        paint2.setXfermode(null);
-
-
-        canvas.drawBitmap(temp2, 0, 84, null); // 배경 위에 완성된 전경 이미지를 그림
+        canvas2 = new Canvas(temp2);
         mImageView.setImageBitmap(temp);
+        attacher = new PhotoViewAttacher(mImageView);
+
+        mImageView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+
+                float[] value = new float[9];
+                mImageView.getImageMatrix().getValues(value);
+                int dx = (int)(((event.getX())/attacher.getScale())+(Math.abs(value[2]/attacher.getScale())));
+                int dy = (int)((event.getY()/attacher.getScale())+(Math.abs(value[5])/attacher.getScale()));
+
+                int action = event.getAction();
+                int pointerCount = event.getPointerCount();
+                if(pointerCount >= 2)
+                {
+                    attacher.onTouch(v, event);
+                }
+                else
+                {
+                    if(!setCircle)
+                    {
+                        switch (action)
+                        {
+                            case MotionEvent.ACTION_POINTER_1_DOWN:
+                                mode = "zoom";
+                                break;
+
+                            case MotionEvent.ACTION_POINTER_2_DOWN:
+                                mode = "zoom";
+                                break;
+
+                            case MotionEvent.ACTION_DOWN:
+                                temp = Bitmap.createBitmap(linearLayout.getWidth(),linearLayout.getHeight(), Bitmap.Config.ARGB_8888);
+                                temp2 = Bitmap.createBitmap(linearLayout.getWidth(),linearLayout.getHeight(), Bitmap.Config.ARGB_8888);
+                                canvas = new Canvas(temp);
+                                canvas.drawBitmap(bitmap2, 0, 0, null); // 전체화면의 배경을 그림
+                                canvas2 = new Canvas(temp2);
+                                mImageView.setImageBitmap(temp);
+                                path.reset();
+                                path.moveTo(dx, dy);
+                                arrayList = new ArrayList<Point>();
+                                arrayList.add(new Point(dx,dy));
+                                break;
+                            case MotionEvent.ACTION_UP:
+
+                                PathMeasure pathMeasure2 = new PathMeasure(path,false);
+                                float line_lenght = pathMeasure2.getLength();
+                                float line_lenght2 = 0;
+
+                                if(arrayList.size() > 30)
+                                {
+                                    if(arrayList.get(0).x != arrayList.get(arrayList.size()-1).x)
+                                    {
+                                        double m =  ((arrayList.get(arrayList.size()-1).y - arrayList.get(0).y) / (arrayList.get(arrayList.size()-1).x - arrayList.get(0).x));
+                                        int bb = (int)(arrayList.get(0).y - (m * arrayList.get(0).x));
+                                        int coco = (int)Math.abs(arrayList.get(0).x) - (int)Math.abs(arrayList.get(arrayList.size()-1).x);
+                                        coco = Math.abs(coco);
+                                        System.out.println("기울기 :  " +arrayList.get(0).x + " y : "  + arrayList.get(0).y);
+                                        System.out.println("기울기 :  " +arrayList.get(arrayList.size()-1).x + " y : " + arrayList.get(arrayList.size()-1).y);
+                                        System.out.println("기울기 : bb " +bb);
+                                        System.out.println("기울기 : m " + m);
+                                        System.out.println("기울기 : coco " + coco);
+                                        System.out.println("기울기 : " + (arrayList.get(0).x * m));
+
+                                        if(arrayList.get(0).x > arrayList.get(arrayList.size()-1).x)
+                                        {
+                                            for(float i = (float)arrayList.get(0).x; i > (int)arrayList.get(arrayList.size()-1).x; i--)
+                                            {
+                                                float k = (float) ((i * m) + bb);
+                                                path.lineTo(i,k);
+                                                System.out.println("value x "+ i + "y : " + k);
+                                            }
+                                        }
+                                        else
+                                        {
+                                            for(float i = (float)arrayList.get(0).x; i < (int)arrayList.get(arrayList.size()-1).x; i++)
+                                            {
+                                                float k = (float) ((i * m) + bb);
+                                                path.lineTo(i,k);
+                                                System.out.println("value x "+ i + "y : " + k);
+                                            }
+                                        }
+                                        canvas2.drawPath(path, paint1);
+                                        canvas.drawBitmap(temp2,0,0,null);
+
+                                    /*
+                                    int width   = linearLayout.getWidth();
+                                    int height  = linearLayout.getHeight();
+                                    //배경 이미지를 그린다.
+                                    canvas.drawBitmap(bitmap2, 0, 0, null);
+
+                                    canvas.save();
+                                    // 가져올 부분만 사각형으로 가져온다.
+                                    canvas.clipPath(path, Region.Op.DIFFERENCE);
+                                    // 나머지 부분의 그림은 없앤다.
+                                    canvas.clipRect(0, 0, width, height);
+                                    canvas.drawColor(Color.BLACK, PorterDuff.Mode.DST);
+                                    canvas.restore();
+                                    */
+
+
+                                        pathMeasure = new PathMeasure(path, false);
+                                        float[] pos = new float[2];
+                                        float[] tan = new float[2];
+                                        float distance = 0;
+                                        line_lenght2 = pathMeasure.getLength();
+                                        float different_line = line_lenght2 - line_lenght;
+                                        System.out.println("lenght : " + pathMeasure.getLength());
+                                        int path_count = (int)(line_lenght / 20);
+                                        int path_count2 = (int)different_line / path_count;
+                                        System.out.println("lenght size : " + path_count2);
+                                        System.out.println("different_line size : " + different_line);
+
+                                        pointsList = new ArrayList<Point>();
+                                        floatsList = new ArrayList<Float>();
+
+                                        temppaint2 = new Paint();
+                                        temppaint2.setColor(Color.RED);
+                                        temppaint2.setStyle(Paint.Style.FILL);
+                                        //temppaint2.setStrokeWidth(10F);
+                                        temppaint2.setAntiAlias(true);
+
+                                        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(15, 15);
+
+                                        for(int i = 0; i < 20; i++)
+                                        {
+                                            floatsList.add(distance);
+                                            pathMeasure.getPosTan(distance, pos, tan);
+                                            canvas2.drawCircle(pos[0],pos[1],10,temppaint2);
+                                            canvas.drawBitmap(temp2,0,0,null);
+                                            Point point = new Point(pos[0],pos[1]);
+                                            pointsList.add(point);
+
+                                            //System.out.println("pos x : " + pos[0] + " pos y : " + pos[1]);
+                                            distance = distance+path_count;
+                                        }
+
+
+
+                                        for(int i = 0; i < (path_count2/2 + 1); i++)
+                                        {
+                                            floatsList.add(distance);
+                                            pathMeasure.getPosTan(distance, pos, tan);
+                                            canvas2.drawCircle(pos[0],pos[1],10,temppaint2);
+                                            canvas.drawBitmap(temp2,0,0,null);
+                                            Point point = new Point(pos[0],pos[1]);
+                                            pointsList.add(point);
+                                            System.out.println("pos x : " + pos[0] + " pos y : " + pos[1]);
+                                            distance = distance+path_count;
+                                        }
+                                        System.out.println("floatsList : " + floatsList.size());
+                                        setCircle = true;
+                                        mImageView.invalidate();
+
+                                    }
+                                }
+                                else
+                                {
+
+                                }
+
+
+                            /*
+                            tempcanvas = Bitmap.createBitmap(bitmap2,0,0,linearLayout.getWidth(),linearLayout.getHeight());
+                            temp2canvas = Bitmap.createBitmap(temp2,0,0,linearLayout.getWidth(),linearLayout.getHeight());
+                            canvas = new Canvas(tempcanvas);
+                            canvas2 = new Canvas(temp2canvas);
+                            canvas2.drawPath(path,paint2);
+                            canvas2.drawCircle((float)pointsList.get(1).x,(float)pointsList.get(1).y,1,paint2);
+                            canvas.drawBitmap(temp2canvas,0,0,null);
+                            mImageView.setImageBitmap(tempcanvas);
+                            */
+
+                                break;
+                            case MotionEvent.ACTION_MOVE:
+                                upx = event.getX();
+                                upy = event.getY();
+
+                                //줌 인 아웃이 아닐때, 손가락 드레그 선 그리기
+                                if((upx>=4 || upy>=4) && mode.equalsIgnoreCase("none"))
+                                {
+                                    path.lineTo(dx, dy);
+                                    arrayList.add(new Point(dx,dy));
+                                    canvas2.drawPath(path, paint1);
+                                    canvas.drawBitmap(temp2,0,0,null);
+                                    mImageView.setImageBitmap(temp);
+                                }
+
+                                break;
+                        }
+                    }
+                    else
+                    {
+                        Point selectPoint;
+                        switch (action)
+                        {
+
+                            case MotionEvent.ACTION_DOWN:
+                                System.out.println("x : " + dx);
+                                System.out.println("y : " + dy);
+                                double distance = Math.sqrt((dx*dx) + (dy*dy));
+
+                                for(int i = 0; i < pointsList.size(); i++)
+                                {
+                                    double x = dx - pointsList.get(i).x;
+                                    double y = dy - pointsList.get(i).y;
+                                    double dis = Math.sqrt((x*x)+(y*y));
+                                    if(dis < 10)
+                                    {
+                                        tempcanvas = Bitmap.createBitmap(bitmap2,0,0,linearLayout.getWidth(),linearLayout.getHeight());
+                                        temp2canvas = Bitmap.createBitmap(linearLayout.getWidth(),linearLayout.getHeight(), Bitmap.Config.ARGB_8888);
+                                        canvas = new Canvas(tempcanvas);
+                                        canvas2 = new Canvas(temp2canvas);
+
+                                        for(int j =0; j < pathMeasure.getLength(); j++)
+                                        {
+                                            float[] pos = new float[2];
+                                            float[] tan = new float[2];
+                                            pathMeasure.getPosTan(j, pos, tan);
+                                            canvas2.drawCircle(pos[0],pos[1],0.3f,paint1);
+                                        }
+
+                                        for(int j = 0; j < pointsList.size(); j++)
+                                        {
+                                            canvas2.drawCircle((float)pointsList.get(j).x,(float)pointsList.get(j).y,5 ,temppaint2);
+                                        }
+
+                                        int pre,next;
+                                        if(i == 0)
+                                        {
+                                            pre = pointsList.size()-1;
+                                            next = i+1;
+                                            System.out.println("that : " + i);
+                                        }
+                                        else if(i == pointsList.size()-1)
+                                        {
+                                            pre = i-1;
+                                            next = 0;
+                                            System.out.println("that : " + i);
+                                        }
+                                        else
+                                        {
+                                            pre = i - 1;
+                                            next = i + 1;
+                                        }
+
+                                        for(float j = floatsList.get(pre); j < floatsList.get(i); j++)
+                                        {
+                                            float[] pos = new float[2];
+                                            float[] tan = new float[2];
+                                            pathMeasure.getPosTan(j, pos, tan);
+                                            canvas2.drawCircle(pos[0],pos[1],3,paint2);
+                                        }
+                                        for(float j = floatsList.get(i); j < floatsList.get(next); j++)
+                                        {
+                                            float[] pos = new float[2];
+                                            float[] tan = new float[2];
+                                            pathMeasure.getPosTan(j, pos, tan);
+                                            canvas2.drawCircle(pos[0],pos[1],3,paint2);
+                                        }
+
+                                        canvas2.drawCircle((float)pointsList.get(pre).x,(float)pointsList.get(pre).y,5 ,temppaint2);
+                                        canvas2.drawCircle((float)pointsList.get(next).x,(float)pointsList.get(next).y,5 ,temppaint2);
+
+
+                                        System.out.println("that : " + pre + "," + next);
+                                        System.out.println("that : " +pointsList.get(pre).x + "," + pointsList.get(pre).y );
+                                        System.out.println("that : " +pointsList.get(next).x + "," + pointsList.get(next).y );
+                                        
+
+                                        double m =  ((pointsList.get(pre).y - pointsList.get(i).y) / (pointsList.get(pre).x - pointsList.get(i).x));
+                                        int bb = (int)(arrayList.get(0).y - (m * arrayList.get(0).x));
+                                        int coco = (int)Math.abs(arrayList.get(0).x) - (int)Math.abs(arrayList.get(arrayList.size()-1).x);
+                                        canvas.drawBitmap(temp2canvas,0,0,null);
+                                        mImageView.setImageBitmap(tempcanvas);
+                                        break;
+                                    }
+                                }
+
+
+
+
+                                //System.out.println("distance : " + distance);
+                                /*
+                                for(int i = 0; i < pointsList.size(); i++)
+                                {
+                                    double x = dx - pointsList.get(i).x;
+                                    double y = dy - pointsList.get(i).y;
+                                    double dis = Math.sqrt((x*x)+(y*y));
+                                    if(dis < 10)
+                                    {
+                                        selectPoint = new Point(pointsList.get(i).x,pointsList.get(i).y);
+                                        System.out.println("dis : " + dis);
+                                        System.out.println("dis count : "+ pathMeasure.getLength());
+                                        tempcanvas = Bitmap.createBitmap(bitmap2,0,0,linearLayout.getWidth(),linearLayout.getHeight());
+                                        temp2canvas = Bitmap.createBitmap(temp2,0,0,linearLayout.getWidth(),linearLayout.getHeight());
+                                        canvas = new Canvas(tempcanvas);
+                                        canvas2 = new Canvas(temp2canvas);
+                                        canvas2.drawCircle((float)pointsList.get(i).x,(float)pointsList.get(i).y,10,paint2);
+                                        canvas2.drawCircle((float)pointsList.get(i).x,(float)pointsList.get(i).y,10,paint2);
+                                        canvas.drawBitmap(temp2canvas,0,0,null);
+                                        mImageView.setImageBitmap(tempcanvas);
+                                        break;
+                                    }
+                                }
+                                */
+
+
+                        }
+                    }
+
+                }
+                return true;
+            }
+        });
+
 
 
 
