@@ -108,6 +108,9 @@ public class SuccessActivity extends Activity {
     private int pre = 0;
     private int next = 0;
     private int current = 0;
+    private int Lpre = 0;
+    private int Lnext = 0;
+    private int Lcurrent = 0;
     private  Canvas canvas;
     private Canvas canvas2;
     private ArrayList<Point> arrayList;
@@ -115,6 +118,7 @@ public class SuccessActivity extends Activity {
     private ArrayList<Float> floatsList;
     private ArrayList<Point> in = new ArrayList<Point>();
     private ArrayList<Point> pi = new ArrayList<Point>();
+    private ArrayList<Point> path_me;
     private boolean setCircle = false;
     private RelativeLayout linearLayout;
     private PathMeasure pathMeasure;
@@ -591,6 +595,17 @@ public class SuccessActivity extends Activity {
                                         }
                                         System.out.println("floatsList : " + floatsList.size());
                                         setCircle = true;
+
+
+                                        path_me = new ArrayList<Point>();
+                                        for(int j =0; j < pathMeasure.getLength(); j++)
+                                        {
+                                            pos = new float[2];
+                                            tan = new float[2];
+                                            pathMeasure.getPosTan(j, pos, tan);
+                                            Point point = new Point(pos[0],pos[1]);
+                                            path_me.add(point);
+                                        }
                                         mImageView.invalidate();
 
                                     }
@@ -688,7 +703,6 @@ public class SuccessActivity extends Activity {
                                             canvas2.drawCircle(p,(float)kkn,0.3f,paint1);
                                             Point point = new Point(p,kkn);
                                             in.add(point);
-
                                         }
                                     }
                                     else
@@ -728,7 +742,6 @@ public class SuccessActivity extends Activity {
                                     pointsList.set(current,new Point(dx,dy));
                                     canvas2.drawCircle((float)pointsList.get(pre).x,(float)pointsList.get(pre).y,5 ,temppaint2);
                                     canvas2.drawCircle((float)pointsList.get(next).x,(float)pointsList.get(next).y,5 ,temppaint2);
-
                                     canvas.drawBitmap(temp2canvas,0,0,null);
                                     mImageView.setImageBitmap(tempcanvas);
 
@@ -755,12 +768,9 @@ public class SuccessActivity extends Activity {
                                         canvas = new Canvas(tempcanvas);
                                         canvas2 = new Canvas(temp2canvas);
 
-                                        for(int j =0; j < pathMeasure.getLength(); j++)
+                                        for(int j =0; j < path_me.size(); j++)
                                         {
-                                            float[] pos = new float[2];
-                                            float[] tan = new float[2];
-                                            pathMeasure.getPosTan(j, pos, tan);
-                                            canvas2.drawCircle(pos[0],pos[1],0.3f,paint1);
+                                            canvas2.drawCircle((float)path_me.get(j).x,(float)path_me.get(j).y,0.3f,paint1);
                                         }
 
                                         for(int j = 0; j < pointsList.size(); j++)
@@ -785,7 +795,7 @@ public class SuccessActivity extends Activity {
                                             pre = i - 1;
                                             next = i + 1;
                                         }
-
+                                        //선택된 점 전,후 선들을 지움
                                         for(float j = floatsList.get(pre); j < floatsList.get(i); j++)
                                         {
                                             float[] pos = new float[2];
@@ -807,6 +817,33 @@ public class SuccessActivity extends Activity {
                                         System.out.println("that : " +dx + "," + dy );
                                         //System.out.println("that : " +pointsList.get(pre).x + "," + pointsList.get(pre).y );
                                         //System.out.println("that : " +pointsList.get(next).x + "," + pointsList.get(next).y );
+
+                                        for(int j =0; j < path_me.size(); j++)
+                                        {
+                                            if(path_me.get(j).x == pointsList.get(pre).x && path_me.get(j).y == pointsList.get(pre).y)
+                                            {
+                                                System.out.println("ttt : " + j);
+                                                Lpre = j;
+                                            }
+                                            else if(path_me.get(j).x == pointsList.get(next).x && path_me.get(j).y == pointsList.get(next).y)
+                                            {
+                                                System.out.println("ttt2 : " + j);
+                                                Lnext = j;
+                                                for(int k = Lcurrent; k < Lnext; k++)
+                                                {
+                                                    canvas2.drawCircle((float)path_me.get(k).x,(float)path_me.get(k).y,3,paint2);
+                                                }
+                                            }
+                                            else  if(path_me.get(j).x == pointsList.get(current).x && path_me.get(j).y == pointsList.get(current).y)
+                                            {
+                                                System.out.println("ttt3 : " + j);
+                                                Lcurrent = j;
+                                                for(int k = Lpre; k < Lcurrent; k++)
+                                                {
+                                                    canvas2.drawCircle((float)path_me.get(k).x,(float)path_me.get(k).y,3,paint2);
+                                                }
+                                            }
+                                        }
 
 
                                         double m_n =  ((pointsList.get(next).y - dy) / (pointsList.get(next).x - dx));
@@ -836,7 +873,6 @@ public class SuccessActivity extends Activity {
                                                 canvas2.drawCircle(p,(float)kkn,0.3f,paint1);
                                                 Point point = new Point(p,kkn);
                                                 in.add(point);
-
                                             }
                                         }
                                         else
@@ -876,8 +912,6 @@ public class SuccessActivity extends Activity {
                                         pointsList.set(i,new Point(dx,dy));
                                         canvas2.drawCircle((float)pointsList.get(pre).x,(float)pointsList.get(pre).y,5 ,temppaint2);
                                         canvas2.drawCircle((float)pointsList.get(next).x,(float)pointsList.get(next).y,5 ,temppaint2);
-
-
                                         canvas.drawBitmap(temp2canvas,0,0,null);
                                         mImageView.setImageBitmap(tempcanvas);
                                         break;
