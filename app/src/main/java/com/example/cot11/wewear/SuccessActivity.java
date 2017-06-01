@@ -105,11 +105,16 @@ public class SuccessActivity extends Activity {
     private Path path;      //페스
     private String mode = "none";
     private float downx = 0, downy = 0, upx = 0, upy = 0;
+    private int pre = 0;
+    private int next = 0;
+    private int current = 0;
     private  Canvas canvas;
     private Canvas canvas2;
     private ArrayList<Point> arrayList;
     private ArrayList<Point> pointsList;
     private ArrayList<Float> floatsList;
+    private ArrayList<Point> in = new ArrayList<Point>();
+    private ArrayList<Point> pi = new ArrayList<Point>();
     private boolean setCircle = false;
     private RelativeLayout linearLayout;
     private PathMeasure pathMeasure;
@@ -369,7 +374,7 @@ public class SuccessActivity extends Activity {
 
     }
 
-    private void fittingOnStaticImageAsyn(String imgName){
+    private void fittingOnStaticImageAsyn(final String imgName){
         mImageFileName = imgName;
         System.out.println("mImageFileName : " + mImageFileName);
         mFittingDone = false;
@@ -492,13 +497,10 @@ public class SuccessActivity extends Activity {
                                     {
                                         double m =  ((arrayList.get(arrayList.size()-1).y - arrayList.get(0).y) / (arrayList.get(arrayList.size()-1).x - arrayList.get(0).x));
                                         int bb = (int)(arrayList.get(0).y - (m * arrayList.get(0).x));
-                                        int coco = (int)Math.abs(arrayList.get(0).x) - (int)Math.abs(arrayList.get(arrayList.size()-1).x);
-                                        coco = Math.abs(coco);
                                         System.out.println("기울기 :  " +arrayList.get(0).x + " y : "  + arrayList.get(0).y);
                                         System.out.println("기울기 :  " +arrayList.get(arrayList.size()-1).x + " y : " + arrayList.get(arrayList.size()-1).y);
                                         System.out.println("기울기 : bb " +bb);
                                         System.out.println("기울기 : m " + m);
-                                        System.out.println("기울기 : coco " + coco);
                                         System.out.println("기울기 : " + (arrayList.get(0).x * m));
 
                                         if(arrayList.get(0).x > arrayList.get(arrayList.size()-1).x)
@@ -631,8 +633,109 @@ public class SuccessActivity extends Activity {
                     else
                     {
                         Point selectPoint;
+
+
                         switch (action)
                         {
+                            case MotionEvent.ACTION_UP:
+                                in = new ArrayList<Point>();
+                                pi = new ArrayList<Point>();
+                                break;
+                            case MotionEvent.ACTION_MOVE:
+                                if(pi.size() > 1)
+                                {
+                                    System.out.println("that");
+                                    tempcanvas = Bitmap.createBitmap(bitmap2,0,0,linearLayout.getWidth(),linearLayout.getHeight());
+                                    canvas = new Canvas(tempcanvas);
+                                    canvas2 = new Canvas(temp2canvas);
+
+                                    canvas2.drawCircle((float)pointsList.get(current).x,(float)pointsList.get(current).y,6,paint2);
+                                    for(int i = 0; i < pi.size(); i++)
+                                    {
+                                        canvas2.drawCircle((float)pi.get(i).x,(float)pi.get(i).y,3,paint2);
+                                    }
+
+                                    for(int i = 0; i < in.size(); i++)
+                                    {
+                                        canvas2.drawCircle((float)in.get(i).x,(float)in.get(i).y,3,paint2);
+                                    }
+
+
+                                    double m_n =  ((pointsList.get(next).y - dy) / (pointsList.get(next).x - dx));
+                                    double b_n = (dy - (m_n * dx));
+                                    double kkn = m_n*dx + b_n;
+
+                                    double m_p =  ((dy - pointsList.get(pre).y) / (dx - pointsList.get(pre).x));
+                                    double b_p = (dy - (m_p * dx));
+                                    double kkp = m_p*dx + b_p;
+
+                                    System.out.println("that : " + m_n);
+                                    System.out.println("that : " + b_n);
+                                    System.out.println("that kk : " + kkn);
+
+                                    System.out.println("that : " + m_p);
+                                    System.out.println("that : " + b_p);
+                                    System.out.println("that kk : " + kkp);
+
+                                    in = new ArrayList<Point>();
+                                    pi = new ArrayList<Point>();
+                                    // Next 긋기
+                                    if(dx > pointsList.get(next).x)
+                                    {
+                                        for(int p = (int)pointsList.get(next).x; p < dx; p++)
+                                        {
+                                            kkn = m_n*p + b_n;
+                                            canvas2.drawCircle(p,(float)kkn,0.3f,paint1);
+                                            Point point = new Point(p,kkn);
+                                            in.add(point);
+
+                                        }
+                                    }
+                                    else
+                                    {
+                                        for(int p = dx; p < pointsList.get(next).x; p++)
+                                        {
+                                            kkn = m_n*p + b_n;
+                                            canvas2.drawCircle(p,(float)kkn,0.3f,paint1);
+                                            Point point = new Point(p,kkn);
+                                            in.add(point);
+                                        }
+                                    }
+
+
+                                    if(dx > pointsList.get(pre).x)
+                                    {
+                                        for(int p = (int)pointsList.get(pre).x; p < dx; p++)
+                                        {
+                                            kkp = m_p*p + b_p;
+                                            canvas2.drawCircle(p,(float)kkp,0.3f,paint1);
+                                            Point point = new Point(p,kkp);
+                                            pi.add(point);
+                                        }
+                                    }
+                                    else
+                                    {
+                                        for(int p = dx; p < pointsList.get(pre).x; p++)
+                                        {
+                                            kkp = m_p*p + b_p;
+                                            canvas2.drawCircle(p,(float)kkp,0.3f,paint1);
+                                            Point point = new Point(p,kkp);
+                                            pi.add(point);
+                                        }
+                                    }
+
+                                    canvas2.drawCircle(dx,dy,5 ,temppaint2);
+                                    pointsList.set(current,new Point(dx,dy));
+                                    canvas2.drawCircle((float)pointsList.get(pre).x,(float)pointsList.get(pre).y,5 ,temppaint2);
+                                    canvas2.drawCircle((float)pointsList.get(next).x,(float)pointsList.get(next).y,5 ,temppaint2);
+
+                                    canvas.drawBitmap(temp2canvas,0,0,null);
+                                    mImageView.setImageBitmap(tempcanvas);
+
+
+                                }
+
+                                break;
 
                             case MotionEvent.ACTION_DOWN:
                                 System.out.println("x : " + dx);
@@ -646,6 +749,7 @@ public class SuccessActivity extends Activity {
                                     double dis = Math.sqrt((x*x)+(y*y));
                                     if(dis < 10)
                                     {
+                                        current = i;
                                         tempcanvas = Bitmap.createBitmap(bitmap2,0,0,linearLayout.getWidth(),linearLayout.getHeight());
                                         temp2canvas = Bitmap.createBitmap(linearLayout.getWidth(),linearLayout.getHeight(), Bitmap.Config.ARGB_8888);
                                         canvas = new Canvas(tempcanvas);
@@ -664,7 +768,6 @@ public class SuccessActivity extends Activity {
                                             canvas2.drawCircle((float)pointsList.get(j).x,(float)pointsList.get(j).y,5 ,temppaint2);
                                         }
 
-                                        int pre,next;
                                         if(i == 0)
                                         {
                                             pre = pointsList.size()-1;
@@ -698,27 +801,88 @@ public class SuccessActivity extends Activity {
                                             canvas2.drawCircle(pos[0],pos[1],3,paint2);
                                         }
 
+                                        canvas2.drawCircle((float)pointsList.get(i).x,(float)pointsList.get(i).y,6,paint2);
+
+                                        //System.out.println("that : " + pre + "," + next);
+                                        System.out.println("that : " +dx + "," + dy );
+                                        //System.out.println("that : " +pointsList.get(pre).x + "," + pointsList.get(pre).y );
+                                        //System.out.println("that : " +pointsList.get(next).x + "," + pointsList.get(next).y );
+
+
+                                        double m_n =  ((pointsList.get(next).y - dy) / (pointsList.get(next).x - dx));
+                                        double b_n = (dy - (m_n * dx));
+                                        double kkn = m_n*dx + b_n;
+
+                                        double m_p =  ((dy - pointsList.get(pre).y) / (dx - pointsList.get(pre).x));
+                                        double b_p = (dy - (m_p * dx));
+                                        double kkp = m_p*dx + b_p;
+
+                                        System.out.println("that : " + m_n);
+                                        System.out.println("that : " + b_n);
+                                        System.out.println("that kk : " + kkn);
+
+                                        System.out.println("that : " + m_p);
+                                        System.out.println("that : " + b_p);
+                                        System.out.println("that kk : " + kkp);
+
+                                        in = new ArrayList<Point>();
+                                        pi = new ArrayList<Point>();
+                                        // Next 긋기
+                                        if(dx > pointsList.get(next).x)
+                                        {
+                                            for(int p = (int)pointsList.get(next).x; p < dx; p++)
+                                            {
+                                                kkn = m_n*p + b_n;
+                                                canvas2.drawCircle(p,(float)kkn,0.3f,paint1);
+                                                Point point = new Point(p,kkn);
+                                                in.add(point);
+
+                                            }
+                                        }
+                                        else
+                                        {
+                                            for(int p = dx; p < pointsList.get(next).x; p++)
+                                            {
+                                                kkn = m_n*p + b_n;
+                                                canvas2.drawCircle(p,(float)kkn,0.3f,paint1);
+                                                Point point = new Point(p,kkn);
+                                                in.add(point);
+                                            }
+                                        }
+
+
+                                        if(dx > pointsList.get(pre).x)
+                                        {
+                                            for(int p = (int)pointsList.get(pre).x; p < dx; p++)
+                                            {
+                                                kkp = m_p*p + b_p;
+                                                canvas2.drawCircle(p,(float)kkp,0.3f,paint1);
+                                                Point point = new Point(p,kkp);
+                                                pi.add(point);
+                                            }
+                                        }
+                                        else
+                                        {
+                                            for(int p = dx; p < pointsList.get(pre).x; p++)
+                                            {
+                                                kkp = m_p*p + b_p;
+                                                canvas2.drawCircle(p,(float)kkp,0.3f,paint1);
+                                                Point point = new Point(p,kkp);
+                                                pi.add(point);
+                                            }
+                                        }
+
+                                        canvas2.drawCircle(dx,dy,5 ,temppaint2);
+                                        pointsList.set(i,new Point(dx,dy));
                                         canvas2.drawCircle((float)pointsList.get(pre).x,(float)pointsList.get(pre).y,5 ,temppaint2);
                                         canvas2.drawCircle((float)pointsList.get(next).x,(float)pointsList.get(next).y,5 ,temppaint2);
 
 
-                                        System.out.println("that : " + pre + "," + next);
-                                        System.out.println("that : " +pointsList.get(pre).x + "," + pointsList.get(pre).y );
-                                        System.out.println("that : " +pointsList.get(next).x + "," + pointsList.get(next).y );
-                                        
-
-                                        double m =  ((pointsList.get(pre).y - pointsList.get(i).y) / (pointsList.get(pre).x - pointsList.get(i).x));
-                                        int bb = (int)(arrayList.get(0).y - (m * arrayList.get(0).x));
-                                        int coco = (int)Math.abs(arrayList.get(0).x) - (int)Math.abs(arrayList.get(arrayList.size()-1).x);
                                         canvas.drawBitmap(temp2canvas,0,0,null);
                                         mImageView.setImageBitmap(tempcanvas);
                                         break;
                                     }
                                 }
-
-
-
-
                                 //System.out.println("distance : " + distance);
                                 /*
                                 for(int i = 0; i < pointsList.size(); i++)
