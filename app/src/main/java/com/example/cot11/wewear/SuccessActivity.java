@@ -115,7 +115,6 @@ public class SuccessActivity extends Activity {
     private Canvas canvas2;
     private ArrayList<Point> arrayList;
     private ArrayList<Point> pointsList;
-    private ArrayList<Float> floatsList;
     private ArrayList<Point> in = new ArrayList<Point>();
     private ArrayList<Point> pi = new ArrayList<Point>();
     private ArrayList<Point> path_me;
@@ -425,15 +424,17 @@ public class SuccessActivity extends Activity {
 
         paint = new Paint();
         paint.setColor(Color.RED);
-        paint.setStrokeWidth(3F);
+        paint.setStrokeWidth(1F);
+
         paint1 = new Paint();
         paint1.setStyle(Paint.Style.STROKE);
         paint1.setAntiAlias(true);
+        paint1.setStrokeWidth(3);
         paint1.setARGB(255, 255, 255, 0);
-        paint1.setStrokeWidth(5F);
+
         paint2 = new Paint();
         paint2.setAntiAlias(true);
-        paint2.setStyle(Paint.Style.FILL);
+        paint2.setStrokeWidth(4);
         paint2.setFilterBitmap(false);
         paint2.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_OUT));
 
@@ -557,19 +558,15 @@ public class SuccessActivity extends Activity {
                                         System.out.println("different_line size : " + different_line);
 
                                         pointsList = new ArrayList<Point>();
-                                        floatsList = new ArrayList<Float>();
 
                                         temppaint2 = new Paint();
                                         temppaint2.setColor(Color.RED);
                                         temppaint2.setStyle(Paint.Style.FILL);
-                                        //temppaint2.setStrokeWidth(10F);
                                         temppaint2.setAntiAlias(true);
 
-                                        LinearLayout.LayoutParams params = new LinearLayout.LayoutParams(15, 15);
 
                                         for(int i = 0; i < 20; i++)
                                         {
-                                            floatsList.add(distance);
                                             pathMeasure.getPosTan(distance, pos, tan);
                                             canvas2.drawCircle(pos[0],pos[1],10,temppaint2);
                                             canvas.drawBitmap(temp2,0,0,null);
@@ -584,7 +581,6 @@ public class SuccessActivity extends Activity {
 
                                         for(int i = 0; i < (path_count2/2 + 1); i++)
                                         {
-                                            floatsList.add(distance);
                                             pathMeasure.getPosTan(distance, pos, tan);
                                             canvas2.drawCircle(pos[0],pos[1],10,temppaint2);
                                             canvas.drawBitmap(temp2,0,0,null);
@@ -593,7 +589,6 @@ public class SuccessActivity extends Activity {
                                             System.out.println("pos x : " + pos[0] + " pos y : " + pos[1]);
                                             distance = distance+path_count;
                                         }
-                                        System.out.println("floatsList : " + floatsList.size());
                                         setCircle = true;
 
 
@@ -648,13 +643,46 @@ public class SuccessActivity extends Activity {
                     else
                     {
                         Point selectPoint;
-
-
                         switch (action)
                         {
                             case MotionEvent.ACTION_UP:
-                                in = new ArrayList<Point>();
-                                pi = new ArrayList<Point>();
+
+                                if(pi.size() > 1) {
+
+                                    System.out.println("path size(Lpre) : " + Lpre);
+                                    System.out.println("path size(Lnext) : " + Lnext);
+                                    System.out.println("path size(path) : " + path_me.size());
+                                    ArrayList<Point> temp_path = new ArrayList<Point>();
+
+                                    for(int k = 0; k < Lpre; k++)
+                                    {
+                                        temp_path.add(path_me.get(k));
+                                    }
+                                    for (int k = 0; k < pi.size(); k++)
+                                    {
+                                        temp_path.add(pi.get(k));
+                                    }
+                                    for (int k = 0; k < in.size(); k++)
+                                    {
+                                        temp_path.add(in.get(k));
+                                    }
+                                    for (int k = Lnext; k < path_me.size(); k++)
+                                    {
+                                        temp_path.add(path_me.get(k));
+                                    }
+
+                                    path_me = new ArrayList<Point>();
+                                    path_me = temp_path;
+
+                                    System.out.println("temp_path(in) :" + ((int)pointsList.get(next).x - dx));
+                                    System.out.println("temp_path(in) :" + ((int)pointsList.get(pre).x - dx));
+                                    System.out.println("temp_path : " + path_me.size());
+                                    System.out.println("temp_path : " + temp_path.size());
+
+                                    in = new ArrayList<Point>();
+                                    pi = new ArrayList<Point>();
+
+                                }
                                 break;
                             case MotionEvent.ACTION_MOVE:
                                 if(pi.size() > 1)
@@ -665,6 +693,7 @@ public class SuccessActivity extends Activity {
                                     canvas2 = new Canvas(temp2canvas);
 
                                     canvas2.drawCircle((float)pointsList.get(current).x,(float)pointsList.get(current).y,6,paint2);
+
                                     for(int i = 0; i < pi.size(); i++)
                                     {
                                         canvas2.drawCircle((float)pi.get(i).x,(float)pi.get(i).y,3,paint2);
@@ -700,7 +729,7 @@ public class SuccessActivity extends Activity {
                                         for(int p = (int)pointsList.get(next).x; p < dx; p++)
                                         {
                                             kkn = m_n*p + b_n;
-                                            canvas2.drawCircle(p,(float)kkn,0.3f,paint1);
+                                            canvas2.drawPoint(p,(float)kkn,paint1);
                                             Point point = new Point(p,kkn);
                                             in.add(point);
                                         }
@@ -710,7 +739,7 @@ public class SuccessActivity extends Activity {
                                         for(int p = dx; p < pointsList.get(next).x; p++)
                                         {
                                             kkn = m_n*p + b_n;
-                                            canvas2.drawCircle(p,(float)kkn,0.3f,paint1);
+                                            canvas2.drawPoint(p,(float)kkn,paint1);
                                             Point point = new Point(p,kkn);
                                             in.add(point);
                                         }
@@ -722,7 +751,7 @@ public class SuccessActivity extends Activity {
                                         for(int p = (int)pointsList.get(pre).x; p < dx; p++)
                                         {
                                             kkp = m_p*p + b_p;
-                                            canvas2.drawCircle(p,(float)kkp,0.3f,paint1);
+                                            canvas2.drawPoint(p,(float)kkp,paint1);
                                             Point point = new Point(p,kkp);
                                             pi.add(point);
                                         }
@@ -732,11 +761,14 @@ public class SuccessActivity extends Activity {
                                         for(int p = dx; p < pointsList.get(pre).x; p++)
                                         {
                                             kkp = m_p*p + b_p;
-                                            canvas2.drawCircle(p,(float)kkp,0.3f,paint1);
+                                            canvas2.drawPoint(p,(float)kkp,paint1);
                                             Point point = new Point(p,kkp);
                                             pi.add(point);
                                         }
                                     }
+
+                                    System.out.println("path length : " + in.size());
+                                    System.out.println("path length : " + pi.size());
 
                                     canvas2.drawCircle(dx,dy,5 ,temppaint2);
                                     pointsList.set(current,new Point(dx,dy));
@@ -751,7 +783,7 @@ public class SuccessActivity extends Activity {
                                 break;
 
                             case MotionEvent.ACTION_DOWN:
-                                System.out.println("x : " + dx);
+                                System.out.println("xxx : " + dx);
                                 System.out.println("y : " + dy);
                                 double distance = Math.sqrt((dx*dx) + (dy*dy));
 
@@ -760,24 +792,14 @@ public class SuccessActivity extends Activity {
                                     double x = dx - pointsList.get(i).x;
                                     double y = dy - pointsList.get(i).y;
                                     double dis = Math.sqrt((x*x)+(y*y));
-                                    if(dis < 10)
+                                    if(dis < 16)
                                     {
-                                        current = i;
                                         tempcanvas = Bitmap.createBitmap(bitmap2,0,0,linearLayout.getWidth(),linearLayout.getHeight());
                                         temp2canvas = Bitmap.createBitmap(linearLayout.getWidth(),linearLayout.getHeight(), Bitmap.Config.ARGB_8888);
                                         canvas = new Canvas(tempcanvas);
                                         canvas2 = new Canvas(temp2canvas);
 
-                                        for(int j =0; j < path_me.size(); j++)
-                                        {
-                                            canvas2.drawCircle((float)path_me.get(j).x,(float)path_me.get(j).y,0.3f,paint1);
-                                        }
-
-                                        for(int j = 0; j < pointsList.size(); j++)
-                                        {
-                                            canvas2.drawCircle((float)pointsList.get(j).x,(float)pointsList.get(j).y,5 ,temppaint2);
-                                        }
-
+                                        current = i;
                                         if(i == 0)
                                         {
                                             pre = pointsList.size()-1;
@@ -795,31 +817,11 @@ public class SuccessActivity extends Activity {
                                             pre = i - 1;
                                             next = i + 1;
                                         }
-                                        //선택된 점 전,후 선들을 지움
-                                        for(float j = floatsList.get(pre); j < floatsList.get(i); j++)
-                                        {
-                                            float[] pos = new float[2];
-                                            float[] tan = new float[2];
-                                            pathMeasure.getPosTan(j, pos, tan);
-                                            canvas2.drawCircle(pos[0],pos[1],3,paint2);
-                                        }
-                                        for(float j = floatsList.get(i); j < floatsList.get(next); j++)
-                                        {
-                                            float[] pos = new float[2];
-                                            float[] tan = new float[2];
-                                            pathMeasure.getPosTan(j, pos, tan);
-                                            canvas2.drawCircle(pos[0],pos[1],3,paint2);
-                                        }
 
-                                        canvas2.drawCircle((float)pointsList.get(i).x,(float)pointsList.get(i).y,6,paint2);
-
-                                        //System.out.println("that : " + pre + "," + next);
-                                        System.out.println("that : " +dx + "," + dy );
-                                        //System.out.println("that : " +pointsList.get(pre).x + "," + pointsList.get(pre).y );
-                                        //System.out.println("that : " +pointsList.get(next).x + "," + pointsList.get(next).y );
 
                                         for(int j =0; j < path_me.size(); j++)
                                         {
+                                            canvas2.drawPoint((float)path_me.get(j).x,(float)path_me.get(j).y,paint1);
                                             if(path_me.get(j).x == pointsList.get(pre).x && path_me.get(j).y == pointsList.get(pre).y)
                                             {
                                                 System.out.println("ttt : " + j);
@@ -829,92 +831,27 @@ public class SuccessActivity extends Activity {
                                             {
                                                 System.out.println("ttt2 : " + j);
                                                 Lnext = j;
-                                                for(int k = Lcurrent; k < Lnext; k++)
-                                                {
-                                                    canvas2.drawCircle((float)path_me.get(k).x,(float)path_me.get(k).y,3,paint2);
-                                                }
+
                                             }
                                             else  if(path_me.get(j).x == pointsList.get(current).x && path_me.get(j).y == pointsList.get(current).y)
                                             {
                                                 System.out.println("ttt3 : " + j);
                                                 Lcurrent = j;
-                                                for(int k = Lpre; k < Lcurrent; k++)
-                                                {
-                                                    canvas2.drawCircle((float)path_me.get(k).x,(float)path_me.get(k).y,3,paint2);
-                                                }
+
                                             }
                                         }
 
-
-                                        double m_n =  ((pointsList.get(next).y - dy) / (pointsList.get(next).x - dx));
-                                        double b_n = (dy - (m_n * dx));
-                                        double kkn = m_n*dx + b_n;
-
-                                        double m_p =  ((dy - pointsList.get(pre).y) / (dx - pointsList.get(pre).x));
-                                        double b_p = (dy - (m_p * dx));
-                                        double kkp = m_p*dx + b_p;
-
-                                        System.out.println("that : " + m_n);
-                                        System.out.println("that : " + b_n);
-                                        System.out.println("that kk : " + kkn);
-
-                                        System.out.println("that : " + m_p);
-                                        System.out.println("that : " + b_p);
-                                        System.out.println("that kk : " + kkp);
-
-                                        in = new ArrayList<Point>();
-                                        pi = new ArrayList<Point>();
-                                        // Next 긋기
-                                        if(dx > pointsList.get(next).x)
+                                        for(int j = 0; j < pointsList.size(); j++)
                                         {
-                                            for(int p = (int)pointsList.get(next).x; p < dx; p++)
-                                            {
-                                                kkn = m_n*p + b_n;
-                                                canvas2.drawCircle(p,(float)kkn,0.3f,paint1);
-                                                Point point = new Point(p,kkn);
-                                                in.add(point);
-                                            }
-                                        }
-                                        else
-                                        {
-                                            for(int p = dx; p < pointsList.get(next).x; p++)
-                                            {
-                                                kkn = m_n*p + b_n;
-                                                canvas2.drawCircle(p,(float)kkn,0.3f,paint1);
-                                                Point point = new Point(p,kkn);
-                                                in.add(point);
-                                            }
+                                            canvas2.drawCircle((float)pointsList.get(j).x,(float)pointsList.get(j).y,12,temppaint2);
                                         }
 
+                                        System.out.println("몇번째 ? i: " + i);
+                                        System.out.println("몇번째 ? next: " + next);
+                                        System.out.println("몇번째 ? pre : " + pre);
 
-                                        if(dx > pointsList.get(pre).x)
-                                        {
-                                            for(int p = (int)pointsList.get(pre).x; p < dx; p++)
-                                            {
-                                                kkp = m_p*p + b_p;
-                                                canvas2.drawCircle(p,(float)kkp,0.3f,paint1);
-                                                Point point = new Point(p,kkp);
-                                                pi.add(point);
-                                            }
-                                        }
-                                        else
-                                        {
-                                            for(int p = dx; p < pointsList.get(pre).x; p++)
-                                            {
-                                                kkp = m_p*p + b_p;
-                                                canvas2.drawCircle(p,(float)kkp,0.3f,paint1);
-                                                Point point = new Point(p,kkp);
-                                                pi.add(point);
-                                            }
-                                        }
-
-                                        canvas2.drawCircle(dx,dy,5 ,temppaint2);
-                                        pointsList.set(i,new Point(dx,dy));
-                                        canvas2.drawCircle((float)pointsList.get(pre).x,(float)pointsList.get(pre).y,5 ,temppaint2);
-                                        canvas2.drawCircle((float)pointsList.get(next).x,(float)pointsList.get(next).y,5 ,temppaint2);
                                         canvas.drawBitmap(temp2canvas,0,0,null);
                                         mImageView.setImageBitmap(tempcanvas);
-                                        break;
                                     }
                                 }
                                 //System.out.println("distance : " + distance);
