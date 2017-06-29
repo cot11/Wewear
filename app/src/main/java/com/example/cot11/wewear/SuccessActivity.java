@@ -92,6 +92,7 @@ public class SuccessActivity extends Activity {
     private Button logout = null;
     private Button add = null;
     private Button unlick = null;
+    private Button Start = null;
     private ProgressDialog mProgress;
 
     // etc
@@ -102,7 +103,7 @@ public class SuccessActivity extends Activity {
     private Bitmap temp2canvas;
     private Bitmap bitmap2 = null;
     private int mScaleFactor = 1;
-    private Path path;      //페스
+    private Path facepath;      //페스
     private String mode = "none";
     private float downx = 0, downy = 0, upx = 0, upy = 0;
     private int pre = 0;
@@ -111,6 +112,7 @@ public class SuccessActivity extends Activity {
     private int Lpre = 0;
     private int Lnext = 0;
     private int Lcurrent = 0;
+    private  int draw_Mode = 0;
     private  Canvas canvas;
     private Canvas canvas2;
     private ArrayList<Point> arrayList;
@@ -124,9 +126,10 @@ public class SuccessActivity extends Activity {
 
     private Paint paint;
     private Paint paint1;
-    private Paint paint2;
+    private Paint paint2; // 지우는 페인트
     private Paint temppaint1;
-    private Paint temppaint2;
+    private Paint temppaint2; // 지우는 페인트
+    private Paint temppaint3;
     private Bitmap temp;
     private Bitmap temp2;
     private PhotoViewAttacher attacher;
@@ -201,8 +204,9 @@ public class SuccessActivity extends Activity {
         add = (Button)findViewById(R.id.add);
         logout = (Button)findViewById(R.id.logout);
         mGallaryButton = (Button)findViewById(R.id.gallaryButton);
+        Start = (Button)findViewById(R.id.start);
         mApp = (GlobalApplication)getApplication();
-        path = new Path();
+        facepath = new Path();
 
 
         // Action
@@ -240,9 +244,42 @@ public class SuccessActivity extends Activity {
                 onClickUnlink();
             }
         });
+        Start.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                int width   = linearLayout.getWidth();
+                int height  = linearLayout.getHeight();
+                tempcanvas = Bitmap.createBitmap(bitmap2,0,0,linearLayout.getWidth(),linearLayout.getHeight());
+                Path path = new Path();
+                path.moveTo((float)path_me.get(0).x,(float)path_me.get(0).y);
+                for(int i = 1; i < path_me.size(); i++)
+                {
+                    path.lineTo((float)path_me.get(i).x,(float)path_me.get(i).y);
+                }
+                //배경 이미지를 그린다.
+                canvas = new Canvas(tempcanvas);
+
+                //canvas.drawPath(path,paint1);
+
+                canvas.save();
+                // 가져올 부분만 사각형으로 가져온다.
+                canvas.clipPath(path, Region.Op.DIFFERENCE);
+                // 나머지 부분의 그림은 없앤다.
+                canvas.clipRect(0, 0, width, height);
+                canvas.drawColor(Color.BLACK);
+
+                for(int j = 0; j < pointsList.size(); j++)
+                {
+                    canvas.drawCircle((float)pointsList.get(j).x,(float)pointsList.get(j).y,4,temppaint1);
+                }
+
+                mImageView.setImageBitmap(tempcanvas);
+
+            }
+        });
 
     }
-
 
     private void onClickUnlink() {
         final String appendMessage = getString(R.string.com_kakao_confirm_unlink);
@@ -373,9 +410,732 @@ public class SuccessActivity extends Activity {
         }
     }
 
-    private void facec()
+
+    private void Face_Draw1(int dx, int dy)
     {
 
+        tempcanvas = Bitmap.createBitmap(bitmap2,0,0,linearLayout.getWidth(),linearLayout.getHeight());
+        temp2canvas = Bitmap.createBitmap(linearLayout.getWidth(),linearLayout.getHeight(), Bitmap.Config.ARGB_8888);
+        canvas = new Canvas(tempcanvas);
+        canvas2 = new Canvas(temp2canvas);
+
+
+        Lpre = 0;
+        Lnext = 0;
+        Lcurrent = 0;
+        for(int j =0; j < path_me.size(); j++)
+        {
+
+            //canvas2.drawPoint((float)path_me.get(j).x,(float)path_me.get(j).y,paint1);
+            if(path_me.get(j).x == pointsList.get(pre).x && path_me.get(j).y == pointsList.get(pre).y)
+            {
+                Lpre = j;
+                System.out.println("Lpre : " + Lpre);
+                System.out.println("whatwhat point Pre : " + path_me.get(j).x + " : " + path_me.get(j).y);
+            }
+            else if(path_me.get(j).x == pointsList.get(next).x && path_me.get(j).y == pointsList.get(next).y)
+            {
+                Lnext = j;
+                System.out.println("Lnext : " + Lnext);
+                System.out.println("whatwhat point Next : " + path_me.get(j).x + " : " + path_me.get(j).y);
+
+            }
+            else  if(path_me.get(j).x == pointsList.get(current).x && path_me.get(j).y == pointsList.get(current).y)
+            {
+                Lcurrent = j;
+
+
+            }
+        }
+
+        int pre_count = 0;
+        int next_count = 0;
+
+        next_count = Math.abs(Lcurrent-Lnext);
+        pre_count = Math.abs(path_me.size()-Lpre);
+
+        for(int j = 0; j < Lnext; j++)
+        {
+            canvas2.drawPoint((float)path_me.get(j).x,(float)path_me.get(j).y,paint2);
+        }
+
+        for(int j = Lpre; j < path_me.size(); j++)
+        {
+            canvas2.drawPoint((float)path_me.get(j).x,(float)path_me.get(j).y,paint2);
+        }
+
+
+        Path pre_i = new Path();
+        pre_i.moveTo((float)pointsList.get(pre).x,(float)pointsList.get(pre).y);
+        pre_i.lineTo(dx,dy);
+
+        canvas2.drawPath(pre_i,paint1);
+
+        Path i_next = new Path();
+        i_next.moveTo(dx,dy);
+        i_next.lineTo((float)pointsList.get(next).x,(float)pointsList.get(next).y);
+
+        canvas2.drawPath(i_next,paint1);
+
+        PathMeasure Pre_i = new PathMeasure(pre_i,false);
+        PathMeasure i_Next = new PathMeasure(i_next,false);
+
+        float[] pos;
+        float[] tan;
+
+        pi = new ArrayList<Point>();
+        in = new ArrayList<Point>();
+
+        for(int j =0; j < Pre_i.getLength()-1; j++)
+        {
+            pos = new float[2];
+            tan = new float[2];
+            Pre_i.getPosTan(j, pos, tan);
+            Point point = new Point(pos[0],pos[1]);
+            pi.add(point);
+        }
+        System.out.println();
+
+        for(int j =0; j < i_Next.getLength(); j++)
+        {
+            pos = new float[2];
+            tan = new float[2];
+            i_Next.getPosTan(j, pos, tan);
+            Point point = new Point(pos[0],pos[1]);
+            in.add(point);
+        }
+
+        ArrayList<Point> Temp_path_me = new ArrayList<Point>();
+        int Temp_count = path_me.size()-pre_count-next_count+pi.size()+in.size();
+
+        for(int j = 0; j < Temp_count; j++)
+        {
+            Point point = new Point(0,0);
+            Temp_path_me.add(point);
+        }
+
+        for(int j = 0; j < in.size(); j++)
+        {
+            Temp_path_me.set(j,in.get(j));
+        }
+
+        int next_pre = next_count;
+        for(int j = in.size(); j < (Temp_path_me.size()-pi.size()); j ++)
+        {
+            Temp_path_me.set(j,path_me.get(next_pre));
+            next_pre++;
+        }
+        System.out.println("setset 10 : " + (Temp_path_me.size()-pi.size()-in.size()));
+
+
+        int k = 0;
+        for(int j = (Temp_path_me.size()-pi.size()); j < Temp_path_me.size(); j++)
+        {
+            Temp_path_me.set(j,pi.get(k));
+            k++;
+        }
+
+        pointsList.set(current,new Point(dx,dy));
+        for(int j = 0; j < Temp_path_me.size(); j++)
+        {
+            canvas2.drawPoint((float)Temp_path_me.get(j).x,(float)Temp_path_me.get(j).y,paint1);
+        }
+        for(int j = 0; j < pointsList.size(); j++)
+        {
+            canvas2.drawCircle((float)pointsList.get(j).x,(float)pointsList.get(j).y,8,temppaint1);
+        }
+
+        path_me = new ArrayList<Point>();
+        path_me = Temp_path_me;
+
+        canvas.drawBitmap(temp2canvas,0,0,null);
+        mImageView.setImageBitmap(tempcanvas);
+
+    }
+
+    private void Face_Draw2(int dx, int dy)
+    {
+        tempcanvas = Bitmap.createBitmap(bitmap2,0,0,linearLayout.getWidth(),linearLayout.getHeight());
+        temp2canvas = Bitmap.createBitmap(linearLayout.getWidth(),linearLayout.getHeight(), Bitmap.Config.ARGB_8888);
+        canvas = new Canvas(tempcanvas);
+        canvas2 = new Canvas(temp2canvas);
+
+
+        Lpre = 0;
+        Lnext = 0;
+        Lcurrent = 0;
+        for(int j =0; j < path_me.size(); j++)
+        {
+
+            //canvas2.drawPoint((float)path_me.get(j).x,(float)path_me.get(j).y,paint1);
+            if(path_me.get(j).x == pointsList.get(pre).x && path_me.get(j).y == pointsList.get(pre).y)
+            {
+                Lpre = j;
+                System.out.println("Lpre : " + Lpre);
+                System.out.println("whatwhat point Pre : " + path_me.get(j).x + " : " + path_me.get(j).y);
+            }
+            else if(path_me.get(j).x == pointsList.get(next).x && path_me.get(j).y == pointsList.get(next).y)
+            {
+                Lnext = j;
+                System.out.println("Lnext : " + Lnext);
+                System.out.println("whatwhat point Next : " + path_me.get(j).x + " : " + path_me.get(j).y);
+
+            }
+            else  if(path_me.get(j).x == pointsList.get(current).x && path_me.get(j).y == pointsList.get(current).y)
+            {
+                Lcurrent = j;
+
+
+            }
+        }
+
+        int pre_count = 0;
+        int next_count = 0;
+
+        next_count = Math.abs(path_me.size()-Lcurrent);
+        pre_count = Math.abs(Lcurrent-Lpre);
+
+        for(int j = Lcurrent; j < path_me.size(); j++)
+        {
+            canvas2.drawPoint((float)path_me.get(j).x,(float)path_me.get(j).y,paint2);
+        }
+
+        for(int j = Lpre; j < Lcurrent; j++)
+        {
+            canvas2.drawPoint((float)path_me.get(j).x,(float)path_me.get(j).y,paint2);
+        }
+
+
+        Path pre_i = new Path();
+        pre_i.moveTo((float)pointsList.get(pre).x,(float)pointsList.get(pre).y);
+        pre_i.lineTo(dx,dy);
+
+        canvas2.drawPath(pre_i,paint1);
+
+        Path i_next = new Path();
+        i_next.moveTo(dx,dy);
+        i_next.lineTo((float)pointsList.get(next).x,(float)pointsList.get(next).y);
+
+        canvas2.drawPath(i_next,paint1);
+
+        PathMeasure Pre_i = new PathMeasure(pre_i,false);
+        PathMeasure i_Next = new PathMeasure(i_next,false);
+
+        float[] pos;
+        float[] tan;
+
+        pi = new ArrayList<Point>();
+        in = new ArrayList<Point>();
+
+        for(int j =0; j < Pre_i.getLength()-1; j++)
+        {
+            pos = new float[2];
+            tan = new float[2];
+            Pre_i.getPosTan(j, pos, tan);
+            Point point = new Point(pos[0],pos[1]);
+            pi.add(point);
+        }
+        System.out.println();
+
+        for(int j =0; j < i_Next.getLength(); j++)
+        {
+            pos = new float[2];
+            tan = new float[2];
+            i_Next.getPosTan(j, pos, tan);
+            Point point = new Point(pos[0],pos[1]);
+            in.add(point);
+        }
+
+        ArrayList<Point> Temp_path_me = new ArrayList<Point>();
+        int Temp_count = path_me.size()-pre_count-next_count+pi.size()+in.size();
+
+        for(int j = 0; j < Temp_count; j++)
+        {
+            Point point = new Point(0,0);
+            Temp_path_me.add(point);
+        }
+
+        for(int j = 0; j < Temp_path_me.size()-pi.size()-in.size(); j++)
+        {
+            Temp_path_me.set(j,path_me.get(j));
+        }
+
+
+        int k = 0;
+        for(int j = Temp_path_me.size()-pi.size()-in.size(); j <  Temp_path_me.size()-in.size(); j++)
+        {
+            Temp_path_me.set(j,pi.get(k));
+            k++;
+        }
+        k = 0;
+        for(int j = Temp_path_me.size()-in.size(); j <  Temp_path_me.size(); j++)
+        {
+            Temp_path_me.set(j,in.get(k));
+            k++;
+        }
+
+        pointsList.set(current,new Point(dx,dy));
+        for(int j = 0; j < Temp_path_me.size(); j++)
+        {
+            canvas2.drawPoint((float)Temp_path_me.get(j).x,(float)Temp_path_me.get(j).y,paint1);
+        }
+        for(int j = 0; j < pointsList.size(); j++)
+        {
+            canvas2.drawCircle((float)pointsList.get(j).x,(float)pointsList.get(j).y,8,temppaint1);
+        }
+
+        path_me = new ArrayList<Point>();
+        path_me = Temp_path_me;
+
+        canvas.drawBitmap(temp2canvas,0,0,null);
+        mImageView.setImageBitmap(tempcanvas);
+    }
+
+    private void Face_Draw3(int dx, int dy)
+    {
+
+        tempcanvas = Bitmap.createBitmap(bitmap2,0,0,linearLayout.getWidth(),linearLayout.getHeight());
+        temp2canvas = Bitmap.createBitmap(linearLayout.getWidth(),linearLayout.getHeight(), Bitmap.Config.ARGB_8888);
+        canvas = new Canvas(tempcanvas);
+        canvas2 = new Canvas(temp2canvas);
+
+
+        Lpre = 0;
+        Lnext = 0;
+        Lcurrent = 0;
+        for(int j =0; j < path_me.size(); j++)
+        {
+
+            //canvas2.drawPoint((float)path_me.get(j).x,(float)path_me.get(j).y,paint1);
+            if(path_me.get(j).x == pointsList.get(pre).x && path_me.get(j).y == pointsList.get(pre).y)
+            {
+                Lpre = j;
+                System.out.println("Lpre : " + Lpre);
+                System.out.println("whatwhat point Pre : " + path_me.get(j).x + " : " + path_me.get(j).y);
+            }
+            else if(path_me.get(j).x == pointsList.get(next).x && path_me.get(j).y == pointsList.get(next).y)
+            {
+                Lnext = j;
+                System.out.println("Lnext : " + Lnext);
+                System.out.println("whatwhat point Next : " + path_me.get(j).x + " : " + path_me.get(j).y);
+
+            }
+            else  if(path_me.get(j).x == pointsList.get(current).x && path_me.get(j).y == pointsList.get(current).y)
+            {
+                Lcurrent = j;
+
+
+            }
+        }
+
+        int pre_count = 0;
+        int next_count = 0;
+
+        next_count = Math.abs(Lcurrent-Lnext);
+        pre_count = Math.abs(Lcurrent-Lpre);
+
+        for(int j = Lcurrent; j < Lnext; j++)
+        {
+            canvas2.drawPoint((float)path_me.get(j).x,(float)path_me.get(j).y,paint2);
+        }
+        for(int j = Lpre; j < Lcurrent; j++)
+        {
+            canvas2.drawPoint((float)path_me.get(j).x,(float)path_me.get(j).y,paint2);
+        }
+
+
+        Path pre_i = new Path();
+        pre_i.moveTo((float)pointsList.get(pre).x,(float)pointsList.get(pre).y);
+        pre_i.lineTo(dx,dy);
+
+        canvas2.drawPath(pre_i,paint1);
+
+        Path i_next = new Path();
+        i_next.moveTo(dx,dy);
+        i_next.lineTo((float)pointsList.get(next).x,(float)pointsList.get(next).y);
+
+        canvas2.drawPath(i_next,paint1);
+
+        PathMeasure Pre_i = new PathMeasure(pre_i,false);
+        PathMeasure i_Next = new PathMeasure(i_next,false);
+
+        float[] pos;
+        float[] tan;
+
+        pi = new ArrayList<Point>();
+        in = new ArrayList<Point>();
+
+        for(int j =0; j < Pre_i.getLength()-1; j++)
+        {
+            pos = new float[2];
+            tan = new float[2];
+            Pre_i.getPosTan(j, pos, tan);
+            Point point = new Point(pos[0],pos[1]);
+            pi.add(point);
+        }
+        System.out.println();
+
+        for(int j =0; j < i_Next.getLength(); j++)
+        {
+            pos = new float[2];
+            tan = new float[2];
+            i_Next.getPosTan(j, pos, tan);
+            Point point = new Point(pos[0],pos[1]);
+            in.add(point);
+        }
+
+        ArrayList<Point> Temp_path_me = new ArrayList<Point>();
+        int Temp_count = path_me.size()-pre_count-next_count+pi.size()+in.size();
+
+        for(int j = 0; j < Temp_count; j++)
+        {
+            Point point = new Point(0,0);
+            Temp_path_me.add(point);
+        }
+
+        if(current == 1)
+        {
+            for(int j = 0; j < pi.size(); j++)
+            {
+                Temp_path_me.set(j,pi.get(j));
+            }
+
+            int k = 0;
+            for(int j = pi.size(); j < pi.size() + in.size(); j++)
+            {
+                Temp_path_me.set(j,in.get(k));
+                k++;
+            }
+
+            int next_pre = pre_count + next_count;
+            for(int j = (in.size() + pi.size()); j < Temp_path_me.size(); j++)
+            {
+                Temp_path_me.set(j,path_me.get(next_pre));
+                next_pre++;
+            }
+        }
+        else
+        {
+            for(int j = 0; j < Lpre; j++)
+            {
+                Temp_path_me.set(j,path_me.get(j));
+            }
+
+            int k = 0;
+            for(int j = Lpre; j < (Lpre+pi.size()); j++)
+            {
+                Temp_path_me.set(j,pi.get(k));
+                k++;
+            }
+            k = 0;
+            for(int j = (Lpre+pi.size()); j < (Lpre+pi.size()+in.size()); j++)
+            {
+                Temp_path_me.set(j,in.get(k));
+                k++;
+            }
+            int nextcc = Lpre+pre_count+next_count;
+            for(int j = (Lpre+pi.size()+in.size()); j < Temp_path_me.size(); j++)
+            {
+                Temp_path_me.set(j,path_me.get(nextcc));
+                nextcc++;
+            }
+        }
+
+        pointsList.set(current,new Point(dx,dy));
+        for(int j = 0; j < Temp_path_me.size(); j++)
+        {
+            canvas2.drawPoint((float)Temp_path_me.get(j).x,(float)Temp_path_me.get(j).y,paint1);
+        }
+        for(int j = 0; j < pointsList.size(); j++)
+        {
+            canvas2.drawCircle((float)pointsList.get(j).x,(float)pointsList.get(j).y,8,temppaint1);
+        }
+
+        path_me = new ArrayList<Point>();
+        path_me = Temp_path_me;
+
+        canvas.drawBitmap(temp2canvas,0,0,null);
+        mImageView.setImageBitmap(tempcanvas);
+
+
+    }
+
+    private void FaceDraw(int fdx, int fdy, int i)
+    {
+        System.out.println("setset 0 : " + path_me.size());
+        tempcanvas = Bitmap.createBitmap(bitmap2,0,0,linearLayout.getWidth(),linearLayout.getHeight());
+        temp2canvas = Bitmap.createBitmap(linearLayout.getWidth(),linearLayout.getHeight(), Bitmap.Config.ARGB_8888);
+        canvas = new Canvas(tempcanvas);
+        canvas2 = new Canvas(temp2canvas);
+
+        current = i;
+        if(i == 0)
+        {
+            draw_Mode = 1;
+            pre = pointsList.size()-1;
+            next = i+1;
+        }
+        else if(i == pointsList.size()-1)
+        {
+            draw_Mode = 2;
+            pre = i-1;
+            next = 0;
+        }
+        else
+        {
+            draw_Mode = 3;
+            pre = i - 1;
+            next = i + 1;
+        }
+
+        Lpre = 0;
+        Lnext = 0;
+        Lcurrent = 0;
+        for(int j =0; j < path_me.size(); j++)
+        {
+
+            //canvas2.drawPoint((float)path_me.get(j).x,(float)path_me.get(j).y,paint1);
+            if(path_me.get(j).x == pointsList.get(pre).x && path_me.get(j).y == pointsList.get(pre).y)
+            {
+                Lpre = j;
+                System.out.println("Lpre : " + Lpre);
+                System.out.println("whatwhat point Pre : " + path_me.get(j).x + " : " + path_me.get(j).y);
+            }
+            else if(path_me.get(j).x == pointsList.get(next).x && path_me.get(j).y == pointsList.get(next).y)
+            {
+                Lnext = j;
+                System.out.println("Lnext : " + Lnext);
+                System.out.println("whatwhat point Next : " + path_me.get(j).x + " : " + path_me.get(j).y);
+
+            }
+            else  if(path_me.get(j).x == pointsList.get(current).x && path_me.get(j).y == pointsList.get(current).y)
+            {
+                Lcurrent = j;
+
+
+            }
+        }
+
+
+        int pre_count = 0;
+        int next_count = 0;
+
+        if(draw_Mode == 1)
+        {
+            next_count = Math.abs(Lcurrent-Lnext);
+            pre_count = Math.abs(path_me.size()-Lpre);
+            for(int j = 0; j < Lnext; j++)
+            {
+                canvas2.drawPoint((float)path_me.get(j).x,(float)path_me.get(j).y,paint2);
+            }
+
+            for(int j = Lpre; j < path_me.size(); j++)
+            {
+                canvas2.drawPoint((float)path_me.get(j).x,(float)path_me.get(j).y,paint2);
+            }
+
+
+        }
+        else if(draw_Mode == 2)
+        {
+            next_count = Math.abs(path_me.size()-Lcurrent);
+            pre_count = Math.abs(Lcurrent-Lpre);
+            for(int j = Lcurrent; j < path_me.size(); j++)
+            {
+                canvas2.drawPoint((float)path_me.get(j).x,(float)path_me.get(j).y,paint2);
+            }
+
+            for(int j = Lpre; j < Lcurrent; j++)
+            {
+                canvas2.drawPoint((float)path_me.get(j).x,(float)path_me.get(j).y,paint2);
+            }
+
+        }
+        else
+        {
+            next_count = Math.abs(Lcurrent-Lnext);
+            pre_count = Math.abs(Lcurrent-Lpre);
+            System.out.println("drawmode 1 : " + next_count);
+            System.out.println("drawmode 2 : " + pre_count);
+            for(int j = Lcurrent; j < Lnext; j++)
+            {
+                canvas2.drawPoint((float)path_me.get(j).x,(float)path_me.get(j).y,paint2);
+            }
+            for(int j = Lpre; j < Lcurrent; j++)
+            {
+                canvas2.drawPoint((float)path_me.get(j).x,(float)path_me.get(j).y,paint2);
+            }
+        }
+
+        // Move에 적용될 부분
+        canvas2.drawCircle((float)pointsList.get(i).x,(float)pointsList.get(i).y,9,temppaint2);
+
+        Path pre_i = new Path();
+        pre_i.moveTo((float)pointsList.get(pre).x,(float)pointsList.get(pre).y);
+        pre_i.lineTo(fdx,fdy);
+
+
+        Path i_next = new Path();
+        i_next.moveTo(fdx,fdy);
+        i_next.lineTo((float)pointsList.get(next).x,(float)pointsList.get(next).y);
+
+
+        PathMeasure Pre_i = new PathMeasure(pre_i,false);
+        PathMeasure i_Next = new PathMeasure(i_next,false);
+
+        float[] pos;
+        float[] tan;
+
+        pi = new ArrayList<Point>();
+        in = new ArrayList<Point>();
+
+        for(int j =0; j < Pre_i.getLength()-1; j++)
+        {
+            pos = new float[2];
+            tan = new float[2];
+            Pre_i.getPosTan(j, pos, tan);
+            Point point = new Point(pos[0],pos[1]);
+            pi.add(point);
+        }
+        System.out.println();
+
+        for(int j =0; j < i_Next.getLength(); j++)
+        {
+            pos = new float[2];
+            tan = new float[2];
+            i_Next.getPosTan(j, pos, tan);
+            Point point = new Point(pos[0],pos[1]);
+            in.add(point);
+        }
+        System.out.println("whatwhat : " + in.get(in.size()-1).x + " : " + in.get(in.size()-1).y );
+        System.out.println("whatwhat : " + pi.get(0).x + " : " + pi.get(0).y );
+
+        ArrayList<Point> Temp_path_me = new ArrayList<Point>();
+        int Temp_count = path_me.size()-pre_count-next_count+pi.size()+in.size();
+
+        for(int j = 0; j < Temp_count; j++)
+        {
+            Point point = new Point(0,0);
+            Temp_path_me.add(point);
+        }
+
+        if(draw_Mode == 1)
+        {
+
+            for(int j = 0; j < in.size(); j++)
+            {
+                Temp_path_me.set(j,in.get(j));
+            }
+
+            int next_pre = next_count;
+            for(int j = in.size(); j < (Temp_path_me.size()-pi.size()); j ++)
+            {
+                Temp_path_me.set(j,path_me.get(next_pre));
+                next_pre++;
+            }
+            System.out.println("setset 10 : " + (Temp_path_me.size()-pi.size()-in.size()));
+
+
+            int k = 0;
+            for(int j = (Temp_path_me.size()-pi.size()); j < Temp_path_me.size(); j++)
+            {
+                Temp_path_me.set(j,pi.get(k));
+                k++;
+            }
+
+        }
+        else if(draw_Mode == 2)
+        {
+            for(int j = 0; j < Temp_path_me.size()-pi.size()-in.size(); j++)
+            {
+                Temp_path_me.set(j,path_me.get(j));
+            }
+
+
+            int k = 0;
+            for(int j = Temp_path_me.size()-pi.size()-in.size(); j <  Temp_path_me.size()-in.size(); j++)
+            {
+                Temp_path_me.set(j,pi.get(k));
+                k++;
+            }
+            k = 0;
+            for(int j = Temp_path_me.size()-in.size(); j <  Temp_path_me.size(); j++)
+            {
+                Temp_path_me.set(j,in.get(k));
+                k++;
+            }
+
+        }
+        else
+        {
+            System.out.println("currentcurrent : " + current);
+            if(current == 1)
+            {
+                for(int j = 0; j < pi.size(); j++)
+                {
+                    Temp_path_me.set(j,pi.get(j));
+                }
+
+                int k = 0;
+                for(int j = pi.size(); j < pi.size() + in.size(); j++)
+                {
+                    Temp_path_me.set(j,in.get(k));
+                    k++;
+                }
+
+                int next_pre = pre_count + next_count;
+                for(int j = (in.size() + pi.size()); j < Temp_path_me.size(); j++)
+                {
+                    Temp_path_me.set(j,path_me.get(next_pre));
+                    next_pre++;
+                }
+            }
+            else
+            {
+                System.out.println("여기 맞지?" + Lpre);
+                for(int j = 0; j < Lpre; j++)
+                {
+                    Temp_path_me.set(j,path_me.get(j));
+                }
+
+                int k = 0;
+                for(int j = Lpre; j < (Lpre+pi.size()); j++)
+                {
+                    Temp_path_me.set(j,pi.get(k));
+                    k++;
+                }
+                k = 0;
+                for(int j = (Lpre+pi.size()); j < (Lpre+pi.size()+in.size()); j++)
+                {
+                    Temp_path_me.set(j,in.get(k));
+                    k++;
+                }
+                int nextcc = Lpre+pre_count+next_count;
+                for(int j = (Lpre+pi.size()+in.size()); j < Temp_path_me.size(); j++)
+                {
+                    Temp_path_me.set(j,path_me.get(nextcc));
+                    nextcc++;
+                }
+
+            }
+        }
+
+        pointsList.set(current,new Point(fdx,fdy));
+        for(int j = 0; j < Temp_path_me.size(); j++)
+        {
+            canvas2.drawPoint((float)Temp_path_me.get(j).x,(float)Temp_path_me.get(j).y,paint1);
+        }
+        for(int j = 0; j < pointsList.size(); j++)
+        {
+            canvas2.drawCircle((float)pointsList.get(j).x,(float)pointsList.get(j).y,8,temppaint1);
+        }
+
+        path_me = new ArrayList<Point>();
+        path_me = Temp_path_me;
+        System.out.println("setset 4 : " + path_me.size());
+
+        canvas.drawBitmap(temp2canvas,0,0,null);
+        mImageView.setImageBitmap(tempcanvas);
     }
 
     private void fittingOnStaticImageAsyn(final String imgName){
@@ -461,9 +1221,11 @@ public class SuccessActivity extends Activity {
 
                 int action = event.getAction();
                 int pointerCount = event.getPointerCount();
+                System.out.println("getScale : " + attacher.getScale());
                 if(pointerCount >= 2)
                 {
                     attacher.onTouch(v, event);
+
                 }
                 else
                 {
@@ -486,8 +1248,8 @@ public class SuccessActivity extends Activity {
                                 canvas.drawBitmap(bitmap2, 0, 0, null); // 전체화면의 배경을 그림
                                 canvas2 = new Canvas(temp2);
                                 mImageView.setImageBitmap(temp);
-                                path.reset();
-                                path.moveTo(dx, dy);
+                                facepath.reset();
+                                facepath.moveTo(dx, dy);
                                 arrayList = new ArrayList<Point>();
                                 arrayList.add(new Point(dx,dy));
                                 break;
@@ -495,63 +1257,22 @@ public class SuccessActivity extends Activity {
 
                                 if(arrayList.size() > 30)
                                 {
-                                    pathMeasure = new PathMeasure(path, false);
-                                    System.out.println("lenght : " + pathMeasure.getLength());
+                                    pathMeasure = new PathMeasure(facepath, false);
+                                    //System.out.println("lenght : " + pathMeasure.getLength());
 
                                     if(arrayList.get(0).x != arrayList.get(arrayList.size()-1).x)
                                     {
-                                        double m =  ((arrayList.get(arrayList.size()-1).y - arrayList.get(0).y) / (arrayList.get(arrayList.size()-1).x - arrayList.get(0).x));
-                                        int bb = (int)(arrayList.get(0).y - (m * arrayList.get(0).x));
-                                        System.out.println("기울기 :  " +arrayList.get(0).x + " y : "  + arrayList.get(0).y);
-                                        System.out.println("기울기 :  " +arrayList.get(arrayList.size()-1).x + " y : " + arrayList.get(arrayList.size()-1).y);
-                                        System.out.println("기울기 : bb " +bb);
-                                        System.out.println("기울기 : m " + m);
-                                        System.out.println("기울기 : " + (arrayList.get(0).x * m));
-
-                                        if(arrayList.get(0).x > arrayList.get(arrayList.size()-1).x)
-                                        {
-                                            for(float i = (float)arrayList.get(arrayList.size()-1).x; i < (float)arrayList.get(0).x; i++)
-                                            {
-                                                float k = (float) ((i * m) + bb);
-                                                path.lineTo(i,k);
-                                                System.out.println("value x "+ i + "y : " + k);
-                                            }
-                                        }
-                                        else
-                                        {
-
-                                            for(float i = (float)arrayList.get(arrayList.size()-1).x; i > (float)arrayList.get(0).x; i--)
-                                            {
-                                                float k = (float) ((i * m) + bb);
-                                                path.lineTo(i,k);
-                                                System.out.println("value x "+ i + "y : " + k);
-                                            }
-                                        }
-                                        canvas2.drawPath(path, paint1);
+                                        facepath.close();
+                                        canvas2.drawPath(facepath, paint1);
                                         canvas.drawBitmap(temp2,0,0,null);
 
-                                    /*
-                                    int width   = linearLayout.getWidth();
-                                    int height  = linearLayout.getHeight();
-                                    //배경 이미지를 그린다.
-                                    canvas.drawBitmap(bitmap2, 0, 0, null);
-
-                                    canvas.save();
-                                    // 가져올 부분만 사각형으로 가져온다.
-                                    canvas.clipPath(path, Region.Op.DIFFERENCE);
-                                    // 나머지 부분의 그림은 없앤다.
-                                    canvas.clipRect(0, 0, width, height);
-                                    canvas.drawColor(Color.BLACK, PorterDuff.Mode.DST);
-                                    canvas.restore();
-                                    */
-
-
-                                        pathMeasure = new PathMeasure(path, false);
+                                        pathMeasure = new PathMeasure(facepath, false);
                                         float[] pos = new float[2];
                                         float[] tan = new float[2];
                                         int Line_length = (int)pathMeasure.getLength();
                                         int distance = 0;
                                         int Interval = Line_length/20;
+                                        //System.out.println("lenght : " + pathMeasure.getLength());
 
 
                                         pointsList = new ArrayList<Point>();
@@ -567,15 +1288,19 @@ public class SuccessActivity extends Activity {
                                         temppaint2.setFilterBitmap(false);
                                         temppaint2.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.DST_OUT));
 
+                                        temppaint3 = new Paint();
+                                        temppaint3.setColor(Color.BLUE);
+                                        temppaint3.setStyle(Paint.Style.FILL);
+                                        temppaint3.setAntiAlias(true);
+
 
                                         for(int i = 0; i < 20; i++)
                                         {
                                             pathMeasure.getPosTan(distance, pos, tan);
-                                            canvas2.drawCircle(pos[0],pos[1],10,temppaint1);
+                                            canvas2.drawCircle(pos[0],pos[1],8,temppaint1);
                                             canvas.drawBitmap(temp2,0,0,null);
                                             Point point = new Point(pos[0],pos[1]);
                                             pointsList.add(point);
-
                                             //System.out.println("pos x : " + pos[0] + " pos y : " + pos[1]);
                                             distance = distance+Interval;
                                         }
@@ -620,9 +1345,9 @@ public class SuccessActivity extends Activity {
                                 //줌 인 아웃이 아닐때, 손가락 드레그 선 그리기
                                 if((upx>=4 || upy>=4) && mode.equalsIgnoreCase("none"))
                                 {
-                                    path.lineTo(dx, dy);
+                                    facepath.lineTo(dx, dy);
                                     arrayList.add(new Point(dx,dy));
-                                    canvas2.drawPath(path, paint1);
+                                    canvas2.drawPath(facepath, paint1);
                                     canvas.drawBitmap(temp2,0,0,null);
                                     mImageView.setImageBitmap(temp);
                                 }
@@ -636,148 +1361,29 @@ public class SuccessActivity extends Activity {
                         switch (action)
                         {
                             case MotionEvent.ACTION_UP:
-
-                                if(pi.size() > 1) {
-
-                                    System.out.println("path size(Lpre) : " + Lpre);
-                                    System.out.println("path size(Lnext) : " + Lnext);
-                                    System.out.println("path size(path) : " + path_me.size());
-                                    ArrayList<Point> temp_path = new ArrayList<Point>();
-
-                                    for(int k = 0; k < Lpre; k++)
-                                    {
-                                        temp_path.add(path_me.get(k));
-                                    }
-                                    for (int k = 0; k < pi.size(); k++)
-                                    {
-                                        temp_path.add(pi.get(k));
-                                    }
-                                    for (int k = 0; k < in.size(); k++)
-                                    {
-                                        temp_path.add(in.get(k));
-                                    }
-                                    for (int k = Lnext; k < path_me.size(); k++)
-                                    {
-                                        temp_path.add(path_me.get(k));
-                                    }
-
-                                    path_me = new ArrayList<Point>();
-                                    path_me = temp_path;
-
-                                    System.out.println("temp_path(in) :" + ((int)pointsList.get(next).x - dx));
-                                    System.out.println("temp_path(in) :" + ((int)pointsList.get(pre).x - dx));
-                                    System.out.println("temp_path : " + path_me.size());
-                                    System.out.println("temp_path : " + temp_path.size());
-
-                                    in = new ArrayList<Point>();
-                                    pi = new ArrayList<Point>();
-
-                                }
                                 break;
                             case MotionEvent.ACTION_MOVE:
-                                if(pi.size() > 1)
+
+                                switch (draw_Mode)
                                 {
-                                    System.out.println("that");
-                                    tempcanvas = Bitmap.createBitmap(bitmap2,0,0,linearLayout.getWidth(),linearLayout.getHeight());
-                                    canvas = new Canvas(tempcanvas);
-                                    canvas2 = new Canvas(temp2canvas);
-
-                                    canvas2.drawCircle((float)pointsList.get(current).x,(float)pointsList.get(current).y,6,paint2);
-
-                                    for(int i = 0; i < pi.size(); i++)
-                                    {
-                                        canvas2.drawCircle((float)pi.get(i).x,(float)pi.get(i).y,3,paint2);
-                                    }
-
-                                    for(int i = 0; i < in.size(); i++)
-                                    {
-                                        canvas2.drawCircle((float)in.get(i).x,(float)in.get(i).y,3,paint2);
-                                    }
-
-
-                                    double m_n =  ((pointsList.get(next).y - dy) / (pointsList.get(next).x - dx));
-                                    double b_n = (dy - (m_n * dx));
-                                    double kkn = m_n*dx + b_n;
-
-                                    double m_p =  ((dy - pointsList.get(pre).y) / (dx - pointsList.get(pre).x));
-                                    double b_p = (dy - (m_p * dx));
-                                    double kkp = m_p*dx + b_p;
-
-                                    System.out.println("that : " + m_n);
-                                    System.out.println("that : " + b_n);
-                                    System.out.println("that kk : " + kkn);
-
-                                    System.out.println("that : " + m_p);
-                                    System.out.println("that : " + b_p);
-                                    System.out.println("that kk : " + kkp);
-
-                                    in = new ArrayList<Point>();
-                                    pi = new ArrayList<Point>();
-                                    // Next 긋기
-                                    if(dx > pointsList.get(next).x)
-                                    {
-                                        for(int p = (int)pointsList.get(next).x; p < dx; p++)
-                                        {
-                                            kkn = m_n*p + b_n;
-                                            canvas2.drawPoint(p,(float)kkn,paint1);
-                                            Point point = new Point(p,kkn);
-                                            in.add(point);
-                                        }
-                                    }
-                                    else
-                                    {
-                                        for(int p = dx; p < pointsList.get(next).x; p++)
-                                        {
-                                            kkn = m_n*p + b_n;
-                                            canvas2.drawPoint(p,(float)kkn,paint1);
-                                            Point point = new Point(p,kkn);
-                                            in.add(point);
-                                        }
-                                    }
-
-
-                                    if(dx > pointsList.get(pre).x)
-                                    {
-                                        for(int p = (int)pointsList.get(pre).x; p < dx; p++)
-                                        {
-                                            kkp = m_p*p + b_p;
-                                            canvas2.drawPoint(p,(float)kkp,paint1);
-                                            Point point = new Point(p,kkp);
-                                            pi.add(point);
-                                        }
-                                    }
-                                    else
-                                    {
-                                        for(int p = dx; p < pointsList.get(pre).x; p++)
-                                        {
-                                            kkp = m_p*p + b_p;
-                                            canvas2.drawPoint(p,(float)kkp,paint1);
-                                            Point point = new Point(p,kkp);
-                                            pi.add(point);
-                                        }
-                                    }
-
-                                    System.out.println("path length : " + in.size());
-                                    System.out.println("path length : " + pi.size());
-
-                                    canvas2.drawCircle(dx,dy,5 ,temppaint1);
-                                    pointsList.set(current,new Point(dx,dy));
-                                    canvas2.drawCircle((float)pointsList.get(pre).x,(float)pointsList.get(pre).y,5 ,temppaint1);
-                                    canvas2.drawCircle((float)pointsList.get(next).x,(float)pointsList.get(next).y,5 ,temppaint1);
-                                    canvas.drawBitmap(temp2canvas,0,0,null);
-                                    mImageView.setImageBitmap(tempcanvas);
-
-
+                                    case 0:
+                                        break;
+                                    case 1:
+                                        Face_Draw1(dx,dy);
+                                        break;
+                                    case 2:
+                                        Face_Draw2(dx,dy);
+                                        break;
+                                    case 3:
+                                        Face_Draw3(dx,dy);
+                                        break;
                                 }
 
                                 break;
 
                             case MotionEvent.ACTION_DOWN:
-                                System.out.println("xxx : " + dx);
-                                System.out.println("y : " + dy);
-                                double distance = Math.sqrt((dx*dx) + (dy*dy));
-                                int mode = 0;
 
+                                draw_Mode = 0;
                                 for(int i = 0; i < pointsList.size(); i++)
                                 {
                                     double x = dx - pointsList.get(i).x;
@@ -785,138 +1391,9 @@ public class SuccessActivity extends Activity {
                                     double dis = Math.sqrt((x*x)+(y*y));
                                     if(dis < 16)
                                     {
-                                        tempcanvas = Bitmap.createBitmap(bitmap2,0,0,linearLayout.getWidth(),linearLayout.getHeight());
-                                        temp2canvas = Bitmap.createBitmap(linearLayout.getWidth(),linearLayout.getHeight(), Bitmap.Config.ARGB_8888);
-                                        canvas = new Canvas(tempcanvas);
-                                        canvas2 = new Canvas(temp2canvas);
-
-                                        current = i;
-                                        if(i == 0)
-                                        {
-                                            mode = 1;
-                                            pre = pointsList.size()-1;
-                                            next = i+1;
-                                            System.out.println("that : " + i);
-                                        }
-                                        else if(i == pointsList.size()-1)
-                                        {
-                                            mode = 2;
-                                            pre = i-1;
-                                            next = 0;
-                                            System.out.println("that : " + i);
-                                        }
-                                        else
-                                        {
-                                            pre = i - 1;
-                                            next = i + 1;
-                                        }
-
-
-                                        for(int j =0; j < path_me.size(); j++)
-                                        {
-                                            canvas2.drawPoint((float)path_me.get(j).x,(float)path_me.get(j).y,paint1);
-                                            if(path_me.get(j).x == pointsList.get(pre).x && path_me.get(j).y == pointsList.get(pre).y)
-                                            {
-                                                System.out.println("pre : " + j);
-                                                Lpre = j;
-                                            }
-                                            else if(path_me.get(j).x == pointsList.get(next).x && path_me.get(j).y == pointsList.get(next).y)
-                                            {
-                                                System.out.println("next : " + j);
-                                                Lnext = j;
-
-                                            }
-                                            else  if(path_me.get(j).x == pointsList.get(current).x && path_me.get(j).y == pointsList.get(current).y)
-                                            {
-                                                System.out.println("current : " + j);
-                                                Lcurrent = j;
-
-                                            }
-                                        }
-                                        for(int j = 0; j < pointsList.size(); j++)
-                                        {
-                                            canvas2.drawCircle((float)pointsList.get(j).x,(float)pointsList.get(j).y,12,temppaint1);
-                                        }
-
-                                        System.out.println("몇번째 ? i: " + i);
-                                        System.out.println("몇번째 ? next: " + next);
-                                        System.out.println("몇번째 ? pre : " + pre);
-
-
-                                        if(mode == 1)
-                                        {
-                                            for(int j = 0; j < Lnext; j++)
-                                            {
-                                                canvas2.drawPoint((float)path_me.get(j).x,(float)path_me.get(j).y,paint2);
-                                            }
-
-                                            for(int j = Lpre; j < path_me.size(); j++)
-                                            {
-                                                canvas2.drawPoint((float)path_me.get(j).x,(float)path_me.get(j).y,paint2);
-                                            }
-
-
-                                        }
-                                        else if(mode == 2)
-                                        {
-
-                                            for(int j = Lcurrent; j < path_me.size(); j++)
-                                            {
-                                                canvas2.drawPoint((float)path_me.get(j).x,(float)path_me.get(j).y,paint2);
-                                            }
-
-                                            for(int j = Lpre; j < Lcurrent; j++)
-                                            {
-                                                canvas2.drawPoint((float)path_me.get(j).x,(float)path_me.get(j).y,paint2);
-                                            }
-
-                                        }
-                                        else
-                                        {
-                                            for(int j = Lcurrent; j < Lnext; j++)
-                                            {
-                                                canvas2.drawPoint((float)path_me.get(j).x,(float)path_me.get(j).y,paint2);
-                                            }
-                                            for(int j = Lpre; j < Lcurrent; j++)
-                                            {
-                                                canvas2.drawPoint((float)path_me.get(j).x,(float)path_me.get(j).y,paint2);
-                                            }
-                                        }
-                                        canvas2.drawCircle((float)pointsList.get(i).x,(float)pointsList.get(i).y,13,temppaint2);
-                                        canvas2.drawCircle(dx,dy,12,temppaint1);
-                                        canvas2.drawCircle((float)pointsList.get(pre).x,(float)pointsList.get(pre).y,12 ,temppaint2);
-                                        canvas2.drawCircle((float)pointsList.get(next).x,(float)pointsList.get(next).y,12 ,temppaint2);
-
-                                        canvas.drawBitmap(temp2canvas,0,0,null);
-                                        mImageView.setImageBitmap(tempcanvas);
+                                        FaceDraw(dx,dy,i);
                                     }
                                 }
-                                //System.out.println("distance : " + distance);
-                                /*
-                                for(int i = 0; i < pointsList.size(); i++)
-                                {
-                                    double x = dx - pointsList.get(i).x;
-                                    double y = dy - pointsList.get(i).y;
-                                    double dis = Math.sqrt((x*x)+(y*y));
-                                    if(dis < 10)
-                                    {
-                                        selectPoint = new Point(pointsList.get(i).x,pointsList.get(i).y);
-                                        System.out.println("dis : " + dis);
-                                        System.out.println("dis count : "+ pathMeasure.getLength());
-                                        tempcanvas = Bitmap.createBitmap(bitmap2,0,0,linearLayout.getWidth(),linearLayout.getHeight());
-                                        temp2canvas = Bitmap.createBitmap(temp2,0,0,linearLayout.getWidth(),linearLayout.getHeight());
-                                        canvas = new Canvas(tempcanvas);
-                                        canvas2 = new Canvas(temp2canvas);
-                                        canvas2.drawCircle((float)pointsList.get(i).x,(float)pointsList.get(i).y,10,paint2);
-                                        canvas2.drawCircle((float)pointsList.get(i).x,(float)pointsList.get(i).y,10,paint2);
-                                        canvas.drawBitmap(temp2canvas,0,0,null);
-                                        mImageView.setImageBitmap(tempcanvas);
-                                        break;
-                                    }
-                                }
-                                */
-
-
                         }
                     }
 

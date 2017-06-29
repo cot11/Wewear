@@ -27,29 +27,35 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
             <Button
-                android:layout_weight="25"
+                android:layout_weight="20"
                 android:id="@+id/gallaryButton"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:background="@drawable/gallery_mode" />
             <Button
-                android:layout_weight="25"
+                android:layout_weight="20"
                 android:id="@+id/logout"
                 android:text="logout"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"/>
             <Button
-                android:layout_weight="25"
+                android:layout_weight="20"
                 android:id="@+id/add"
                 android:text="add"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"/>
             <Button
-                android:layout_weight="25"
+                android:layout_weight="20"
                 android:id="@+id/unlink"
                 android:text="unlink"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"/>
+            <Button
+                android:id="@+id/start"
+                android:text="시작"
+                android:layout_weight="20"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
         </LinearLayout>
 
         <RelativeLayout
